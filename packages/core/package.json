@@ -1,0 +1,27 @@
+{
+    "name": "mindmap-core",
+    "version": "0.0.0",
+    "description": "> TODO: description",
+    "author": "EarlyH <earlyhe0@gmail.com>",
+    "homepage": "https://github.com/Morning-UI/mindmap-js#readme",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "dist"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Morning-UI/mindmap-js.git"
+    },
+    "scripts": {
+        "lint": "../../node_modules/.bin/eslint --ext js,ts,tsx,vue src/",
+        "build": "../../node_modules/.bin/tsc",
+        "dev": "../../node_modules/.bin/tsc -w"
+    },
+    "bugs": {
+        "url": "https://github.com/Morning-UI/mindmap-js/issues"
+    },
+    "dependencies": {
+        "@antv/g6": "^3.4.9"
+    }
+}

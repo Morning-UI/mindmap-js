@@ -1,0 +1,16 @@
+{
+  "id": "1836256",
+  "name": "MindmapJS",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "11538059",
+      "name": "link",
+      "font_class": "link",
+      "unicode": "e678",
+      "unicode_decimal": 59000
+    }
+  ]
+}

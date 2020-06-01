@@ -1,0 +1,8 @@
+.npm/
+.vscode/
+.tmp/
+node_modules/
+
+.*.swp
+.DS_Store
+npm-debug.log

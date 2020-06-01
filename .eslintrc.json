@@ -1,0 +1,84 @@
+{
+    "env": {
+        "es6": true
+    },
+    "overrides": [
+        {
+            "files": ["*.ts", ".vue", ".tsx"],
+            "parser": "vue-eslint-parser",
+            "parserOptions": {
+                "parser": "@typescript-eslint/parser"
+            },
+            "plugins": [
+                "@typescript-eslint"
+            ],
+            "extends": [
+                "gaea",
+                "plugin:@typescript-eslint/recommended"
+            ],
+            "rules": {
+                "no-unused-vars": "off",
+                "@typescript-eslint/no-unused-vars": [
+                    "error"
+                ],
+                "sort-keys": "off",
+                "no-underscore-dangle": "off",
+                "max-len": [
+                    "error",
+                    {
+                        "code": 120
+                    }
+                ],
+                "lines-between-class-members": [
+                    "error",
+                    "always",
+                    {
+                        "exceptAfterSingleLine": true
+                    }
+                ],
+                "guard-for-in": "off",
+                "no-plusplus": "off",
+                "no-undefined": "off",
+                "max-lines-per-function": [
+                    "error",
+                    {
+                        "max": 240
+                    }
+                ]
+            }
+        },
+        {
+            "files": ["*.js"],
+            "extends": [
+                "gaea"
+            ],
+            "rules": {
+                "sort-keys": "off",
+                "no-underscore-dangle": "off",
+                "no-process-env": "off",
+                "max-len": [
+                    "error",
+                    {
+                        "code": 120
+                    }
+                ],
+                "lines-between-class-members": [
+                    "error",
+                    "always",
+                    {
+                        "exceptAfterSingleLine": true
+                    }
+                ],
+                "guard-for-in": "off",
+                "no-plusplus": "off",
+                "no-undefined": "off",
+                "max-lines-per-function": [
+                    "error",
+                    {
+                        "max": 240
+                    }
+                ]
+            }
+        }
+    ]
+}

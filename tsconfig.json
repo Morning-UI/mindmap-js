@@ -1,0 +1,11 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "module": "es6",
+        "target": "es5",
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "declaration": true,
+        "allowJs": true
+    }
+}
