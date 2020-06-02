@@ -4,7 +4,7 @@ import { IShape, IElement, IGroup } from '@antv/g-base/lib/interfaces';
 import GGroup from '@antv/g-canvas/lib/group';
 import { ShapeAttrs } from '@antv/g-base';
 import { ShapeStyle, TreeGraphData, NodeConfig } from '@antv/g6/lib/types';
-import { default as MindmapCore } from '../index';
+import { MindmapCore } from '../index';
 export interface MindmapCreateOptions {
     $con: HTMLElement;
     $canvas: HTMLElement;
@@ -17,14 +17,22 @@ export interface MindmapCreateOptions {
     minimap?: boolean;
     nodeVGap?: number;
     nodeHGap?: number;
+    maxShowTagNum?: number;
 }
 export interface MindmapInsideOptions extends MindmapCreateOptions {
     $editorInput: HTMLElement;
     $contextMenuLink: HTMLElement;
+    $contextMenuNote: HTMLElement;
+    $contextMenuTag: HTMLElement;
+    $boxEditLink: HTMLElement;
+    $boxEditNote: HTMLElement;
+    $boxEditTag: HTMLElement;
 }
 export interface MindmapDataItem extends TreeGraphData {
     text?: string;
     link?: string;
+    note?: string;
+    tag?: string[];
     children?: Array<MindmapDataItem>;
 }
 export interface MindmapNodeItem extends MindmapDataItem, NodeConfig {
@@ -54,6 +62,17 @@ export interface NodeStyle {
     appendsPaddingX?: number;
     appendsPaddingY?: number;
     appendsMarginLeft?: number;
+    tagBgColor?: string;
+    tagFontColor?: string;
+    tagFontSize?: number;
+    tagBorderWidth?: number;
+    tagBorderColor?: string;
+    tagBorderColorHover?: string;
+    tagBorderRadius?: number;
+    tagPaddingX?: number;
+    tagPaddingY?: number;
+    tagMarginLeft?: number;
+    tagMarginTop?: number;
 }
 export interface MindShapeOptions extends ShapeOptions {
 }
@@ -67,6 +86,12 @@ export interface InitNodeOptions {
 export interface InitNodeAppendsOptions {
     shapes: MindNodeShapes;
     appends: NodeAppendItem[];
+    style: NodeStyle;
+}
+export interface InitNodeTagsOptions {
+    shapes: MindNodeShapes;
+    mindmap: MindmapCore;
+    cfg: MindmapNodeItem;
     style: NodeStyle;
 }
 export interface AddShapeOptions {
@@ -88,18 +113,13 @@ export interface MindNodeShapes {
 export interface MindNodeElements {
     [name: string]: IElement;
 }
-export interface OutlineStateChangeOptions {
+export interface StateChangeOptions {
     elements: MindNodeElements;
-    group: IGroup;
-    states: string[];
-    style: NodeStyle;
-    mindmap: MindmapCore;
-}
-export interface LinkStateChangeOptions {
-    appendElements: MindNodeElements;
     cfg: MindmapNodeItem;
     states: string[];
     style: NodeStyle;
+    group?: IGroup;
+    mindmap?: MindmapCore;
 }
 export interface EventOptions {
     graph?: G6.TreeGraph;
@@ -124,13 +144,28 @@ export declare type NodeAppendItem = {
     genText?: () => string;
 };
 export declare enum ContextMenuTypes {
-    Link = 0
+    Link = 0,
+    Note = 1,
+    Tag = 2
 }
 export interface ShowContextMenuOptions {
     type: ContextMenuTypes;
     nodeId: string;
     x: number;
     y: number;
+    data?: any;
 }
-export declare type NodeIds = string | number | string[] | number[];
-export declare type Constructor<T = {}> = new (...args: any[]) => T;
+export declare type NodeId = string | number;
+export declare type NodeIds = NodeId[];
+export declare type Constructor<T = {
+    graph: G6.TreeGraph;
+    _options: MindmapInsideOptions;
+    contextNodeId: string;
+    contextType: ContextMenuTypes;
+    contextData: any;
+    currentEditLinkNodeIds: NodeIds;
+    currentEditNoteNodeIds: NodeIds;
+    currentEditTagNodeIds: NodeIds;
+    hideEditLink: Function;
+    hideEditNote: Function;
+}> = new (...args: any[]) => T;

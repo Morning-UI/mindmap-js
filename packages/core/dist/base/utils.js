@@ -7,6 +7,9 @@ export var genNodeStyles = function (styles, cfg) {
     cfg.style);
 };
 export var inNodeShape = function (mindmap, evt, element) {
+    if (element === undefined) {
+        return false;
+    }
     var zoom = mindmap.graph.getZoom();
     var itemBbox = evt.item.getBBox();
     var itemCanvasXY = mindmap.graph.getCanvasByPoint(itemBbox.x, itemBbox.y);
@@ -40,14 +43,14 @@ export var getAppends = function (cfg) {
             genText: function () { return String.fromCharCode(parseInt('e678;', 16)); },
         });
     }
-    // if (model.note) {
-    //     appends.push({
-    //         fontFamily : 'morningicon',
-    //         fontSize : style.fontSize,
-    //         fill : 'transparent',
-    //         genText : () => String.fromCharCode(parseInt('e605;', 16))
-    //     });
-    // }
+    if (cfg.note) {
+        appends.push({
+            fontFamily: 'mindmap-icon',
+            fontSize: style.fontSize,
+            fill: 'transparent',
+            genText: function () { return String.fromCharCode(parseInt('e629;', 16)); },
+        });
+    }
     // if (model.tag) {
     //     for (let tag of model.tag) {
     //         appends.push({
@@ -93,9 +96,50 @@ export var appendConGroupAdjustPosition = function (shapes, cfg) {
         }
     }
 };
-export var inAnnex = function (mindmap, evt, shapeIndex) { return (inNodeShape(mindmap, evt, evt.item.get('group')
-    .getChildByIndex(NODE_SHAPE_INDEX.appendConGroup)
-    .getChildByIndex(shapeIndex))); };
+export var tagConGroupAdjustPosition = function (shapes, cfg, mindmap) {
+    var style = genNodeStyles(MIND_NODE_STYLE, cfg);
+    var tags = cfg.tag;
+    if (tags && tags.length > 0) {
+        var tagWidthTotal = 0;
+        for (var index in tags) {
+            var _index = Number(index);
+            if (_index > mindmap._options.maxShowTagNum) {
+                break;
+            }
+            var tagConGroup = shapes.tagConGroup;
+            var tagCon = tagConGroup.getChildByIndex(_index * 2);
+            var tagText = tagConGroup.getChildByIndex((_index * 2) + 1);
+            var conBbox = shapes.con.getBBox();
+            var tagConBbox = tagCon.getBBox();
+            var tagTextBbox = tagText.getBBox();
+            var x = tagWidthTotal;
+            var y = conBbox.height + style.tagMarginTop;
+            tagCon.attr({
+                x: x,
+                y: y,
+            });
+            tagText.attr({
+                x: x + (tagTextBbox.width / 2) + style.tagPaddingX,
+                y: y + (tagTextBbox.height / 2) + style.tagPaddingY,
+            });
+            tagWidthTotal += tagConBbox.width + style.tagMarginLeft;
+        }
+    }
+    // const appendConX = textBbox.width + style.paddingX + style.appendsMarginLeft;
+    // let appendWidthTotal = 0;
+    // for (const index in appends) {
+    //     appendWidthTotal += appendConBbox.width;
+    // }
+};
+export var inAnnex = function (mindmap, evt, groupIndex, shapeIndex) {
+    var parent = shapeIndex === null
+        ? evt.item.get('group')
+            .getChildByIndex(groupIndex)
+        : evt.item.get('group')
+            .getChildByIndex(groupIndex)
+            .getChildByIndex(shapeIndex);
+    return inNodeShape(mindmap, evt, parent);
+};
 export var fillNodeIds = function (nodeIds) {
     if (typeof nodeIds === 'string' || typeof nodeIds === 'number') {
         return [String(nodeIds)];

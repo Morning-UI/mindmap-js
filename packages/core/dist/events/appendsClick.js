@@ -1,23 +1,24 @@
 import { inAnnex, } from '../base/utils';
 import { APPENDS_LIST, } from '../base/const';
+import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 export default {
     click: function (evt, options) {
         var model = evt.item.getModel();
         if (!model._isNode) {
             return;
         }
-        if (model.link) {
-            if (inAnnex(options.mindmap, evt, APPENDS_LIST.link.index)) {
+        if (model.link !== null) {
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
                 options.mindmap.showLink(model.id);
             }
         }
-        // if (model.note) {
-        //     let indexOfAppends = model.link ? APPENDS_LIST.note.index : APPENDS_LIST.link.index;
-        //     if (inAnnex(options.vm, evt, indexOfAppends)) {
-        //         options.vm.showNote(model.id);
-        //     } else {
-        //         options.vm.hideNote(model.id);
-        //     }
-        // }
+        if (model.note !== null) {
+            var index = model.link === null
+                ? APPENDS_LIST.link.index
+                : APPENDS_LIST.note.index;
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, index)) {
+                options.mindmap.showEditNote(model.id);
+            }
+        }
     },
 };

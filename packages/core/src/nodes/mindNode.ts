@@ -6,12 +6,13 @@ import {
     IGroup,
 }                                               from '@antv/g-canvas/lib/interfaces';
 import {
-    default as MindmapCore,
+    MindmapCore,
 }                                               from '../index';
 import {
     genNodeStyles,
     getAppends,
     appendConGroupAdjustPosition,
+    tagConGroupAdjustPosition,
 }                                               from '../base/utils';
 import {
     APPENDS_LIST,
@@ -29,9 +30,9 @@ import {
     AddGroupOptions,
     MindmapNodeItem,
     NodeStyle,
-    OutlineStateChangeOptions,
     InitNodeAppendsOptions,
-    LinkStateChangeOptions,
+    InitNodeTagsOptions,
+    StateChangeOptions,
 }                                               from '../interface';
 
 const _NODE_SHAPE_INDEX: {
@@ -108,6 +109,8 @@ const initNodeBase = (options: InitNodeOptions): void => {
     //      hover(hover时的外框)
     //      con(主容器，可见)
     //      text(文本)
+    //      appendConGroup(尾缀容器)
+    //      tagConGroup(标签容器)
     addShape({
         name : 'box',
         type : 'rect',
@@ -175,6 +178,13 @@ const initNodeBase = (options: InitNodeOptions): void => {
         id : `node-${cfg.id}-append-box`,
     });
 
+    addGroup({
+        group,
+        shapes,
+        name : 'tagConGroup',
+        id : `node-${cfg.id}-tag-box`,
+    });
+
 };
 const initNodeAppends = (options: InitNodeAppendsOptions): void => {
 
@@ -235,7 +245,82 @@ const initNodeAppends = (options: InitNodeAppendsOptions): void => {
 
 };
 
-const outlineStateChange = (options: OutlineStateChangeOptions): void => {
+const initNodeTags = (options: InitNodeTagsOptions): void => {
+
+    const {
+        shapes,
+        mindmap,
+        cfg,
+        style,
+    } = options;
+
+    const tags = cfg.tag;
+
+    let tagNum = 0;
+
+    if (tags && tags.length > 0) {
+
+        for (const index in tags) {
+
+            const tag = tags[index];
+            const tagConGroup = shapes.tagConGroup as IGroup;
+            const tagCon = tagConGroup.addShape('rect', {
+                attrs : {
+                    x : 0,
+                    y : 0,
+                    fill : DEBUG_BOX_SIZING ? '#d8c566' : style.tagBgColor,
+                    // eslint-disable-next-line no-magic-numbers
+                    fillOpacity : 0.7,
+                    stroke : DEBUG_BOX_SIZING ? '#b39e37' : style.tagBorderColor,
+                    radius : style.tagBorderRadius,
+                    lineWidth : style.tagBorderWidth,
+                },
+                // eslint-disable-next-line no-magic-numbers
+                zIndex : 99,
+            });
+
+            const tagText = tagConGroup.addShape('text', {
+                attrs : {
+                    x : 0,
+                    y : 0,
+                    fill : style.tagFontColor,
+                    // eslint-disable-next-line no-magic-numbers
+                    fillOpacity : 0.6,
+                    fontSize : style.tagFontSize,
+                    textAlign : 'center',
+                    textBaseline : 'middle',
+                    text : tag,
+                },
+            });
+
+            tagNum++;
+
+            if (tagNum > mindmap._options.maxShowTagNum) {
+
+                tagText.attr({
+                    text : `+${tags.length - tagNum + 1}`,
+                });
+
+            }
+
+            const tagTextBbox = tagText.getBBox();
+
+            tagCon.attr({
+                width : tagTextBbox.width + (style.tagPaddingX * 2),
+                height : tagTextBbox.height + (style.tagPaddingY * 2),
+            });
+
+            if (tagNum > mindmap._options.maxShowTagNum) {
+                break;
+            }
+
+        }
+
+    }
+
+};
+
+const outlineStateChange = (options: StateChangeOptions): void => {
 
     const {
         elements,
@@ -282,10 +367,10 @@ const outlineStateChange = (options: OutlineStateChangeOptions): void => {
 
 };
 
-const linkStateChange = (options: LinkStateChangeOptions): void => {
+const linkStateChange = (options: StateChangeOptions): void => {
 
     const {
-        appendElements,
+        elements : appendElements,
         cfg,
         states,
         style,
@@ -324,12 +409,117 @@ const linkStateChange = (options: LinkStateChangeOptions): void => {
 
 };
 
-export const mindNodeAdjustPosition = (elements: MindNodeElements, cfg: MindmapNodeItem): void => {
+const noteStateChange = (options: StateChangeOptions): void => {
+
+    const {
+        elements : appendElements,
+        cfg,
+        states,
+        style,
+    } = options;
+
+    if (cfg.note) {
+
+        if (states.indexOf('note-hover') !== -1) {
+
+            appendElements.noteCon.attr({
+                fill : style.outlineColor,
+                stroke : style.outlineColorActive,
+                cursor : 'pointer',
+            });
+            appendElements.note.attr({
+                fillOpacity : 1,
+                cursor : 'pointer',
+            });
+
+        } else {
+
+            appendElements.noteCon.attr({
+                fill : 'transparent',
+                stroke : 'transparent',
+                cursor : 'default',
+            });
+            appendElements.note.attr({
+                // eslint-disable-next-line no-magic-numbers
+                fillOpacity : 0.6,
+                cursor : 'default',
+            });
+
+        }
+
+    }
+
+};
+
+const tagStateChange = (options: StateChangeOptions): void => {
+
+    const {
+        elements,
+        cfg,
+        states,
+        style,
+    } = options;
+
+    if (cfg.tag !== null) {
+
+        let index = 0;
+        let hoverState: string;
+
+        const tagConGroup = elements.tagConGroup as IGroup;
+        const tagConGroupChilren = tagConGroup.getChildren();
+
+        for (const childIndex in tagConGroupChilren) {
+
+            if (Number(childIndex) % 2 === 0) {
+
+                tagConGroupChilren[childIndex].attr({
+                    stroke : style.tagBorderColor,
+                });
+
+            }
+
+        }
+
+        while (index < states.length) {
+
+            if ((/^tag-hover/u).test(states[index])) {
+
+                hoverState = states[index];
+                break;
+
+            }
+
+            index++;
+
+        }
+
+        // TODO : 删除后hover失效
+        if (hoverState) {
+
+            const tagIndex = Number(hoverState.split(':')[1]);
+            const tagCon = tagConGroup.getChildByIndex(tagIndex * 2);
+
+            if (tagCon) {
+
+                tagCon.attr({
+                    stroke : style.tagBorderColorHover,
+                });
+
+            }
+
+        }
+
+    }
+
+};
+
+export const mindNodeAdjustPosition = (elements: MindNodeElements, cfg: MindmapNodeItem, mindmap: MindmapCore): void => {
 
     const style = cfg._isRoot ? genNodeStyles(ROOT_MIND_NODE_STYLE, cfg) : genNodeStyles(MIND_NODE_STYLE, cfg);
     // const markConGroupBbox = elements.markConGroup.getBBox();
     // const textX = 0;
     const appends = getAppends(cfg);
+    const tags = cfg.tag;
     // const conPaddingX = style.fontSize * 1.5;
     // const conPaddingY = style.fontSize * 0.75;
     const textBBox = elements.text.getBBox();
@@ -438,6 +628,34 @@ export const mindNodeAdjustPosition = (elements: MindNodeElements, cfg: MindmapN
     //     y : collapseBtnBbox.maxY - (collapseBtnBbox.height / 2)
     // });
 
+    if (tags && tags.length > 0) {
+
+        tagConGroupAdjustPosition({
+            con : elements.con as IShape,
+            tagConGroup : elements.tagConGroup as IShape,
+        }, cfg, mindmap);
+
+        const tagConGroupBbox = elements.tagConGroup.getBBox();
+
+        boxBBox = elements.box.getBBox();
+
+        // box增加tags的高度和宽度
+        elements.box.attr({
+            height : boxBBox.height + tagConGroupBbox.height + style.tagMarginTop,
+            width : Math.max(boxBBox.width, tagConGroupBbox.width),
+        });
+
+        // 调整锚点至居中
+        boxBBox = elements.box.getBBox();
+        cfg.anchorPoints[0] = [0, ((conBBox.height / 2) / boxBBox.height)];
+
+    } else {
+
+        // eslint-disable-next-line no-magic-numbers
+        cfg.anchorPoints[0] = [0, 0.5];
+
+    }
+
 };
 
 export const getMindNode = (mindmap: MindmapCore): MindShapeOptions => ({
@@ -470,8 +688,14 @@ export const getMindNode = (mindmap: MindmapCore): MindShapeOptions => ({
             appends,
             style,
         });
+        initNodeTags({
+            shapes,
+            mindmap,
+            cfg,
+            style,
+        });
 
-        mindNodeAdjustPosition(shapes as MindNodeElements, cfg);
+        mindNodeAdjustPosition(shapes as MindNodeElements, cfg, mindmap);
 
         return shapes.box;
 
@@ -486,7 +710,8 @@ export const getMindNode = (mindmap: MindmapCore): MindShapeOptions => ({
             outline : group.getChildByIndex(_NODE_SHAPE_INDEX.outline),
             markConGroup : group.getChildByIndex(_NODE_SHAPE_INDEX.markConGroup),
             appendConGroup : group.getChildByIndex(_NODE_SHAPE_INDEX.appendConGroup),
-            collapseBtnGroup : group.getChildByIndex(_NODE_SHAPE_INDEX.collapseBtnGroup),
+            tagConGroup : group.getChildByIndex(_NODE_SHAPE_INDEX.tagConGroup),
+            // collapseBtnGroup : group.getChildByIndex(_NODE_SHAPE_INDEX.collapseBtnGroup),
         };
 
         let style: NodeStyle;
@@ -502,22 +727,15 @@ export const getMindNode = (mindmap: MindmapCore): MindShapeOptions => ({
         }
 
         const linkIndex = APPENDS_LIST.link.index;
-
-        // TODO : support note
-        // let noteIndex = APPENDS_LIST.note.index;
-
-        // if (!cfg.link) {
-
-        //     noteIndex = linkIndex;
-
-        // }
-
+        const noteIndex = cfg.link === null
+            ? APPENDS_LIST.link.index
+            : APPENDS_LIST.note.index;
         const appendConGroup = elements.appendConGroup as IGroup;
         const appendElements: MindNodeElements = {
             linkCon : appendConGroup.getChildByIndex(linkIndex),
             link : appendConGroup.getChildByIndex(linkIndex + 1),
-            // noteCon : appendConGroup.getChildByIndex(noteIndex),
-            // note : appendConGroup.getChildByIndex(noteIndex + 1),
+            noteCon : appendConGroup.getChildByIndex(noteIndex),
+            note : appendConGroup.getChildByIndex(noteIndex + 1),
         };
 
         outlineStateChange({
@@ -529,7 +747,21 @@ export const getMindNode = (mindmap: MindmapCore): MindShapeOptions => ({
         });
 
         linkStateChange({
-            appendElements,
+            elements : appendElements,
+            cfg,
+            states,
+            style,
+        });
+
+        noteStateChange({
+            elements : appendElements,
+            cfg,
+            states,
+            style,
+        });
+
+        tagStateChange({
+            elements,
             cfg,
             states,
             style,

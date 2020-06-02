@@ -26,6 +26,7 @@ import bindNodeEdit                             from '../events/nodeEdit';
 import bindAppendsHover                         from '../events/appendsHover';
 import bindAppendsClick                         from '../events/appendsClick';
 import bindContextMenu                          from '../events/contextMenu';
+import bindTagHover                             from '../events/tagHover';
 
 let globalId = 1;
 
@@ -76,12 +77,26 @@ const _nodeEventShouldEmit = (evt: IG6GraphEvent): boolean => {
 
 };
 
+const hiddenMenus = (mindmap: MindmapCore, evt: IG6GraphEvent): void => {
+
+    mindmap.hideEditLink();
+    mindmap.hideEditNote();
+    mindmap.hideEditTag();
+    bindContextMenu.hide(evt, {
+        mindmap,
+        graph : mindmap.graph,
+    });
+
+};
+
 // ITEM INCLUEDS:
 // --------------
 // INPUT DATA:
 //      text : 文案
 //      children : 子节点
 //      link : 链接
+//      note : 备注
+//      tag : 标签
 // --------------
 // G6 DATA:
 //      id : node id
@@ -103,6 +118,8 @@ export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
         // TODO : type diff when node is root
         type : 'mind-node',
         link : null,
+        note : null,
+        tag : null,
         ...item,
         _isRoot : globalId === 1,
         _isNode : true,
@@ -134,15 +151,20 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
         height : '100%',
         draggable : true,
         scalable : true,
+        backgroundGrid : false,
+        minimap : true,
         // eslint-disable-next-line no-magic-numbers
         nodeHGap : 30,
         nodeVGap : 6,
-        backgroundGrid : false,
-        minimap : true,
+        maxShowTagNum : 4,
 
         $editorInput : options.$editor.querySelector('textarea'),
         $contextMenuLink : options.$con.querySelector('.mindmap-menu-link'),
+        $contextMenuNote : options.$con.querySelector('.mindmap-menu-note'),
+        $contextMenuTag : options.$con.querySelector('.mindmap-menu-tag'),
         $boxEditLink : options.$con.querySelector('.mindmap-box-edit-link'),
+        $boxEditNote : options.$con.querySelector('.mindmap-box-edit-note'),
+        $boxEditTag : options.$con.querySelector('.mindmap-box-edit-tag'),
 
         ...options,
     };
@@ -310,6 +332,8 @@ export const bindEvent = (mindmap: MindmapCore): void => {
             graph,
         });
 
+        hiddenMenus(mindmap, evt);
+
     });
 
     graph.on('canvas:mousedown', (evt: IG6GraphEvent): void => {
@@ -344,10 +368,6 @@ export const bindEvent = (mindmap: MindmapCore): void => {
 
         if (_nodeEventShouldEmit(evt)) {
 
-            bindNodeHover.in(evt, {
-                graph,
-            });
-
         }
 
     });
@@ -356,13 +376,19 @@ export const bindEvent = (mindmap: MindmapCore): void => {
 
         if (_nodeEventShouldEmit(evt)) {
 
-            bindNodeHover.out(evt, {
+            bindAppendsHover.move(evt, {
                 graph,
+                mindmap,
             });
 
-            bindContextMenu.hide(evt, {
-                mindmap,
+            bindNodeHover.move(evt, {
                 graph,
+                mindmap,
+            });
+
+            bindTagHover.move(evt, {
+                graph,
+                mindmap,
             });
 
         }
@@ -374,6 +400,16 @@ export const bindEvent = (mindmap: MindmapCore): void => {
         if (_nodeEventShouldEmit(evt)) {
 
             bindAppendsHover.move(evt, {
+                graph,
+                mindmap,
+            });
+
+            bindNodeHover.move(evt, {
+                graph,
+                mindmap,
+            });
+
+            bindTagHover.move(evt, {
                 graph,
                 mindmap,
             });
@@ -391,12 +427,19 @@ export const bindEvent = (mindmap: MindmapCore): void => {
 
         if (_nodeEventShouldEmit(evt)) {
 
+            hiddenMenus(mindmap, evt);
+
             bindNodeSelect.select(evt, {
                 mindmap,
                 graph,
             });
 
             bindAppendsClick.click(evt, {
+                mindmap,
+                graph,
+            });
+
+            bindNodeSelect.clear(evt, {
                 mindmap,
                 graph,
             });

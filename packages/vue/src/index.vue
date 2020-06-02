@@ -10,14 +10,34 @@
             ></textarea>
         </div>
         <div class="mindmap-menu-link">
-            <a @click="menuLinkEdit">编辑</a>
+            <a @click="menuLinkEdit">编辑链接</a>
             <i class="line"></i>
-            <a @click="menuLinkDelete">删除</a>
+            <a @click="menuLinkDelete">删除链接</a>
+        </div>
+        <div class="mindmap-menu-note">
+            <a @click="menuNoteEdit">编辑备注</a>
+            <i class="line"></i>
+            <a @click="menuNoteDelete">删除备注</a>
+        </div>
+        <div class="mindmap-menu-tag">
+            <a @click="menuTagEdit">编辑标签</a>
+            <i class="line"></i>
+            <a @click="menuTagDelete">删除标签</a>
         </div>
         <div class="mindmap-box-edit-link">
             <i class="arrow"></i>
             <h3>编辑链接</h3>
-            <textarea rows="3"></textarea>
+            <textarea rows="3" v-model="edittingLink"></textarea>
+        </div>
+        <div class="mindmap-box-edit-note">
+            <i class="arrow"></i>
+            <h3>编辑备注</h3>
+            <textarea rows="5" v-model="edittingNote"></textarea>
+        </div>
+        <div class="mindmap-box-edit-tag">
+            <i class="arrow"></i>
+            <h3>编辑标签</h3>
+            <textarea rows="5" v-model="edittingTag"></textarea>
         </div>
     </div>
 </template>
@@ -32,7 +52,10 @@ export default {
     data : function () {
         return {
             mindmap : null,
-            editContent : ''
+            editContent : '',
+            edittingLink : null,
+            edittingNote : null,
+            edittingTag : null,
         };
     },
     methods : {
@@ -42,15 +65,29 @@ export default {
             }
         },
         menuLinkDelete : function () {
-
             this.mindmap.unlink(this.mindmap.getContextNodeId());
             this.mindmap.hideContextMenu(this.mindmap.getContextType());
-
         },
         menuLinkEdit : function () {
             this.mindmap.showEditLink(this.mindmap.getContextNodeId());
             this.mindmap.hideContextMenu(this.mindmap.getContextType());
-        }
+        },
+        menuNoteEdit : function () {
+            this.mindmap.showEditNote(this.mindmap.getContextNodeId());
+            this.mindmap.hideContextMenu(this.mindmap.getContextType());
+        },
+        menuNoteDelete : function () {
+            this.mindmap.unnote(this.mindmap.getContextNodeId());
+            this.mindmap.hideContextMenu(this.mindmap.getContextType());
+        },
+        menuTagEdit : function () {
+            this.mindmap.showEditTag(this.mindmap.getContextNodeId());
+            this.mindmap.hideContextMenu(this.mindmap.getContextType());
+        },
+        menuTagDelete : function () {
+            this.mindmap.untagByIndex(this.mindmap.getContextNodeId(), this.mindmap.getContextData().tagIndex);
+            this.mindmap.hideContextMenu(this.mindmap.getContextType());
+        },
     },
     mounted : function () {
         let data1 = {
@@ -82,7 +119,7 @@ export default {
                         },
                         {
                             text : 'Linear discriminant analysis',
-                            tag : ['标签1', '标签2']
+                            tag : ['标签1', '标签2', '标签2', '标签2', '标签2', '标签2']
                         },
                         {
                             text : 'Decision trees',
@@ -653,6 +690,18 @@ export default {
         .readData(data2)
         .on(EventNamesEnum.EditContentChange, (editContent) => {
             this.editContent = editContent;
+        });
+
+        this.$watch('edittingLink', () => {
+            this.mindmap.link(this.mindmap.getCurrentEditLinkNodeIds(), this.edittingLink);
+        });
+
+        this.$watch('edittingNote', () => {
+            this.mindmap.note(this.mindmap.getCurrentEditNoteNodeIds(), this.edittingNote);
+        });
+
+        this.$watch('edittingTag', () => {
+            this.mindmap.tag(this.mindmap.getCurrentEditTagNodeIds(), this.edittingTag.split(','));
         });
 
         window.test = this.mindmap;

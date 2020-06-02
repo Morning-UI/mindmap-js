@@ -1,4 +1,4 @@
-import { genNodeStyles, getAppends, appendConGroupAdjustPosition, } from '../base/utils';
+import { genNodeStyles, getAppends, appendConGroupAdjustPosition, tagConGroupAdjustPosition, } from '../base/utils';
 import { APPENDS_LIST, } from '../base/const';
 import { ROOT_MIND_NODE_STYLE, MIND_NODE_STYLE, } from '../style';
 var _NODE_SHAPE_INDEX = {};
@@ -36,6 +36,8 @@ var initNodeBase = function (options) {
     //      hover(hover时的外框)
     //      con(主容器，可见)
     //      text(文本)
+    //      appendConGroup(尾缀容器)
+    //      tagConGroup(标签容器)
     addShape({
         name: 'box',
         type: 'rect',
@@ -98,6 +100,12 @@ var initNodeBase = function (options) {
         name: 'appendConGroup',
         id: "node-" + cfg.id + "-append-box",
     });
+    addGroup({
+        group: group,
+        shapes: shapes,
+        name: 'tagConGroup',
+        id: "node-" + cfg.id + "-tag-box",
+    });
 };
 var initNodeAppends = function (options) {
     var shapes = options.shapes, appends = options.appends, style = options.style;
@@ -142,6 +150,58 @@ var initNodeAppends = function (options) {
         }
     }
 };
+var initNodeTags = function (options) {
+    var shapes = options.shapes, mindmap = options.mindmap, cfg = options.cfg, style = options.style;
+    var tags = cfg.tag;
+    var tagNum = 0;
+    if (tags && tags.length > 0) {
+        for (var index in tags) {
+            var tag = tags[index];
+            var tagConGroup = shapes.tagConGroup;
+            var tagCon = tagConGroup.addShape('rect', {
+                attrs: {
+                    x: 0,
+                    y: 0,
+                    fill: DEBUG_BOX_SIZING ? '#d8c566' : style.tagBgColor,
+                    // eslint-disable-next-line no-magic-numbers
+                    fillOpacity: 0.7,
+                    stroke: DEBUG_BOX_SIZING ? '#b39e37' : style.tagBorderColor,
+                    radius: style.tagBorderRadius,
+                    lineWidth: style.tagBorderWidth,
+                },
+                // eslint-disable-next-line no-magic-numbers
+                zIndex: 99,
+            });
+            var tagText = tagConGroup.addShape('text', {
+                attrs: {
+                    x: 0,
+                    y: 0,
+                    fill: style.tagFontColor,
+                    // eslint-disable-next-line no-magic-numbers
+                    fillOpacity: 0.6,
+                    fontSize: style.tagFontSize,
+                    textAlign: 'center',
+                    textBaseline: 'middle',
+                    text: tag,
+                },
+            });
+            tagNum++;
+            if (tagNum > mindmap._options.maxShowTagNum) {
+                tagText.attr({
+                    text: "+" + (tags.length - tagNum + 1),
+                });
+            }
+            var tagTextBbox = tagText.getBBox();
+            tagCon.attr({
+                width: tagTextBbox.width + (style.tagPaddingX * 2),
+                height: tagTextBbox.height + (style.tagPaddingY * 2),
+            });
+            if (tagNum > mindmap._options.maxShowTagNum) {
+                break;
+            }
+        }
+    }
+};
 var outlineStateChange = function (options) {
     var elements = options.elements, group = options.group, states = options.states, style = options.style, mindmap = options.mindmap;
     if (mindmap.dragging === false
@@ -167,7 +227,7 @@ var outlineStateChange = function (options) {
     }
 };
 var linkStateChange = function (options) {
-    var appendElements = options.appendElements, cfg = options.cfg, states = options.states, style = options.style;
+    var appendElements = options.elements, cfg = options.cfg, states = options.states, style = options.style;
     if (cfg.link) {
         if (states.indexOf('link-hover') !== -1) {
             appendElements.linkCon.attr({
@@ -194,11 +254,73 @@ var linkStateChange = function (options) {
         }
     }
 };
-export var mindNodeAdjustPosition = function (elements, cfg) {
+var noteStateChange = function (options) {
+    var appendElements = options.elements, cfg = options.cfg, states = options.states, style = options.style;
+    if (cfg.note) {
+        if (states.indexOf('note-hover') !== -1) {
+            appendElements.noteCon.attr({
+                fill: style.outlineColor,
+                stroke: style.outlineColorActive,
+                cursor: 'pointer',
+            });
+            appendElements.note.attr({
+                fillOpacity: 1,
+                cursor: 'pointer',
+            });
+        }
+        else {
+            appendElements.noteCon.attr({
+                fill: 'transparent',
+                stroke: 'transparent',
+                cursor: 'default',
+            });
+            appendElements.note.attr({
+                // eslint-disable-next-line no-magic-numbers
+                fillOpacity: 0.6,
+                cursor: 'default',
+            });
+        }
+    }
+};
+var tagStateChange = function (options) {
+    var elements = options.elements, cfg = options.cfg, states = options.states, style = options.style;
+    if (cfg.tag !== null) {
+        var index = 0;
+        var hoverState = void 0;
+        var tagConGroup = elements.tagConGroup;
+        var tagConGroupChilren = tagConGroup.getChildren();
+        for (var childIndex in tagConGroupChilren) {
+            if (Number(childIndex) % 2 === 0) {
+                tagConGroupChilren[childIndex].attr({
+                    stroke: style.tagBorderColor,
+                });
+            }
+        }
+        while (index < states.length) {
+            if ((/^tag-hover/u).test(states[index])) {
+                hoverState = states[index];
+                break;
+            }
+            index++;
+        }
+        // TODO : 删除后hover失效
+        if (hoverState) {
+            var tagIndex = Number(hoverState.split(':')[1]);
+            var tagCon = tagConGroup.getChildByIndex(tagIndex * 2);
+            if (tagCon) {
+                tagCon.attr({
+                    stroke: style.tagBorderColorHover,
+                });
+            }
+        }
+    }
+};
+export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
     var style = cfg._isRoot ? genNodeStyles(ROOT_MIND_NODE_STYLE, cfg) : genNodeStyles(MIND_NODE_STYLE, cfg);
     // const markConGroupBbox = elements.markConGroup.getBBox();
     // const textX = 0;
     var appends = getAppends(cfg);
+    var tags = cfg.tag;
     // const conPaddingX = style.fontSize * 1.5;
     // const conPaddingY = style.fontSize * 0.75;
     var textBBox = elements.text.getBBox();
@@ -281,6 +403,26 @@ export var mindNodeAdjustPosition = function (elements, cfg) {
     //     x : collapseBtnBbox.maxX - (collapseBtnBbox.width / 2),
     //     y : collapseBtnBbox.maxY - (collapseBtnBbox.height / 2)
     // });
+    if (tags && tags.length > 0) {
+        tagConGroupAdjustPosition({
+            con: elements.con,
+            tagConGroup: elements.tagConGroup,
+        }, cfg, mindmap);
+        var tagConGroupBbox = elements.tagConGroup.getBBox();
+        boxBBox = elements.box.getBBox();
+        // box增加tags的高度和宽度
+        elements.box.attr({
+            height: boxBBox.height + tagConGroupBbox.height + style.tagMarginTop,
+            width: Math.max(boxBBox.width, tagConGroupBbox.width),
+        });
+        // 调整锚点至居中
+        boxBBox = elements.box.getBBox();
+        cfg.anchorPoints[0] = [0, ((conBBox.height / 2) / boxBBox.height)];
+    }
+    else {
+        // eslint-disable-next-line no-magic-numbers
+        cfg.anchorPoints[0] = [0, 0.5];
+    }
 };
 export var getMindNode = function (mindmap) { return ({
     drawShape: function (cfg, group) {
@@ -305,7 +447,13 @@ export var getMindNode = function (mindmap) { return ({
             appends: appends,
             style: style,
         });
-        mindNodeAdjustPosition(shapes, cfg);
+        initNodeTags({
+            shapes: shapes,
+            mindmap: mindmap,
+            cfg: cfg,
+            style: style,
+        });
+        mindNodeAdjustPosition(shapes, cfg, mindmap);
         return shapes.box;
     },
     setState: function (name, value, item) {
@@ -317,7 +465,7 @@ export var getMindNode = function (mindmap) { return ({
             outline: group.getChildByIndex(_NODE_SHAPE_INDEX.outline),
             markConGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.markConGroup),
             appendConGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.appendConGroup),
-            collapseBtnGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.collapseBtnGroup),
+            tagConGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.tagConGroup),
         };
         var style;
         if (cfg._isRoot) {
@@ -327,15 +475,15 @@ export var getMindNode = function (mindmap) { return ({
             style = genNodeStyles(MIND_NODE_STYLE, cfg);
         }
         var linkIndex = APPENDS_LIST.link.index;
-        // TODO : support note
-        // let noteIndex = APPENDS_LIST.note.index;
-        // if (!cfg.link) {
-        //     noteIndex = linkIndex;
-        // }
+        var noteIndex = cfg.link === null
+            ? APPENDS_LIST.link.index
+            : APPENDS_LIST.note.index;
         var appendConGroup = elements.appendConGroup;
         var appendElements = {
             linkCon: appendConGroup.getChildByIndex(linkIndex),
             link: appendConGroup.getChildByIndex(linkIndex + 1),
+            noteCon: appendConGroup.getChildByIndex(noteIndex),
+            note: appendConGroup.getChildByIndex(noteIndex + 1),
         };
         outlineStateChange({
             elements: elements,
@@ -345,7 +493,19 @@ export var getMindNode = function (mindmap) { return ({
             mindmap: mindmap,
         });
         linkStateChange({
-            appendElements: appendElements,
+            elements: appendElements,
+            cfg: cfg,
+            states: states,
+            style: style,
+        });
+        noteStateChange({
+            elements: appendElements,
+            cfg: cfg,
+            states: states,
+            style: style,
+        });
+        tagStateChange({
+            elements: elements,
             cfg: cfg,
             states: states,
             style: style,

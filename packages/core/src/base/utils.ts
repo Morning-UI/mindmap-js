@@ -16,8 +16,8 @@ import {
     NodeAppendItem,
     NodeIds,
 }                                               from '../interface';
-import {
-    default as MindmapCore,
+import MindmapClass, {
+    MindmapCore,
 }                                               from '../index';
 import {
     NODE_SHAPE_INDEX,
@@ -38,6 +38,12 @@ export const genNodeStyles = (styles: NodeStyle, cfg: MindmapNodeItem): NodeStyl
 };
 
 export const inNodeShape = (mindmap: MindmapCore, evt: IG6GraphEvent, element: IElement): boolean => {
+
+    if (element === undefined) {
+
+        return false;
+
+    }
 
     const zoom = mindmap.graph.getZoom();
     const itemBbox = evt.item.getBBox();
@@ -92,16 +98,16 @@ export const getAppends = (cfg: MindmapNodeItem): NodeAppendItem[] => {
 
     }
 
-    // if (model.note) {
+    if (cfg.note) {
 
-    //     appends.push({
-    //         fontFamily : 'morningicon',
-    //         fontSize : style.fontSize,
-    //         fill : 'transparent',
-    //         genText : () => String.fromCharCode(parseInt('e605;', 16))
-    //     });
+        appends.push({
+            fontFamily : 'mindmap-icon',
+            fontSize : style.fontSize,
+            fill : 'transparent',
+            genText : () => String.fromCharCode(parseInt('e629;', 16)),
+        });
 
-    // }
+    }
 
     // if (model.tag) {
         
@@ -167,15 +173,75 @@ export const appendConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: Mindma
 
 };
 
-export const inAnnex = (mindmap: MindmapCore, evt: IG6GraphEvent, shapeIndex: number): boolean => (
-    inNodeShape(
+export const tagConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: MindmapNodeItem, mindmap: MindmapCore): void => {
+
+    const style = genNodeStyles(MIND_NODE_STYLE, cfg);
+    const tags = cfg.tag;
+
+    if (tags && tags.length > 0) {
+
+        let tagWidthTotal = 0;
+
+        for (const index in tags) {
+
+            const _index = Number(index);
+
+            if (_index > mindmap._options.maxShowTagNum) {
+                break;
+            }
+
+            const tagConGroup = shapes.tagConGroup as IGroup;
+            const tagCon = tagConGroup.getChildByIndex(_index * 2);
+            const tagText = tagConGroup.getChildByIndex((_index * 2) + 1);
+            const conBbox = shapes.con.getBBox();
+            const tagConBbox = tagCon.getBBox();
+            const tagTextBbox = tagText.getBBox();
+            const x = tagWidthTotal;
+            const y = conBbox.height + style.tagMarginTop;
+
+            tagCon.attr({
+                x,
+                y,
+            });
+            tagText.attr({
+                x : x + (tagTextBbox.width / 2) + style.tagPaddingX,
+                y : y + (tagTextBbox.height / 2) + style.tagPaddingY,
+            });
+
+            tagWidthTotal += tagConBbox.width + style.tagMarginLeft;
+
+        }
+
+    }
+
+    // const appendConX = textBbox.width + style.paddingX + style.appendsMarginLeft;
+
+    // let appendWidthTotal = 0;
+
+    // for (const index in appends) {
+
+    //     appendWidthTotal += appendConBbox.width;
+
+    // }
+
+};
+
+export const inAnnex = (mindmap: MindmapCore, evt: IG6GraphEvent, groupIndex: number, shapeIndex: number): boolean => {
+
+    const parent = shapeIndex === null
+        ? evt.item.get('group')
+            .getChildByIndex(groupIndex)
+        : evt.item.get('group')
+            .getChildByIndex(groupIndex)
+            .getChildByIndex(shapeIndex);
+
+    return inNodeShape(
         mindmap,
         evt,
-        evt.item.get('group')
-            .getChildByIndex(NODE_SHAPE_INDEX.appendConGroup)
-            .getChildByIndex(shapeIndex),
-    )
-);
+        parent,
+    );
+
+};
 
 export const fillNodeIds = (nodeIds: NodeIds): string[] => {
 

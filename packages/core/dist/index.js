@@ -6,6 +6,8 @@ import { getNodeElements, } from './base/utils';
 import { refreshTextEditorPosition, } from './base/editor';
 import { mindNodeAdjustPosition, } from './nodes/mindNode';
 import mixinLink from './features/link';
+import mixinNote from './features/note';
+import mixinTag from './features/tag';
 import mixinContextMenu from './features/contextMenu';
 var MindmapCore = /** @class */ (function () {
     function MindmapCore(options) {
@@ -157,8 +159,11 @@ var MindmapCore = /** @class */ (function () {
     };
     return MindmapCore;
 }());
+export { MindmapCore };
 var MindmapClass;
 MindmapClass = mixinLink(MindmapCore);
+MindmapClass = mixinNote(MindmapClass);
+MindmapClass = mixinTag(MindmapClass);
 MindmapClass = mixinContextMenu(MindmapClass);
 export default MindmapClass;
 export var EventNamesEnum = EventNames;

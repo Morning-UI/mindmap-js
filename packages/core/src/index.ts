@@ -31,9 +31,11 @@ import {
     mindNodeAdjustPosition,
 }                                               from './nodes/mindNode';
 import mixinLink                                from './features/link';
+import mixinNote                                from './features/note';
+import mixinTag                                 from './features/tag';
 import mixinContextMenu                         from './features/contextMenu';
 
-class MindmapCore {
+export class MindmapCore {
 
     graph: G6.TreeGraph;
     G6: typeof G6;
@@ -46,7 +48,10 @@ class MindmapCore {
     editZoom: number;
     contextNodeId: string;
     contextType: ContextMenuTypes;
+    contextData: any;
     currentEditLinkNodeIds: NodeIds;
+    currentEditNoteNodeIds: NodeIds;
+    currentEditTagNodeIds: NodeIds;
 
     eventList: {
         [EventNames.EditContentChange]?: EditContentChangeCallback[];
@@ -275,6 +280,8 @@ class MindmapCore {
 let MindmapClass;
 
 MindmapClass = mixinLink(MindmapCore);
+MindmapClass = mixinNote(MindmapClass);
+MindmapClass = mixinTag(MindmapClass);
 MindmapClass = mixinContextMenu(MindmapClass);
 
 export default MindmapClass;

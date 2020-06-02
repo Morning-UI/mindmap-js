@@ -30,6 +30,17 @@ export const MIND_NODE_STYLE: NodeStyle = {
     appendsPaddingY : 4,
     // 每一项附加内容的左边距(附加内容之间的间距)
     appendsMarginLeft : 0,
+    tagBgColor : 'rgba(0,0,0,0)',
+    tagFontColor : 'rgba(67, 75, 83, 1)',
+    tagFontSize : FONT_SIZE,
+    tagBorderWidth : 1,
+    tagBorderColor : 'rgba(229, 229, 229, 1)',
+    tagBorderColorHover : 'rgba(178, 178, 178, 1)',
+    tagBorderRadius : ITEM_RADIUS,
+    tagPaddingX : 8,
+    tagPaddingY : 4,
+    tagMarginLeft : 6,
+    tagMarginTop : 6,
     // _shapePresets : {
     //     'round-rect' : {
     //         radius : 6

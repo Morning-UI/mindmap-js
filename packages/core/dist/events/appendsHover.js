@@ -1,5 +1,6 @@
 import { inAnnex, } from '../base/utils';
 import { APPENDS_LIST, } from '../base/const';
+import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 export default {
     move: function (evt, options) {
         var model = evt.item.getModel();
@@ -7,26 +8,25 @@ export default {
             return;
         }
         if (model.link !== null) {
-            if (inAnnex(options.mindmap, evt, APPENDS_LIST.link.index)) {
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
                 options.graph.setItemState(evt.item, APPENDS_LIST.link.state, true);
             }
             else {
                 options.graph.setItemState(evt.item, APPENDS_LIST.link.state, false);
             }
         }
-        // if (model.note) {
-        //     let index = APPENDS_LIST.note.index;
-        //     if (!model.link) {
-        //         index = 0;
-        //     }
-        //     if (inAnnex(options.vm, evt, index)) {
-        //         options.graph.setItemState(evt.item, APPENDS_LIST.note.state, true);
-        //     } else {
-        //         options.graph.setItemState(evt.item, APPENDS_LIST.note.state, false);
-        //     }
-        // }
+        if (model.note !== null) {
+            var index = model.link === null
+                ? APPENDS_LIST.link.index
+                : APPENDS_LIST.note.index;
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, index)) {
+                options.graph.setItemState(evt.item, APPENDS_LIST.note.state, true);
+            }
+            else {
+                options.graph.setItemState(evt.item, APPENDS_LIST.note.state, false);
+            }
+        }
     },
-    // TODO : stop note
     stop: function (evt, options) {
         var hoverLinks = options.graph.findAllByState('node', 'link-hover');
         if (hoverLinks && hoverLinks.length > 0) {
@@ -35,11 +35,12 @@ export default {
                 options.graph.setItemState(link, APPENDS_LIST.link.state, false);
             }
         }
-        // let hoverNotes = options.graph.findAllByState('node', 'note-hover');
-        // if (hoverNotes && hoverNotes.length > 0) {
-        //     for (let note of hoverNotes) {
-        //         options.graph.setItemState(note, APPENDS_LIST.note.state, false);
-        //     }
-        // }
-    }
+        var hoverNotes = options.graph.findAllByState('node', 'note-hover');
+        if (hoverNotes && hoverNotes.length > 0) {
+            for (var _a = 0, hoverNotes_1 = hoverNotes; _a < hoverNotes_1.length; _a++) {
+                var note = hoverNotes_1[_a];
+                options.graph.setItemState(note, APPENDS_LIST.note.state, false);
+            }
+        }
+    },
 };

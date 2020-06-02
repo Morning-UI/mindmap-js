@@ -12,6 +12,12 @@ import {
     EventOptions,
     MindmapNodeItem,
 }                                               from '../interface';
+import {
+    inAnnex,
+}                                               from '../base/utils';
+import {
+    NODE_SHAPE_INDEX,
+}                                               from '../nodes/mindNode';
 
 export default {
     select : (evt: IG6GraphEvent, options: EventOptions): void => {
@@ -31,7 +37,7 @@ export default {
 
         if (options.mindmap.keydownState.mod) {
 
-            if (model._isNode) {
+            if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
 
                 if (evt.item.getStates().indexOf('selected') !== -1) {
 
@@ -49,7 +55,7 @@ export default {
 
             options.mindmap.clearSelectedNode();
 
-            if (model._isNode) {
+            if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
 
                 options.graph.setItemState(evt.item, 'selected', true);
 
@@ -60,7 +66,15 @@ export default {
     },
     clear : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        options.mindmap.clearSelectedNode();
+        if (evt.item === null) {
+
+            options.mindmap.clearSelectedNode();
+
+        } else if (!inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
+
+            options.mindmap.clearSelectedNode();
+
+        }
 
     },
 };

@@ -11,6 +11,9 @@ import {
 import {
     APPENDS_LIST,
 }                                               from '../base/const';
+import {
+    NODE_SHAPE_INDEX,
+}                                               from '../nodes/mindNode';
 
 export default {
     move : (evt: IG6GraphEvent, options: EventOptions): void => {
@@ -25,7 +28,7 @@ export default {
 
         if (model.link !== null) {
 
-            if (inAnnex(options.mindmap, evt, APPENDS_LIST.link.index)) {
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
 
                 options.graph.setItemState(evt.item, APPENDS_LIST.link.state, true);
 
@@ -37,30 +40,25 @@ export default {
 
         }
 
-        // if (model.note) {
+        if (model.note !== null) {
 
-        //     let index = APPENDS_LIST.note.index;
+            const index = model.link === null
+                ? APPENDS_LIST.link.index
+                : APPENDS_LIST.note.index;
 
-        //     if (!model.link) {
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, index)) {
 
-        //         index = 0;
+                options.graph.setItemState(evt.item, APPENDS_LIST.note.state, true);
 
-        //     }
+            } else {
 
-        //     if (inAnnex(options.vm, evt, index)) {
+                options.graph.setItemState(evt.item, APPENDS_LIST.note.state, false);
 
-        //         options.graph.setItemState(evt.item, APPENDS_LIST.note.state, true);
+            }
 
-        //     } else {
-
-        //         options.graph.setItemState(evt.item, APPENDS_LIST.note.state, false);
-
-        //     }
-
-        // }
+        }
 
     },
-    // TODO : stop note
     stop : (evt: IG6GraphEvent, options: EventOptions): void => {
 
         const hoverLinks = options.graph.findAllByState('node', 'link-hover');
@@ -75,17 +73,17 @@ export default {
 
         }
 
-        // let hoverNotes = options.graph.findAllByState('node', 'note-hover');
+        const hoverNotes = options.graph.findAllByState('node', 'note-hover');
 
-        // if (hoverNotes && hoverNotes.length > 0) {
+        if (hoverNotes && hoverNotes.length > 0) {
 
-        //     for (let note of hoverNotes) {
+            for (const note of hoverNotes) {
 
-        //         options.graph.setItemState(note, APPENDS_LIST.note.state, false);
+                options.graph.setItemState(note, APPENDS_LIST.note.state, false);
 
-        //     }
-            
-        // }
+            }
 
-    }
+        }
+
+    },
 };

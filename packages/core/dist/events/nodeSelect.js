@@ -4,6 +4,8 @@
 // import {
 //     inNodeShape,
 // }                                   from '../base/utils';
+import { inAnnex, } from '../base/utils';
+import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 export default {
     select: function (evt, options) {
         var model = evt.item.getModel();
@@ -14,7 +16,7 @@ export default {
         //     }
         // }
         if (options.mindmap.keydownState.mod) {
-            if (model._isNode) {
+            if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
                 if (evt.item.getStates().indexOf('selected') !== -1) {
                     options.graph.setItemState(evt.item, 'selected', false);
                 }
@@ -25,12 +27,17 @@ export default {
         }
         else {
             options.mindmap.clearSelectedNode();
-            if (model._isNode) {
+            if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
                 options.graph.setItemState(evt.item, 'selected', true);
             }
         }
     },
     clear: function (evt, options) {
-        options.mindmap.clearSelectedNode();
+        if (evt.item === null) {
+            options.mindmap.clearSelectedNode();
+        }
+        else if (!inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
+            options.mindmap.clearSelectedNode();
+        }
     },
 };

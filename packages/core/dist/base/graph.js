@@ -19,6 +19,7 @@ import bindNodeEdit from '../events/nodeEdit';
 import bindAppendsHover from '../events/appendsHover';
 import bindAppendsClick from '../events/appendsClick';
 import bindContextMenu from '../events/contextMenu';
+import bindTagHover from '../events/tagHover';
 var globalId = 1;
 var convertSize = function (type, value, $con) {
     var size;
@@ -46,12 +47,23 @@ var _nodeEventShouldEmit = function (evt) {
     // }
     return true;
 };
+var hiddenMenus = function (mindmap, evt) {
+    mindmap.hideEditLink();
+    mindmap.hideEditNote();
+    mindmap.hideEditTag();
+    bindContextMenu.hide(evt, {
+        mindmap: mindmap,
+        graph: mindmap.graph,
+    });
+};
 // ITEM INCLUEDS:
 // --------------
 // INPUT DATA:
 //      text : 文案
 //      children : 子节点
 //      link : 链接
+//      note : 备注
+//      tag : 标签
 // --------------
 // G6 DATA:
 //      id : node id
@@ -68,7 +80,7 @@ export var traverseOneItem = function (item) {
         // eslint-disable-next-line no-magic-numbers
         anchorPoints: [[0, 0.5], [1, 0.5]], style: {}, 
         // TODO : type diff when node is root
-        type: 'mind-node', link: null }, item), { _isRoot: globalId === 1, _isNode: true });
+        type: 'mind-node', link: null, note: null, tag: null }, item), { _isRoot: globalId === 1, _isNode: true });
     return nodeItem;
 };
 // TODO left node props: 
@@ -86,9 +98,9 @@ export var traverseOneItem = function (item) {
 // for TODO :
 // shapeStyle : 使用的图形样式（用户设置）；未启用；
 export var create = function (mindmap, options) {
-    var _options = __assign({ width: '100%', height: '100%', draggable: true, scalable: true, 
+    var _options = __assign({ width: '100%', height: '100%', draggable: true, scalable: true, backgroundGrid: false, minimap: true, 
         // eslint-disable-next-line no-magic-numbers
-        nodeHGap: 30, nodeVGap: 6, backgroundGrid: false, minimap: true, $editorInput: options.$editor.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link') }, options);
+        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, $editorInput: options.$editor.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag') }, options);
     var modes = [];
     var plugins = [];
     _options.width = convertSize('width', _options.width, _options.$con);
@@ -198,6 +210,7 @@ export var bindEvent = function (mindmap) {
             mindmap: mindmap,
             graph: graph,
         });
+        hiddenMenus(mindmap, evt);
     });
     graph.on('canvas:mousedown', function (evt) {
         // bindCanvasGrab.mousedown(evt, {
@@ -222,25 +235,35 @@ export var bindEvent = function (mindmap) {
     });
     graph.on('node:mouseenter', function (evt) {
         if (_nodeEventShouldEmit(evt)) {
-            bindNodeHover.in(evt, {
-                graph: graph,
-            });
         }
     });
     graph.on('node:mouseleave', function (evt) {
         if (_nodeEventShouldEmit(evt)) {
-            bindNodeHover.out(evt, {
+            bindAppendsHover.move(evt, {
                 graph: graph,
-            });
-            bindContextMenu.hide(evt, {
                 mindmap: mindmap,
+            });
+            bindNodeHover.move(evt, {
                 graph: graph,
+                mindmap: mindmap,
+            });
+            bindTagHover.move(evt, {
+                graph: graph,
+                mindmap: mindmap,
             });
         }
     });
     graph.on('node:mousemove', function (evt) {
         if (_nodeEventShouldEmit(evt)) {
             bindAppendsHover.move(evt, {
+                graph: graph,
+                mindmap: mindmap,
+            });
+            bindNodeHover.move(evt, {
+                graph: graph,
+                mindmap: mindmap,
+            });
+            bindTagHover.move(evt, {
                 graph: graph,
                 mindmap: mindmap,
             });
@@ -252,11 +275,16 @@ export var bindEvent = function (mindmap) {
     });
     graph.on('node:click', function (evt) {
         if (_nodeEventShouldEmit(evt)) {
+            hiddenMenus(mindmap, evt);
             bindNodeSelect.select(evt, {
                 mindmap: mindmap,
                 graph: graph,
             });
             bindAppendsClick.click(evt, {
+                mindmap: mindmap,
+                graph: graph,
+            });
+            bindNodeSelect.clear(evt, {
                 mindmap: mindmap,
                 graph: graph,
             });

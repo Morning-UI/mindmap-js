@@ -11,6 +11,9 @@ import {
 import {
     APPENDS_LIST,
 }                                               from '../base/const';
+import {
+    NODE_SHAPE_INDEX,
+}                                               from '../nodes/mindNode';
 
 export default {
     click : (evt: IG6GraphEvent, options: EventOptions): void => {
@@ -23,9 +26,9 @@ export default {
 
         }
 
-        if (model.link) {
+        if (model.link !== null) {
 
-            if (inAnnex(options.mindmap, evt, APPENDS_LIST.link.index)) {
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
 
                 options.mindmap.showLink(model.id);
 
@@ -33,21 +36,19 @@ export default {
 
         }
 
-        // if (model.note) {
+        if (model.note !== null) {
 
-        //     let indexOfAppends = model.link ? APPENDS_LIST.note.index : APPENDS_LIST.link.index;
+            const index = model.link === null
+                ? APPENDS_LIST.link.index
+                : APPENDS_LIST.note.index;
 
-        //     if (inAnnex(options.vm, evt, indexOfAppends)) {
+            if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, index)) {
 
-        //         options.vm.showNote(model.id);
+                options.mindmap.showEditNote(model.id);
 
-        //     } else {
+            }
 
-        //         options.vm.hideNote(model.id);
-
-        //     }
-
-        // }
+        }
 
     },
     // stop : (evt, options) => {

@@ -11,7 +11,7 @@ import {
 export default <TBase extends Constructor>(Base: TBase): TBase =>
     class extends Base {
 
-        showEditLink (nodeIds: NodeIds): this {
+        showEditNote (nodeIds: NodeIds): this {
 
             const ids = fillNodeIds(nodeIds);
             const node = this.graph.findById(ids[0]);
@@ -21,17 +21,17 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
                 x,
                 y,
             } = this.graph.getCanvasByPoint(bbox.centerX, bbox.maxY);
-            const $boxEditLink = this._options.$boxEditLink;
-            const $boxEditLinkInput = $boxEditLink.querySelector('textarea');
+            const $boxEditNote = this._options.$boxEditNote;
+            const $boxEditNoteInput = $boxEditNote.querySelector('textarea');
 
-            let boxEditLinkWidth = 0;
+            let boxEditNoteWidth = 0;
 
-            this.currentEditLinkNodeIds = nodeIds;
-            $boxEditLink.style.display = 'block';
-            boxEditLinkWidth = $boxEditLink.clientWidth;
-            $boxEditLink.style.left = `${x - (boxEditLinkWidth / 2)}px`;
-            $boxEditLink.style.top = `${y}px`;
-            $boxEditLinkInput.value = model.link;
+            this.currentEditNoteNodeIds = nodeIds;
+            $boxEditNote.style.display = 'block';
+            boxEditNoteWidth = $boxEditNote.clientWidth;
+            $boxEditNote.style.left = `${x - (boxEditNoteWidth / 2)}px`;
+            $boxEditNote.style.top = `${y}px`;
+            $boxEditNoteInput.value = model.note;
             // this.data.currentEditLinkValue = model.link;
             // this.data.$editLinkDialog.toggle(true);
             // this.data.mouseOnCanvas = false;
@@ -39,23 +39,23 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
 
         }
 
-        hideEditLink (): this {
+        hideEditNote (): this {
 
-            const $boxEditLink = this._options.$boxEditLink;
+            const $boxEditNote = this._options.$boxEditNote;
 
-            this.currentEditLinkNodeIds = [];
-            $boxEditLink.style.display = 'none';
+            this.currentEditNoteNodeIds = [];
+            $boxEditNote.style.display = 'none';
             return this;
 
         }
 
-        getCurrentEditLinkNodeIds (): NodeIds {
+        getCurrentEditNoteNodeIds (): NodeIds {
 
-            return this.currentEditLinkNodeIds;
+            return this.currentEditNoteNodeIds;
 
         }
 
-        link (nodeIds: NodeIds, link: string): this {
+        note (nodeIds: NodeIds, note: string): this {
 
             const ids = fillNodeIds(nodeIds);
 
@@ -64,7 +64,7 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
                 const node = this.graph.findById(id);
                 const model = node.getModel() as MindmapNodeItem;
 
-                model.link = link;
+                model.note = note;
                 // TODO: 启用draw后编辑链接后，appends宽度会改变
                 // node.draw();
 
@@ -75,7 +75,7 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
 
         }
 
-        unlink (nodeIds: NodeIds): this {
+        unnote (nodeIds: NodeIds): this {
 
             const ids = fillNodeIds(nodeIds);
 
@@ -84,7 +84,7 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
                 const node = this.graph.findById(id);
                 const model = node.getModel() as MindmapNodeItem;
 
-                model.link = null;
+                model.note = null;
                 node.draw();
 
             }

@@ -6,4 +6,6 @@ export var EventNames;
 export var ContextMenuTypes;
 (function (ContextMenuTypes) {
     ContextMenuTypes[ContextMenuTypes["Link"] = 0] = "Link";
+    ContextMenuTypes[ContextMenuTypes["Note"] = 1] = "Note";
+    ContextMenuTypes[ContextMenuTypes["Tag"] = 2] = "Tag";
 })(ContextMenuTypes || (ContextMenuTypes = {}));

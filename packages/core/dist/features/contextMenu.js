@@ -20,6 +20,7 @@ export default (function (Base) {
         }
         class_1.prototype.showContextMenu = function (options) {
             var $menu;
+            this.hideAllContextMenu();
             if (options.type === ContextMenuTypes.Link) {
                 $menu = this._options.$contextMenuLink;
                 $menu.style.left = options.x + "px";
@@ -27,17 +28,49 @@ export default (function (Base) {
                 $menu.style.display = 'flex';
                 this.contextType = ContextMenuTypes.Link;
             }
+            else if (options.type === ContextMenuTypes.Note) {
+                $menu = this._options.$contextMenuNote;
+                $menu.style.left = options.x + "px";
+                $menu.style.top = options.y + "px";
+                $menu.style.display = 'flex';
+                this.contextType = ContextMenuTypes.Note;
+            }
+            else if (options.type === ContextMenuTypes.Tag) {
+                $menu = this._options.$contextMenuTag;
+                $menu.style.left = options.x + "px";
+                $menu.style.top = options.y + "px";
+                $menu.style.display = 'flex';
+                this.contextType = ContextMenuTypes.Tag;
+                this.contextData = options.data;
+            }
             this.contextNodeId = options.nodeId;
             return this;
         };
-        class_1.prototype.hideContextMenu = function (type) {
+        class_1.prototype.hideContextMenu = function () {
             var $menu;
+            var type = this.contextType;
             if (type === ContextMenuTypes.Link) {
                 $menu = this._options.$contextMenuLink;
                 $menu.style.display = 'none';
             }
+            else if (type === ContextMenuTypes.Note) {
+                $menu = this._options.$contextMenuNote;
+                $menu.style.display = 'none';
+            }
+            else if (type === ContextMenuTypes.Tag) {
+                $menu = this._options.$contextMenuTag;
+                $menu.style.display = 'none';
+            }
             this.contextNodeId = null;
             this.contextType = null;
+            this.contextData = null;
+            return this;
+        };
+        class_1.prototype.hideAllContextMenu = function () {
+            this.hideContextMenu();
+            this.hideEditLink();
+            this.hideEditNote();
+            this.hideEditTag();
             return this;
         };
         class_1.prototype.getContextNodeId = function () {
@@ -45,6 +78,9 @@ export default (function (Base) {
         };
         class_1.prototype.getContextType = function () {
             return this.contextType;
+        };
+        class_1.prototype.getContextData = function () {
+            return this.contextData;
         };
         return class_1;
     }(Base));
