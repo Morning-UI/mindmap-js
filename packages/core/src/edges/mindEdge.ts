@@ -71,8 +71,6 @@ import {
 
 // };
 
-// TODO LAST : mind-edge
-
 export const getMindEdge = (mindmap: MindmapCore): MindShapeOptions => ({
     draw (cfg, group): IShape {
 

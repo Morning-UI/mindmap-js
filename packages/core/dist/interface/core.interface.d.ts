@@ -3,7 +3,7 @@ import { ShapeOptions } from '@antv/g6/lib/interface/shape';
 import { IShape, IElement, IGroup } from '@antv/g-base/lib/interfaces';
 import GGroup from '@antv/g-canvas/lib/group';
 import { ShapeAttrs } from '@antv/g-base';
-import { ShapeStyle, TreeGraphData, NodeConfig } from '@antv/g6/lib/types';
+import { ShapeStyle, TreeGraphData, NodeConfig, G6Event } from '@antv/g6/lib/types';
 import { MindmapCore } from '../index';
 export interface MindmapCreateOptions {
     $con: HTMLElement;
@@ -12,6 +12,7 @@ export interface MindmapCreateOptions {
     width?: number | string;
     height?: number | string;
     draggable?: boolean;
+    nodeDraggable?: boolean;
     scalable?: boolean;
     backgroundGrid?: boolean;
     minimap?: boolean;
@@ -100,6 +101,7 @@ export interface AddShapeOptions {
     group: GGroup;
     shapes: MindNodeShapes;
     attrs: ShapeAttrs;
+    draggable?: boolean;
 }
 export interface AddGroupOptions {
     group: GGroup;
@@ -115,9 +117,9 @@ export interface MindNodeElements {
 }
 export interface StateChangeOptions {
     elements: MindNodeElements;
-    cfg: MindmapNodeItem;
     states: string[];
     style: NodeStyle;
+    cfg?: MindmapNodeItem;
     group?: IGroup;
     mindmap?: MindmapCore;
 }
@@ -169,3 +171,9 @@ export declare type Constructor<T = {
     hideEditLink: Function;
     hideEditNote: Function;
 }> = new (...args: any[]) => T;
+export declare type NodeDragBehaviorCfg = {
+    targets: any[];
+};
+export declare type BehaviorEvents = {
+    [key in G6Event]?: string;
+};

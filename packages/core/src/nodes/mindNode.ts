@@ -60,6 +60,7 @@ const addShape = (options: AddShapeOptions): void => {
 
     shapes[name] = group.addShape(type, {
         attrs,
+        draggable : true,
     });
 
 };
@@ -493,7 +494,6 @@ const tagStateChange = (options: StateChangeOptions): void => {
 
         }
 
-        // TODO : 删除后hover失效
         if (hoverState) {
 
             const tagIndex = Number(hoverState.split(':')[1]);

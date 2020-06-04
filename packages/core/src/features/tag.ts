@@ -1,6 +1,11 @@
 import difference                               from 'lodash.difference';
 import {
-    NodeId,
+    TreeGraph,
+}                                               from '@antv/g6';
+import {
+    Item,
+}                                               from '@antv/g6/lib/types';
+import {
     NodeIds,
     Constructor,
     MindmapNodeItem,
@@ -8,6 +13,22 @@ import {
 import {
     fillNodeIds,
 }                                               from '../base/utils';
+
+const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
+
+    const states = node.getStates();
+
+    for (const state of states) {
+
+        if ((/^tag-hover/u).test(state)) {
+
+            graph.setItemState(node, state, false);
+
+        }
+
+    }
+
+};
 
 export default <TBase extends Constructor>(Base: TBase): TBase =>
     class extends Base {
@@ -101,7 +122,8 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
         untag (nodeIds: NodeIds, untags: string[]|string): this {
 
             const ids = fillNodeIds(nodeIds);
-            const _untags = typeof untags === 'string' ? [untags] : untags;
+
+            let _untags = typeof untags === 'string' ? [untags] : untags;
 
             _untags = difference(_untags, ['']);
 
@@ -111,6 +133,7 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
                 const model = node.getModel() as MindmapNodeItem;
 
                 model.tag = difference(model.tag, _untags);
+                cleanTagHoverState(this.graph, node);
                 node.draw();
 
             }
@@ -130,6 +153,7 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
                 const model = node.getModel() as MindmapNodeItem;
 
                 model.tag.splice(index, 1);
+                cleanTagHoverState(this.graph, node);
                 node.draw();
 
             }

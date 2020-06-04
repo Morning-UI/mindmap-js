@@ -42,7 +42,7 @@
                 "max-lines-per-function": [
                     "error",
                     {
-                        "max": 240
+                        "max": 300
                     }
                 ]
             }
@@ -75,7 +75,7 @@
                 "max-lines-per-function": [
                     "error",
                     {
-                        "max": 240
+                        "max": 300
                     }
                 ]
             }

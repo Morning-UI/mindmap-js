@@ -10,7 +10,6 @@ export default {
         if (model.tag !== null) {
             var index = (model.tag.length * 2) - 2;
             while (index >= 0) {
-                console.log(index, inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.tagConGroup, index));
                 if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.tagConGroup, index)) {
                     options.graph.setItemState(evt.item, TAG.state + ":" + index / 2, true);
                 }

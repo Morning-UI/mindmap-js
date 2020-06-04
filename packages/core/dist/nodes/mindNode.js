@@ -11,6 +11,7 @@ var addShape = function (options) {
     }
     shapes[name] = group.addShape(type, {
         attrs: attrs,
+        draggable: true,
     });
 };
 var addGroup = function (options) {
@@ -303,7 +304,6 @@ var tagStateChange = function (options) {
             }
             index++;
         }
-        // TODO : 删除后hover失效
         if (hoverState) {
             var tagIndex = Number(hoverState.split(':')[1]);
             var tagCon = tagConGroup.getChildByIndex(tagIndex * 2);

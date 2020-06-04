@@ -13,6 +13,15 @@ var __extends = (this && this.__extends) || (function () {
 })();
 import difference from 'lodash.difference';
 import { fillNodeIds, } from '../base/utils';
+var cleanTagHoverState = function (graph, node) {
+    var states = node.getStates();
+    for (var _i = 0, states_1 = states; _i < states_1.length; _i++) {
+        var state = states_1[_i];
+        if ((/^tag-hover/u).test(state)) {
+            graph.setItemState(node, state, false);
+        }
+    }
+};
 export default (function (Base) {
     return /** @class */ (function (_super) {
         __extends(class_1, _super);
@@ -82,6 +91,7 @@ export default (function (Base) {
                 var node = this.graph.findById(id);
                 var model = node.getModel();
                 model.tag = difference(model.tag, _untags);
+                cleanTagHoverState(this.graph, node);
                 node.draw();
             }
             this.graph.layout();
@@ -94,6 +104,7 @@ export default (function (Base) {
                 var node = this.graph.findById(id);
                 var model = node.getModel();
                 model.tag.splice(index, 1);
+                cleanTagHoverState(this.graph, node);
                 node.draw();
             }
             this.graph.layout();

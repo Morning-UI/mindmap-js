@@ -17,6 +17,7 @@ import {
     ShapeStyle,
     TreeGraphData,
     NodeConfig,
+    G6Event,
 }                                               from '@antv/g6/lib/types';
 import {
     MindmapCore,
@@ -36,8 +37,11 @@ export interface MindmapCreateOptions {
     width?: number | string;
     height?: number | string;
 
-    // 是否可拖拽
+    // 画布是否可拖拽
     draggable?: boolean;
+
+    // 节点是否可拖拽
+    nodeDraggable?: boolean;
 
     // 是否可缩放
     scalable?: boolean;
@@ -146,6 +150,7 @@ export interface AddShapeOptions {
     group: GGroup;
     shapes: MindNodeShapes;
     attrs: ShapeAttrs;
+    draggable?: boolean;
 }
 
 export interface AddGroupOptions {
@@ -165,9 +170,9 @@ export interface MindNodeElements {
 
 export interface StateChangeOptions {
     elements: MindNodeElements;
-    cfg: MindmapNodeItem;
     states: string[];
     style: NodeStyle;
+    cfg?: MindmapNodeItem;
     group?: IGroup;
     mindmap?: MindmapCore;
 }
@@ -229,3 +234,11 @@ export type Constructor<T = {
     hideEditLink: Function;
     hideEditNote: Function;
 }> = new (...args: any[]) => T;
+
+export type NodeDragBehaviorCfg = {
+    targets: any[];
+}
+
+export type BehaviorEvents = {
+    [key in G6Event]?: string;
+}

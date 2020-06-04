@@ -21,7 +21,6 @@ import { MIND_EDGE_STYLE, } from '../style';
 //     });
 //     return pathSegments.join('');
 // };
-// TODO LAST : mind-edge
 export var getMindEdge = function (mindmap) { return ({
     draw: function (cfg, group) {
         var startPoint = cfg.startPoint;
