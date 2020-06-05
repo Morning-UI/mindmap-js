@@ -181,15 +181,21 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
     mindmap._options = _options;
 
     if (_options.draggable) {
+
         modes.push('drag-canvas');
+
     }
 
     if (_options.scalable) {
+
         modes.push('zoom-canvas');
+
     }
 
     if (_options.nodeDraggable) {
+
         modes.push('mind-drag-node');
+
     }
 
     if (_options.backgroundGrid) {

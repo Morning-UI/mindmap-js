@@ -18,9 +18,11 @@ import {
     TreeGraphData,
     NodeConfig,
     G6Event,
+    Item,
+    IG6GraphEvent,
 }                                               from '@antv/g6/lib/types';
 import {
-    MindmapCore,
+    MindmapCoreBase,
 }                                               from '../index';
 
 export interface MindmapCreateOptions {
@@ -101,6 +103,7 @@ export interface NodeStyle {
     fontStyle?: ShapeAttrs['fontStyle'];
     borderColor?: string;
     borderWidth?: number;
+    borderDash?: number[];
     paddingX?: number;
     paddingY?: number;
     outlineColor?: string;
@@ -222,23 +225,85 @@ export interface ShowContextMenuOptions {
 export type NodeId = string | number;
 export type NodeIds = NodeId[];
 
-export type Constructor<T = {
-    graph: G6.TreeGraph;
-    _options: MindmapInsideOptions;
-    contextNodeId: string;
-    contextType: ContextMenuTypes;
-    contextData: any;
-    currentEditLinkNodeIds: NodeIds;
-    currentEditNoteNodeIds: NodeIds;
-    currentEditTagNodeIds: NodeIds;
-    hideEditLink: Function;
-    hideEditNote: Function;
-}> = new (...args: any[]) => T;
-
 export type NodeDragBehaviorCfg = {
-    targets: any[];
+    dragOptions: DragOptions;
 }
 
 export type BehaviorEvents = {
     [key in G6Event]?: string;
 }
+
+export type DragOptions = {
+    originX: number;
+    originY: number;
+    delegateShape: ;
+    type?: 'unselect-single';
+    targets?: Item[];
+    point?: {
+        x: number;
+        y: number;
+    };
+}
+
+export interface UpdateDelegateOptions {
+    mindmap: MindmapCore;
+    evt: IG6GraphEvent;
+    dragOptions: DragOptions;
+}
+
+export type DragTarget = {
+    nodes: Item[];
+    hidden: boolean;
+    originNodeStyle: {
+        [key: string] : any;
+    };
+    saveModel: {
+        [key: string] : MindmapNodeItem;
+    }
+}
+
+// ------------------------------------------------------------------------------
+
+export type MindmapCore = MindmapCoreBase
+    & LinkFeatures
+    & NoteFeatures
+    & TagFeatures
+    & ContextMenuFeatures
+    & NodeFeatures;
+export type MindmapCoreWithLink = MindmapCoreBase & LinkFeatures;
+export interface LinkFeatures {
+    showEditLink(nodeIds: NodeIds): this;
+    // hideEditLink(): MindmapCore;
+    // getCurrentEditLinkNodeIds(): NodeIds;
+    // link(nodeIds: NodeIds, link: string): MindmapCore;
+    // unlink(nodeIds: NodeIds): MindmapCore;
+};
+export interface NoteFeatures {
+    showEditNote (nodeIds: NodeIds): MindmapCore;
+    hideEditNote (): MindmapCore;
+    getCurrentEditNoteNodeIds (): NodeIds;
+    note (nodeIds: NodeIds, note: string): MindmapCore;
+    unnote (nodeIds: NodeIds): MindmapCore;
+};
+export interface TagFeatures {
+    showEditTag (nodeIds: NodeIds): MindmapCore;
+    hideEditTag (): MindmapCore;
+    getCurrentEditTagNodeIds (): NodeIds;
+    tag (nodeIds: NodeIds, tags: string[]|string): MindmapCore;
+    tagAdd (nodeIds: NodeIds, tags: string[]|string): MindmapCore;
+    untag (nodeIds: NodeIds, untags: string[]|string): MindmapCore;
+    untagByIndex (nodeIds: NodeIds, index: number): MindmapCore;
+};
+export interface ContextMenuFeatures {
+    showContextMenu (options: ShowContextMenuOptions): MindmapCore;
+    hideContextMenu (): MindmapCore;
+    hideAllContextMenu (): MindmapCore;
+    getContextNodeId (): string;
+    getContextType (): ContextMenuTypes;
+    getContextData (): any;
+};
+export interface NodeFeatures {
+    removeNode (nodeIds: NodeIds, _refresh: boolean): MindmapCore;
+};
+// export type MindmapCoreBaseConstructor<T = MindmapCoreBase> = new (...args: any[]) => T;
+export type MindmapCoreConstructor<T = MindmapCoreBase> = new (...args: any[]) => MindmapCore;

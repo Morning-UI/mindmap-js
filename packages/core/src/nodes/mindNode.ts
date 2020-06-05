@@ -4,7 +4,7 @@ import {
 import {
     IShape,
     IGroup,
-}                                               from '@antv/g-canvas/lib/interfaces';
+}                                               from '@antv/g-base/lib/interfaces';
 import {
     MindmapCore,
 }                                               from '../index';
@@ -697,7 +697,7 @@ export const getMindNode = (mindmap: MindmapCore): MindShapeOptions => ({
 
         mindNodeAdjustPosition(shapes as MindNodeElements, cfg, mindmap);
 
-        return shapes.box;
+        return shapes.box as IShape;
 
     },
     setState : (name, value, item): void => {

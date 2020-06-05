@@ -7,8 +7,9 @@ import {
 }                                               from '@antv/g6/lib/types';
 import {
     NodeIds,
-    Constructor,
+    MindmapCoreConstructor,
     MindmapNodeItem,
+    TagFeatures,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -30,8 +31,8 @@ const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
 };
 
-export default <TBase extends Constructor>(Base: TBase): TBase =>
-    class extends Base {
+export default <TBase extends MindmapCoreConstructor>(Base: TBase): TBase =>
+    class extends Base implements TagFeatures {
 
         showEditTag (nodeIds: NodeIds): this {
 
@@ -78,7 +79,8 @@ export default <TBase extends Constructor>(Base: TBase): TBase =>
         tag (nodeIds: NodeIds, tags: string[]|string): this {
 
             const ids = fillNodeIds(nodeIds);
-            const _tags = typeof tags === 'string' ? [tags] : tags;
+
+            let _tags = typeof tags === 'string' ? [tags] : tags;
 
             _tags = difference(_tags, ['']);
 

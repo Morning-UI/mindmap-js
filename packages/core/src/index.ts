@@ -13,6 +13,7 @@ import {
     EventCallbacks,
     ContextMenuTypes,
     NodeIds,
+    MindmapCore,
 }                                               from './interface';
 import {
     create,
@@ -34,8 +35,9 @@ import mixinLink                                from './features/link';
 import mixinNote                                from './features/note';
 import mixinTag                                 from './features/tag';
 import mixinContextMenu                         from './features/contextMenu';
+import mixinNode                                from './features/node';
 
-export class MindmapCore {
+export class MindmapCoreBase {
 
     graph: G6.TreeGraph;
     G6: typeof G6;
@@ -195,7 +197,7 @@ export class MindmapCore {
                 });
 
                 this.graph.paint();
-                mindNodeAdjustPosition(elements, this.editNode.getModel() as MindmapNodeItem);
+                mindNodeAdjustPosition(elements, this.editNode.getModel() as MindmapNodeItem, this);
                 refreshTextEditorPosition(this);
 
             });
@@ -277,12 +279,12 @@ export class MindmapCore {
 
 }
 
-let MindmapClass;
+let MindmapClass = mixinLink(MindmapCoreBase);
 
-MindmapClass = mixinLink(MindmapCore);
 MindmapClass = mixinNote(MindmapClass);
 MindmapClass = mixinTag(MindmapClass);
 MindmapClass = mixinContextMenu(MindmapClass);
+MindmapClass = mixinNode(MindmapClass);
 
 export default MindmapClass;
 export const EventNamesEnum = EventNames;
