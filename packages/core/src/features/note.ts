@@ -1,14 +1,14 @@
 import {
     NodeIds,
-    MindmapCoreConstructor,
     MindmapNodeItem,
+    MindmapCoreL0Ctor,
     NoteFeatures,
 }                                               from '../interface';
 import {
     fillNodeIds,
 }                                               from '../base/utils';
 
-export default <TBase extends MindmapCoreConstructor>(Base: TBase): TBase =>
+export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
     class extends Base implements NoteFeatures {
 
         showEditNote (nodeIds: NodeIds): this {

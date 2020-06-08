@@ -1,16 +1,17 @@
 import * as G6 from '@antv/g6';
 // import * as G6Graph                             from '@antv/g6/lib/interface/graph';
 import { EventNames, } from './interface';
-import { create, traverseData, register, bindEvent, manualPaint, } from './base/graph';
-import { getNodeElements, } from './base/utils';
+import { create, register, bindEvent, manualPaint, } from './base/graph';
+import { getNodeElements, traverseData, } from './base/utils';
 import { refreshTextEditorPosition, } from './base/editor';
 import { mindNodeAdjustPosition, } from './nodes/mindNode';
 import mixinLink from './features/link';
 import mixinNote from './features/note';
 import mixinTag from './features/tag';
 import mixinContextMenu from './features/contextMenu';
-var MindmapCore = /** @class */ (function () {
-    function MindmapCore(options) {
+import mixinNode from './features/node';
+var MindmapCoreBase = /** @class */ (function () {
+    function MindmapCoreBase(options) {
         this.dragging = false;
         this.editting = false;
         this.eventList = {};
@@ -24,7 +25,7 @@ var MindmapCore = /** @class */ (function () {
         // this._options.$editorInput = this._options.$editor.querySelector('textarea');
         return this;
     }
-    MindmapCore.prototype.readData = function (data) {
+    MindmapCoreBase.prototype.readData = function (data) {
         var _this = this;
         this.data = traverseData(data);
         this.graph.read(this.data);
@@ -34,7 +35,7 @@ var MindmapCore = /** @class */ (function () {
         });
         return this;
     };
-    MindmapCore.prototype.clearSelectedNode = function () {
+    MindmapCoreBase.prototype.clearSelectedNode = function () {
         var selectedState = 'selected';
         var graph = this.graph;
         var autoPaint = graph.get('autoPaint');
@@ -47,7 +48,7 @@ var MindmapCore = /** @class */ (function () {
         graph.setAutoPaint(autoPaint);
         return this;
     };
-    MindmapCore.prototype.focusNodeTextEditor = function (nodeId, clean) {
+    MindmapCoreBase.prototype.focusNodeTextEditor = function (nodeId, clean) {
         if (clean === void 0) { clean = false; }
         var node = this.graph.findById(nodeId);
         var elements = getNodeElements(node);
@@ -75,7 +76,7 @@ var MindmapCore = /** @class */ (function () {
         // TODO : 实现聚焦
         return this;
     };
-    MindmapCore.prototype.blurNodeTextEditor = function () {
+    MindmapCoreBase.prototype.blurNodeTextEditor = function () {
         var _this = this;
         if (!this.editting) {
             return this;
@@ -97,7 +98,7 @@ var MindmapCore = /** @class */ (function () {
         });
         return this;
     };
-    MindmapCore.prototype.editorInput = function (content) {
+    MindmapCoreBase.prototype.editorInput = function (content) {
         var _this = this;
         if (this.editting) {
             var elements_1 = getNodeElements(this.editNode);
@@ -109,13 +110,13 @@ var MindmapCore = /** @class */ (function () {
                     text: content,
                 });
                 _this.graph.paint();
-                mindNodeAdjustPosition(elements_1, _this.editNode.getModel());
+                mindNodeAdjustPosition(elements_1, _this.editNode.getModel(), _this);
                 refreshTextEditorPosition(_this);
             });
         }
         return this;
     };
-    MindmapCore.prototype.on = function (eventName, callback) {
+    MindmapCoreBase.prototype.on = function (eventName, callback) {
         if (this.eventList[eventName] === undefined) {
             this.eventList[eventName] = [];
         }
@@ -132,7 +133,7 @@ var MindmapCore = /** @class */ (function () {
         }
         return this;
     };
-    MindmapCore.prototype.emit = function (eventName) {
+    MindmapCoreBase.prototype.emit = function (eventName) {
         var fns = this.eventList[eventName];
         for (var _i = 0, fns_1 = fns; _i < fns_1.length; _i++) {
             var fn = fns_1[_i];
@@ -149,7 +150,7 @@ var MindmapCore = /** @class */ (function () {
         }
         return this;
     };
-    MindmapCore.prototype.showLink = function (nodeId) {
+    MindmapCoreBase.prototype.showLink = function (nodeId) {
         var node = this.graph.findById(nodeId);
         var model = node.getModel();
         if (model.link) {
@@ -157,13 +158,15 @@ var MindmapCore = /** @class */ (function () {
         }
         return this;
     };
-    return MindmapCore;
+    return MindmapCoreBase;
 }());
-export { MindmapCore };
-var MindmapClass;
-MindmapClass = mixinLink(MindmapCore);
-MindmapClass = mixinNote(MindmapClass);
-MindmapClass = mixinTag(MindmapClass);
-MindmapClass = mixinContextMenu(MindmapClass);
-export default MindmapClass;
+export { MindmapCoreBase };
+/* eslint-disable */
+// LO includes : corebase.
+// L1(base function) includes : link/note/tag.
+// L2(advance function) includes : contextmenu/node, L2 which is public core.
+var MindmapCoreL1 = mixinTag(mixinNote(mixinLink(MindmapCoreBase)));
+var MindmapCoreL2 = mixinNode(mixinContextMenu(MindmapCoreL1));
+/* eslint-enable */
+export default MindmapCoreL2;
 export var EventNamesEnum = EventNames;

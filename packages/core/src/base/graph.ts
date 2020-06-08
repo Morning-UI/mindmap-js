@@ -4,22 +4,24 @@ import {
     IG6GraphEvent,
 }                                               from '@antv/g6/lib/types';
 import {
-    MindmapDataItem,
     MindmapNodeItem,
     MindmapCreateOptions,
     MindmapInsideOptions,
     EventNames,
+    MindmapCoreType,
 }                                               from '../interface';
 import {
-    default as MindmapCore,
-}                                               from '../index';
-import {
     getMindNode,
-    NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    getMindHolderNode,
+}                                               from '../nodes/mindHolderNode';
 import {
     getMindEdge,
 }                                               from '../edges/mindEdge';
+import {
+    getMindHolderEdge,
+}                                               from '../edges/mindHolderEdge';
 import {
     getNodeDragBehavior,
 }                                               from '../behavior/nodeDrag';
@@ -31,8 +33,6 @@ import bindAppendsClick                         from '../events/appendsClick';
 import bindContextMenu                          from '../events/contextMenu';
 import bindTagHover                             from '../events/tagHover';
 import bindNodeDrag                             from '../events/nodeDrag';
-
-let globalId = 1;
 
 const convertSize = (type: 'width' | 'height', value: number | string, $con: HTMLElement): number => {
 
@@ -93,53 +93,13 @@ const hiddenMenus = (mindmap: MindmapCore, evt: IG6GraphEvent): void => {
 
 };
 
-// ITEM INCLUEDS:
-// --------------
-// INPUT DATA:
-//      text : 文案
-//      children : 子节点
-//      link : 链接
-//      note : 备注
-//      tag : 标签
-// --------------
-// G6 DATA:
-//      id : node id
-//      anchorPoints : 锚点
-//      style : 额外的样式
-//      type : 采用的图形
-// --------------
-// INSIDE PROP:
-//      _isRoot : 是否是根节点
-//      _isNode : 是节点
-// --------------
-export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
-
-    const nodeItem: MindmapNodeItem = {
-        id : globalId++,
-        // eslint-disable-next-line no-magic-numbers
-        anchorPoints : [[0, 0.5], [1, 0.5]],
-        style : {},
-        // TODO : type diff when node is root
-        type : 'mind-node',
-        link : null,
-        note : null,
-        tag : null,
-        ...item,
-        _isRoot : globalId === 1,
-        _isNode : true,
-    };
-
-    return nodeItem;
-
-};
-
 // TODO left node props: 
 // ITEM INCLUEDS:
 //      tag : 标签
 //      note : 备注
 //      mark : 标记(用户设置)
 // PRIVATE >>>
-//      _isDragging : 正在拖拽
+//      
 //      _shapeStyle : 计算完的图形样式
 //      _origin : 原始数据
 //      _mark : 标记(经过转换后)
@@ -162,6 +122,7 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
         nodeHGap : 30,
         nodeVGap : 6,
         maxShowTagNum : 4,
+        direction : 'LR',
 
         $editorInput : options.$editor.querySelector('textarea'),
         $contextMenuLink : options.$con.querySelector('.mindmap-menu-link'),
@@ -221,7 +182,7 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
         // eslint-disable-next-line no-magic-numbers
         maxZoom : 1.5,
         animate : false,
-        fitView : true,
+        fitView : false,
         modes : {
             default : modes,
         },
@@ -276,13 +237,13 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
             },
             getVGap : (cfg: MindmapNodeItem): number => {
 
-                // const node = mindmap.graph.findById(cfg.id);
+                const node = mindmap.graph.findById(cfg.id);
 
-                // if (node && (node.getModel() as MindmapNodeItem)._isDragging) {
+                if (node && (node.getModel() as MindmapNodeItem)._isDragging) {
 
-                //     return 0;
+                    return 0;
 
-                // }
+                }
 
                 return _options.nodeVGap;
 
@@ -291,10 +252,10 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
         },
         plugins,
         defaultNode : {
-            shape : 'mind-node',
+            type : 'mind-node',
         },
         defaultEdge : {
-            shape : 'mind-edge',
+            type : 'mind-edge',
         },
     };
 
@@ -302,83 +263,69 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
 
 };
 
-export const traverseData = (data: MindmapDataItem): MindmapNodeItem => {
-
-    const nodeData: MindmapNodeItem = traverseOneItem(data);
-
-    if (nodeData.children) {
-
-        for (const index in nodeData.children) {
-
-            nodeData.children[index] = traverseData(nodeData.children[index]);
-
-        }
-
-    }
-
-    return nodeData;
-
-};
-
-export const register = (mindmap: MindmapCore): void => {
+export const register = (mindmap: MindmapCoreType): void => {
 
     G6.registerNode('mind-node', getMindNode(mindmap), 'single-node');
+    G6.registerNode('mind-holder-node', getMindHolderNode(), 'single-node');
     // G6.registerNode('mind-root-node', getMindNode(mindmap), 'single-node');
-    G6.registerEdge('mind-edge', getMindEdge(mindmap));
+
+    G6.registerEdge('mind-edge', getMindEdge());
+    G6.registerEdge('mind-holder-edge', getMindHolderEdge(), 'mind-edge');
+
     G6.registerBehavior('mind-drag-node', getNodeDragBehavior(mindmap));
 
 };
 
-export const bindEvent = (mindmap: MindmapCore): void => {
+export const bindEvent = (mindmap: MindmapCoreType): void => {
 
     const graph = mindmap.graph;
     const global: typeof window = window;
     // eslint-disable-next-line no-magic-numbers
     const modKeycode: number[] = [91, 17];
 
-    // graph.on('canvas:click', (evt: IG6GraphEvent): void => {
+    graph.on('canvas:click', (evt: IG6GraphEvent): void => {
 
-    //     // bindAppendsClick.stop(evt, {
-    //     //     vm,
-    //     //     graph
-    //     // });
+        // bindAppendsClick.stop(evt, {
+        //     vm,
+        //     graph
+        // });
 
-    //     bindNodeSelect.clear(evt, {
-    //         mindmap,
-    //         graph,
-    //     });
+        bindNodeSelect.clear(evt, {
+            mindmap,
+            graph,
+        });
 
-    //     hiddenMenus(mindmap, evt);
+        hiddenMenus(mindmap, evt);
 
-    // });
+    });
 
-    // graph.on('canvas:mousedown', (evt: IG6GraphEvent): void => {
+    graph.on('canvas:mousedown', (evt: IG6GraphEvent): void => {
 
-    //     // bindCanvasGrab.mousedown(evt, {
-    //     //     vm
-    //     // });
-    //     bindNodeEdit.cancel(evt, {
-    //         mindmap,
-    //     });
-    //     bindNodeSelect.clear(evt, {
-    //         mindmap,
-    //         graph,
-    //     });
+        // bindCanvasGrab.mousedown(evt, {
+        //     vm
+        // });
+        bindNodeEdit.cancel(evt, {
+            mindmap,
+        });
+        bindNodeSelect.clear(evt, {
+            mindmap,
+            graph,
+        });
 
-    // });
+    });
 
-    // graph.on('canvas:mousemove', (evt: IG6GraphEvent): void => {
+    graph.on('canvas:mousemove', (evt: IG6GraphEvent): void => {
 
-    //     bindAppendsHover.stop(evt, {
-    //         graph,
-    //     });
+        bindAppendsHover.stop(evt, {
+            graph,
+        });
 
-    //     // bindCollapseBtnHover.stop(evt, {
-    //     //     vm,
-    //     //     graph
-    //     // });
+        // bindCollapseBtnHover.stop(evt, {
+        //     vm,
+        //     graph
+        // });
 
-    // });
+    });
 
     // graph.on('node:mouseenter', (evt: IG6GraphEvent): void => {
 
@@ -388,111 +335,111 @@ export const bindEvent = (mindmap: MindmapCore): void => {
 
     // });
 
-    // graph.on('node:mouseleave', (evt: IG6GraphEvent): void => {
+    graph.on('node:mouseleave', (evt: IG6GraphEvent): void => {
 
-    //     if (_nodeEventShouldEmit(evt)) {
+        if (_nodeEventShouldEmit(evt)) {
 
-    //         bindAppendsHover.move(evt, {
-    //             graph,
-    //             mindmap,
-    //         });
+            bindAppendsHover.move(evt, {
+                graph,
+                mindmap,
+            });
 
-    //         bindNodeHover.move(evt, {
-    //             graph,
-    //             mindmap,
-    //         });
+            bindNodeHover.move(evt, {
+                graph,
+                mindmap,
+            });
 
-    //         bindTagHover.move(evt, {
-    //             graph,
-    //             mindmap,
-    //         });
+            bindTagHover.move(evt, {
+                graph,
+                mindmap,
+            });
 
-    //     }
+        }
 
-    // });
+    });
 
-    // graph.on('node:mousemove', (evt: IG6GraphEvent): void => {
+    graph.on('node:mousemove', (evt: IG6GraphEvent): void => {
 
-    //     if (_nodeEventShouldEmit(evt)) {
+        if (_nodeEventShouldEmit(evt)) {
 
-    //         bindAppendsHover.move(evt, {
-    //             graph,
-    //             mindmap,
-    //         });
+            bindAppendsHover.move(evt, {
+                graph,
+                mindmap,
+            });
 
-    //         bindNodeHover.move(evt, {
-    //             graph,
-    //             mindmap,
-    //         });
+            bindNodeHover.move(evt, {
+                graph,
+                mindmap,
+            });
 
-    //         bindTagHover.move(evt, {
-    //             graph,
-    //             mindmap,
-    //         });
+            bindTagHover.move(evt, {
+                graph,
+                mindmap,
+            });
 
-    //         // bindCollapseBtnHover.move(evt, {
-    //         //     graph,
-    //         //     vm
-    //         // });
+            // bindCollapseBtnHover.move(evt, {
+            //     graph,
+            //     vm
+            // });
 
-    //     }
+        }
 
-    // });
+    });
 
-    // graph.on('node:click', (evt: IG6GraphEvent): void => {
+    graph.on('node:click', (evt: IG6GraphEvent): void => {
 
-    //     if (_nodeEventShouldEmit(evt)) {
+        if (_nodeEventShouldEmit(evt)) {
 
-    //         hiddenMenus(mindmap, evt);
+            hiddenMenus(mindmap, evt);
 
-    //         bindNodeSelect.select(evt, {
-    //             mindmap,
-    //             graph,
-    //         });
+            bindNodeSelect.select(evt, {
+                mindmap,
+                graph,
+            });
 
-    //         bindAppendsClick.click(evt, {
-    //             mindmap,
-    //             graph,
-    //         });
+            bindAppendsClick.click(evt, {
+                mindmap,
+                graph,
+            });
 
-    //         bindNodeSelect.clear(evt, {
-    //             mindmap,
-    //             graph,
-    //         });
+            bindNodeSelect.clear(evt, {
+                mindmap,
+                graph,
+            });
 
-    //         // bindCollapseBtnClick.click(evt, {
-    //         //     vm,
-    //         //     graph
-    //         // });
+            // bindCollapseBtnClick.click(evt, {
+            //     vm,
+            //     graph
+            // });
 
-    //     }
+        }
 
-    // });
+    });
 
-    // graph.on('node:dblclick', (evt: IG6GraphEvent): void => {
+    graph.on('node:dblclick', (evt: IG6GraphEvent): void => {
 
-    //     if (_nodeEventShouldEmit(evt)) {
+        if (_nodeEventShouldEmit(evt)) {
 
-    //         bindNodeEdit.edit(evt, {
-    //             mindmap,
-    //         });
+            bindNodeEdit.edit(evt, {
+                mindmap,
+            });
 
-    //     }
+        }
 
-    // });
+    });
 
-    // graph.on('node:contextmenu', (evt: IG6GraphEvent): void => {
+    graph.on('node:contextmenu', (evt: IG6GraphEvent): void => {
 
-    //     if (_nodeEventShouldEmit(evt)) {
+        if (_nodeEventShouldEmit(evt)) {
 
-    //         bindContextMenu.show(evt, {
-    //             mindmap,
-    //             graph,
-    //         });
+            bindContextMenu.show(evt, {
+                mindmap,
+                graph,
+            });
 
-    //     }
+        }
 
-    // });
+    });
 
     graph.on('node:drag', (evt: IG6GraphEvent): void => {
 

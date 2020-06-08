@@ -8,22 +8,24 @@ import {
     MindNodeElements,
     MindmapInsideOptions,
     EventNames,
+    EventList,
     EditContentChangeCallback,
     ZoomChangeCallback,
     EventCallbacks,
     ContextMenuTypes,
     NodeIds,
-    MindmapCore,
+    MindmapCoreType,
+    MindmapCoreL1Type,
 }                                               from './interface';
 import {
     create,
-    traverseData,
     register,
     bindEvent,
     manualPaint,
 }                                               from './base/graph';
 import {
     getNodeElements,
+    traverseData,
 }                                               from './base/utils';
 import {
     refreshTextEditorPosition,
@@ -55,10 +57,7 @@ export class MindmapCoreBase {
     currentEditNoteNodeIds: NodeIds;
     currentEditTagNodeIds: NodeIds;
 
-    eventList: {
-        [EventNames.EditContentChange]?: EditContentChangeCallback[];
-        [EventNames.ZoomChange]?: ZoomChangeCallback[];
-    } = {};
+    eventList: EventList = {};
 
     keydownState = {
         mod : false,
@@ -279,12 +278,23 @@ export class MindmapCoreBase {
 
 }
 
-let MindmapClass = mixinLink(MindmapCoreBase);
+/* eslint-disable */
+// LO includes : corebase.
+// L1(base function) includes : link/note/tag.
+// L2(advance function) includes : contextmenu/node, L2 which is public core.
+const MindmapCoreL1 = 
+    mixinTag(
+    mixinNote(
+    mixinLink(
+        MindmapCoreBase
+    )));
 
-MindmapClass = mixinNote(MindmapClass);
-MindmapClass = mixinTag(MindmapClass);
-MindmapClass = mixinContextMenu(MindmapClass);
-MindmapClass = mixinNode(MindmapClass);
+const MindmapCoreL2 = 
+    mixinNode(
+    mixinContextMenu(
+        MindmapCoreL1
+    ));
+/* eslint-enable */
 
-export default MindmapClass;
+export default MindmapCoreL2;
 export const EventNamesEnum = EventNames;

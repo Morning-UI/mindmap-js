@@ -1,21 +1,16 @@
 import {
-    MindmapCoreConstructor,
     MindmapNodeItem,
-    LinkFeatures,
     NodeIds,
-    MindmapCore,
-    MindmapCoreWithLink,
+    MindmapCoreL0Ctor,
+    LinkFeatures,
 }                                               from '../interface';
 import {
     fillNodeIds,
 }                                               from '../base/utils';
-import {
-    MindmapCoreBase,
-}                                               from '../index';
 
-export default (Base: typeof MindmapCoreBase): MindmapCoreBase & LinkFeatures => {
+export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
+    class extends Base implements LinkFeatures {
 
-    return class extends Base implements LinkFeatures {
         showEditLink (nodeIds: NodeIds): this {
 
             const ids = fillNodeIds(nodeIds);
@@ -43,67 +38,60 @@ export default (Base: typeof MindmapCoreBase): MindmapCoreBase & LinkFeatures =>
             return this;
 
         }
+
+        hideEditLink (): this {
+
+            const $boxEditLink = this._options.$boxEditLink;
+
+            this.currentEditLinkNodeIds = [];
+            $boxEditLink.style.display = 'none';
+            return this;
+
+        }
+
+        getCurrentEditLinkNodeIds (): NodeIds {
+
+            return this.currentEditLinkNodeIds;
+
+        }
+
+        link (nodeIds: NodeIds, link: string): this {
+
+            const ids = fillNodeIds(nodeIds);
+
+            for (const id of ids) {
+
+                const node = this.graph.findById(id);
+                const model = node.getModel() as MindmapNodeItem;
+
+                model.link = link;
+                // TODO: 启用draw后编辑链接后，appends宽度会改变
+                // node.draw();
+
+            }
+
+            this.graph.layout();
+            return this;
+
+        }
+
+        unlink (nodeIds: NodeIds): this {
+
+            const ids = fillNodeIds(nodeIds);
+
+            for (const id of ids) {
+
+                const node = this.graph.findById(id);
+                const model = node.getModel() as MindmapNodeItem;
+
+                model.link = null;
+                node.draw();
+
+            }
+
+            this.graph.refreshLayout();
+            return this;
+
+        }
+
     };
-
-};
-
-// export default (Base: MindmapCoreBase): MindmapCoreWithLink =>
-//     class extends Base implements LinkFeatures {
-
-
-//         hideEditLink (): this {
-
-//             const $boxEditLink = this._options.$boxEditLink;
-
-//             this.currentEditLinkNodeIds = [];
-//             $boxEditLink.style.display = 'none';
-//             return this;
-
-//         }
-
-//         getCurrentEditLinkNodeIds (): NodeIds {
-
-//             return this.currentEditLinkNodeIds;
-
-//         }
-
-//         link (nodeIds: NodeIds, link: string): this {
-
-//             const ids = fillNodeIds(nodeIds);
-
-//             for (const id of ids) {
-
-//                 const node = this.graph.findById(id);
-//                 const model = node.getModel() as MindmapNodeItem;
-
-//                 model.link = link;
-//                 // TODO: 启用draw后编辑链接后，appends宽度会改变
-//                 // node.draw();
-
-//             }
-
-//             this.graph.layout();
-//             return this;
-
-//         }
-
-//         unlink (nodeIds: NodeIds): this {
-
-//             const ids = fillNodeIds(nodeIds);
-
-//             for (const id of ids) {
-
-//                 const node = this.graph.findById(id);
-//                 const model = node.getModel() as MindmapNodeItem;
-
-//                 model.link = null;
-//                 node.draw();
-
-//             }
-
-//             this.graph.refreshLayout();
-//             return this;
-
-//         }
-
-//     };

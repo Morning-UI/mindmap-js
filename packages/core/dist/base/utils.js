@@ -1,6 +1,18 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 import * as G6 from '@antv/g6';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 import { MIND_NODE_STYLE, } from '../style';
+import globalData from '../base/globalData';
 export var genNodeStyles = function (styles, cfg) {
     return G6.Util.deepMix({}, styles, 
     // nodeStyle._shapePresets[model._shapeStyle],
@@ -148,4 +160,95 @@ export var fillNodeIds = function (nodeIds) {
         nodeIds[index] = String(nodeIds[index]);
     }
     return nodeIds;
+};
+export var toggleAllChildrenVisibility = function (node, type, callback) {
+    if (type === void 0) { type = 'show'; }
+    var outEdges = node.getOutEdges();
+    for (var _i = 0, outEdges_1 = outEdges; _i < outEdges_1.length; _i++) {
+        var edge = outEdges_1[_i];
+        var child = edge.getTarget();
+        var model = child.getModel();
+        edge[type]();
+        child[type]();
+        if (typeof callback === 'function') {
+            // eslint-disable-next-line callback-return
+            callback(type, model);
+        }
+        if (child.getOutEdges().length > 0) {
+            toggleAllChildrenVisibility(child, type, callback);
+        }
+    }
+};
+export var toggleNodeVisibility = function (node, type, callback) {
+    if (type === void 0) { type = 'show'; }
+    // 隐藏边
+    node.getInEdges()[0][type]();
+    // 隐藏文本和主容器
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.text)[type]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.con)[type]();
+    // node
+    //     .get('group')
+    //     .getChildByIndex(NODE_SHAPE_INDEX.bottomline)[
+    //         type
+    //     ]();
+    // node
+    //     .get('group')
+    //     .getChildByIndex(NODE_SHAPE_INDEX.markConGroup)[
+    //         type
+    //     ]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.appendConGroup)[type]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.tagConGroup)[type]();
+    // node
+    //     .get('group')
+    //     .getChildByIndex(NODE_SHAPE_INDEX.collapseBtnGroup)[
+    //         type
+    //     ]();
+    toggleAllChildrenVisibility(node, type, callback);
+};
+// ITEM INCLUEDS:
+// --------------
+// INPUT DATA:
+//      text : 文案
+//      children : 子节点
+//      link : 链接
+//      note : 备注
+//      tag : 标签
+// --------------
+// G6 DATA:
+//      id : node id
+//      anchorPoints : 锚点
+//      style : 额外的样式
+//      type : 采用的图形
+// --------------
+// INSIDE PROP:
+//      _isRoot : 是否是根节点
+//      _isNode : 是节点
+//      _isDragging : 正在拖拽
+//      _isHolder : 占位节点
+// --------------
+export var traverseOneItem = function (item) {
+    var globalId = globalData.id;
+    var nodeItem = __assign(__assign({ id: globalData.id++, 
+        // eslint-disable-next-line no-magic-numbers
+        anchorPoints: [[0, 0.5], [1, 0.5]], style: {}, 
+        // TODO : type diff when node is root
+        type: 'mind-node', link: null, note: null, tag: null }, item), { _isRoot: globalId === 1, _isNode: true, _isDragging: false, _isHolder: false });
+    return nodeItem;
+};
+export var traverseData = function (data) {
+    var nodeData = traverseOneItem(data);
+    if (nodeData.children) {
+        for (var index in nodeData.children) {
+            nodeData.children[index] = traverseData(nodeData.children[index]);
+        }
+    }
+    return nodeData;
 };

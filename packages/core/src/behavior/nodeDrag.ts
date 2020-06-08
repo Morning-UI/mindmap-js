@@ -1,7 +1,9 @@
+import G6                                       from '@antv/g6';
 import {
     BehaviorOption,
     IG6GraphEvent,
     G6Event,
+    IBBox,
 }                                               from '@antv/g6/lib/types';
 import {
     INode,
@@ -10,9 +12,8 @@ import {
     IGroup,
     IShape,
 }                                               from '@antv/g-base/lib/interfaces';
-import {
-    MindmapCore,
-}                                               from '../index';
+import throttle                                 from 'lodash.throttle';
+import sortBy                                   from 'lodash.sortby';
 import {
     NodeDragBehaviorCfg,
     BehaviorEvents,
@@ -20,19 +21,109 @@ import {
     UpdateDelegateOptions,
     DragTarget,
     MindmapNodeItem,
+    MindmapCoreType,
 }                                               from '../interface';
 import {
     DRAG_NODE_STYLE,
 }                                               from '../style';
+import {
+    toggleNodeVisibility,
+}                                               from '../base/utils';
+import globalData                               from '../base/globalData';
 
 let dragTarget: DragTarget = null;
 let dragHolderParentModel: MindmapNodeItem = null;
 let dragHolderIndexOfParent: number = null;
 
-const updateDragTarget = (mindmap: MindmapCore, dragging: boolean = false): void => {
+const DRAG_REFRESH_INTERVAL = 160;
+
+const udpateOneDragTarget = (
+    mindmap: MindmapCoreType,
+    index: number,
+    dragging: boolean,
+    _dragHolderIndexOfParent: number,
+): void => {
+
+    const node = dragTarget.nodes[index];
+
+    if (dragging && !dragTarget.hidden) {
+
+        dragTarget.originNodeStyle[index] = {
+            height : node.getBBox().height,
+        };
+        dragTarget.saveModel[index] = node.getModel() as MindmapNodeItem;
+        node.setState('dragging', true);
+        node.update({
+            _isDragging : true,
+            style : G6.Util.deepMix({}, {
+                fillOpacity : 0,
+            }, node.getModel().style),
+        });
+
+        toggleNodeVisibility(node as INode, 'hide', (type, model) => {
+
+            if (type === 'hide') {
+
+                model._isDragging = true;
+
+            } else {
+
+                model._isDragging = false;
+
+            }
+
+        });
+
+    } else if (!dragging && dragTarget.hidden) {
+
+        const nodeModel = dragTarget.saveModel[index];
+
+        node.setState('dragging', false);
+        node.update({
+            _isDragging : false,
+            style : G6.Util.deepMix({}, {
+                fillOpacity : 1,
+            }, nodeModel.style),
+        });
+
+        toggleNodeVisibility(node as INode, 'show', (type, model) => {
+
+            if (type === 'hide') {
+
+                model._isDragging = true;
+
+            } else {
+
+                model._isDragging = false;
+
+            }
+
+        });
+
+        // 如果父节点处于折叠状态，则默认追加到最后
+        // TODO
+        // if (dragHolderParentModel._collapsed) {
+
+        //     _dragHolderIndexOfParent = -1;
+
+        // }
+
+        mindmap.insertSubNode(
+            dragHolderParentModel.id,
+            nodeModel,
+            _dragHolderIndexOfParent,
+            false
+        );
+
+    }
+
+};
+
+const updateDragTarget = (mindmap: MindmapCoreType, dragging = false): void => {
 
     const targetNodes = dragTarget.nodes;
-    const first: boolean = true;
+
+    let first = true;
 
     if (!dragging && dragTarget.hidden) {
 
@@ -60,16 +151,15 @@ const updateDragTarget = (mindmap: MindmapCore, dragging: boolean = false): void
 
     }
 
-    // TODO : DOING
-    for (let index in targetNodes) {
+    for (const index in targetNodes) {
 
         if (!first) {
 
-            _udpateOneDragTarget(vm, index, dragging, dragHolderIndexOfParentChildren + 1);
+            udpateOneDragTarget(mindmap, Number(index), dragging, dragHolderIndexOfParent + 1);
 
         } else {
 
-            _udpateOneDragTarget(vm, index, dragging, dragHolderIndexOfParentChildren);
+            udpateOneDragTarget(mindmap, Number(index), dragging, dragHolderIndexOfParent);
 
         }
 
@@ -80,28 +170,244 @@ const updateDragTarget = (mindmap: MindmapCore, dragging: boolean = false): void
     if (dragging && !dragTarget.hidden) {
 
         dragTarget.hidden = true;
-        vm.data.graph.refreshLayout();
+        mindmap.graph.refreshLayout();
 
     } else if (!dragging && dragTarget.hidden) {
 
         dragTarget.hidden = false;
-
-        dragHolderIndexOfParentChildren += targetNodes.length;
+        dragHolderIndexOfParent += targetNodes.length;
 
         // 如果父节点处于折叠状态，永远都是0
-        if (dragHolderParentModel._collapsed) {
+        // TODO
+        // if (dragHolderParentModel._collapsed) {
 
-            dragHolderIndexOfParentChildren = 0;
+        //     dragHolderIndexOfParent = 0;
 
-        }
+        // }
 
-        vm.data.graph.paint();
-        vm.data.graph.changeData();
-        vm.data.graph.refreshLayout();
+        mindmap.graph.paint();
+        mindmap.graph.changeData();
+        mindmap.graph.refreshLayout();
 
     }
 
 };
+
+const fillChildBBox = (mindmap: MindmapCoreType, bbox: IBBox, node: INode): IBBox => {
+
+    const model = node.getModel() as MindmapNodeItem;
+
+    bbox.conMaxX = bbox.maxX;
+    bbox.conMinX = bbox.minX;
+    bbox.conMaxY = bbox.maxY;
+    bbox.conMinY = bbox.minY;
+
+    // 仅寻找可见的子元素(不考虑折叠的子元素)
+    const children = model.children;
+
+    if (!children || children.length === 0) {
+
+        return bbox;
+
+    }
+
+    for (const child of children) {
+
+        const childNode = mindmap.graph.findById(child.id);
+        const childBbox = childNode.getBBox();
+
+        if (childBbox.maxX > bbox.conMaxX) {
+
+            bbox.conMaxX = childBbox.maxX;
+
+        }
+
+        if (childBbox.minX < bbox.conMinX) {
+
+            bbox.conMinX = childBbox.minX;
+
+        }
+
+        if (childBbox.maxY > bbox.conMaxY) {
+
+            bbox.conMaxY = childBbox.maxY;
+
+        }
+
+        if (childBbox.minY < bbox.conMinY) {
+
+            bbox.conMinY = childBbox.minY;
+
+        }
+
+    }
+
+    return bbox;
+
+};
+
+const removeOldDragPlaceholder = (mindmap: MindmapCoreType): void => {
+
+    // 仅考虑可见的子元素(不考虑折叠的子元素)
+    if (dragHolderIndexOfParent > -1 && dragHolderParentModel) {
+
+        const children = dragHolderParentModel.children;
+
+        children.splice(dragHolderIndexOfParent, 1);
+
+    }
+
+    mindmap.graph.changeData();
+
+};
+
+const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: IShape, targetNode: INode) => {
+
+    // if (!delegateShape) {
+
+    //     return;
+
+    // }
+
+    const nodes = mindmap.graph.getNodes();
+    const delegateBbox = delegateShape.getBBox() as IBBox;
+    const matchOptions: {
+        node?: INode;
+        mode?: 'childN';
+        index?: number;
+        hasPlaceholder?: boolean | number;
+    } = {};
+
+    let distance: number;
+    let distanceNodes: INode[] = [];
+
+    delegateBbox.centerX = delegateBbox.x + (delegateBbox.width / 2);
+    delegateBbox.centerY = delegateBbox.y + (delegateBbox.height / 2);
+
+    // 按距离对节点排序
+    distanceNodes = sortBy(nodes, (node) => {
+
+        const nodeBbox = node.getBBox();
+
+        distance = Math.sqrt(
+            Math.pow(Math.abs(nodeBbox.centerX - delegateBbox.centerX), 2)
+            + Math.pow(Math.abs(nodeBbox.centerY - delegateBbox.centerY), 2)
+        );
+
+        return distance;
+
+    });
+
+    // 选择最匹配的元素
+    // Child[n] : 作为子元素，centerX > Parent.centerX
+    for (const node of distanceNodes) {
+
+        const model = node.getModel() as MindmapNodeItem;
+
+        if (node === targetNode
+            || model._isHolder
+            || model._isDragging) {
+
+            // eslint-disable-next-line no-continue
+            continue;
+
+        }
+
+        const nodeBbox = fillChildBBox(mindmap, node.getBBox(), node);
+
+        // 如果是root节点无视区域
+        if (
+            (
+                (mindmap._options.direction === 'LR' && nodeBbox.centerX < delegateBbox.x)
+                || model._isRoot
+            )
+            && (
+                (nodeBbox.conMaxY > delegateBbox.centerY && delegateBbox.centerY > nodeBbox.conMinY)
+                || model._isRoot
+            )
+        ) {
+
+            matchOptions.node = node;
+            matchOptions.mode = 'childN';
+            matchOptions.index = 0;
+            matchOptions.hasPlaceholder = false;
+
+            // const model = node.getModel();
+
+            // 仅考虑可见的子元素(不考虑折叠的子元素)
+            const children = model.children;
+
+            for (const index in children) {
+
+                const childData = children[index] as MindmapNodeItem;
+                const childBbox = mindmap.graph.findById(childData.id).getBBox();
+
+                if (!childData._isHolder && delegateBbox.centerY > childBbox.centerY) {
+
+                    matchOptions.index = Number(index) + 1;
+
+                }
+
+                if (childData._isHolder) {
+
+                    matchOptions.hasPlaceholder = Number(index);
+
+                }
+
+            }
+
+            break;
+
+        }
+
+    }
+
+    // 清除上一个placeholder
+    removeOldDragPlaceholder(mindmap);
+    dragHolderParentModel = null;
+    dragHolderIndexOfParent = null;
+
+    if (matchOptions.hasPlaceholder < matchOptions.index) {
+
+        matchOptions.index--;
+
+    }
+
+    if (matchOptions.node) {
+
+        // 创建新的placeholder
+        const model = matchOptions.node.getModel() as MindmapNodeItem;
+
+        // 仅寻找可见的子元素(不考虑折叠的子元素)
+        if (model.children === undefined) {
+
+            model.children = [];
+
+        }
+
+        dragHolderIndexOfParent = matchOptions.index;
+        model.children.splice(matchOptions.index, 0, {
+            id : String(globalData.id++),
+            type : 'mind-holder-node',
+            // eslint-disable-next-line no-magic-numbers
+            // TODO 和tag的兼容性
+            anchorPoints : [[0, 0.5], [1, 0.5]],
+            _isHolder : true,
+        });
+        dragHolderParentModel = model;
+        mindmap.graph.paint();
+        mindmap.graph.changeData();
+        mindmap.graph.refreshLayout();
+
+        const node = mindmap.graph.findById(String(globalData.id - 1)) as INode;
+
+        node.getInEdges()[0].update({
+            type : 'mind-holder-edge',
+        });
+
+    }
+
+}, DRAG_REFRESH_INTERVAL);
 
 const updateDelegate = (options: UpdateDelegateOptions): void => {
 
@@ -112,7 +418,7 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
     } = options;
 
     // 如果还没创建代理元素
-    if (!dragOptions.delegateShape === null) {
+    if (dragOptions.delegateShape === null) {
 
         const parentGroup: IGroup = mindmap.graph.get('group');
         const delegateShapeAttr = {
@@ -183,24 +489,23 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
         }
 
         updateDragTarget(mindmap, true);
-        // TODO : DOING
-        _refreshDragHolder(vm, this.dragOptions.delegateShape, evt.item);
+        refreshDragHolder(mindmap, dragOptions.delegateShape, evt.item as INode);
         // this.target.set('delegateShape', this.delegateShape);
         // this.dragOptions.delegateShape.set('capture', false);
 
     } else if (dragOptions.type === 'unselect-single') {
 
-        let bbox = evt.item.get('keyShape').getBBox();
-        let x = evt.x - this.dragOptions.originX + this.point.x;
-        let y = evt.y - this.dragOptions.originY + this.point.y;
+        const bbox = evt.item.get('keyShape').getBBox() as IBBox;
+        const x = evt.x - dragOptions.originX + dragOptions.point.x;
+        const y = evt.y - dragOptions.originY + dragOptions.point.y;
 
-        this.dragOptions.delegateShape.attr({
+        dragOptions.delegateShape.attr({
             x : x + bbox.x,
-            y : y + bbox.y
+            y : y + bbox.y,
         });
-        _refreshDragHolder(vm, this.dragOptions.delegateShape, null);
+        refreshDragHolder(mindmap, dragOptions.delegateShape, null);
 
-    } else if (this.dragOptions.type === 'select') {
+    } else if (dragOptions.type === 'select') {
 
         // let clientX = evt.x - this.dragOptions.originX + this.originPoint.minX;
         // let clientY = evt.y - this.dragOptions.originY + this.originPoint.minY;
@@ -217,7 +522,7 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
 
 };
 
-export const getNodeDragBehavior = (mindmap: MindmapCore): BehaviorOption => ({
+export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption => ({
     getDefaultCfg (): NodeDragBehaviorCfg {
 
         return {
@@ -243,7 +548,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCore): BehaviorOption => ({
 
         }
 
-        const model = evt.item.getModel();
+        const model = evt.item.getModel() as MindmapNodeItem;
 
         // root节点不能被拖拽
         if (model._isRoot) {
@@ -360,6 +665,65 @@ export const getNodeDragBehavior = (mindmap: MindmapCore): BehaviorOption => ({
         // }
 
         mindmap.dragging = true;
+
+    },
+    onDragEnd (evt: IG6GraphEvent): void {
+
+        if (!this.get('shouldEnd').call(this, evt)) {
+
+            return;
+
+        }
+
+        const model = evt.item.getModel() as MindmapNodeItem;
+
+        // root节点不能被拖拽
+        if (model._isRoot) {
+
+            return;
+
+        }
+
+        const dragOptions: DragOptions = this.dragOptions;
+
+        if (dragOptions.delegateShape) {
+
+            dragOptions.delegateShape.remove();
+            dragOptions.delegateShape = null;
+
+        }
+
+        // 终止时需要判断此时是否在监听画布外的 mouseup 事件，若有则解绑
+        const fn: (this: HTMLElement, evt: MouseEvent) => any = this.fn;
+
+        if (typeof fn === 'function') {
+
+            window.document.body.removeEventListener('mouseup', fn, false);
+            this.fn = null;
+
+        }
+
+        updateDragTarget(mindmap, false);
+
+        // 若目标父节点处于折叠状态，则打开
+        // 并且不需要_removeOldDragPlaceholder，因为展开时会自动删除当前的children
+        // TODO : 支持折叠
+        // if (dragHolderParentModel._collapsed) {
+
+        //     this.graph.refreshLayout();
+        //     vm.collapseChildren(dragHolderParentModel.id, false);
+
+        // } else {
+
+        removeOldDragPlaceholder(mindmap);
+        mindmap.graph.refreshLayout();
+
+        // }
+
+        dragHolderParentModel = null;
+        dragHolderIndexOfParent = null;
+        this.dragOptions = null;
+        mindmap.dragging = false;
 
     },
 });

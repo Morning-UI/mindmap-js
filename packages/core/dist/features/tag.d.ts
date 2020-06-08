@@ -1,15 +1,43 @@
 import { TreeGraph } from '@antv/g6';
-import { NodeIds, Constructor } from '../interface';
-declare const _default: <TBase extends Constructor<{
-    graph: TreeGraph;
-    _options: import("../interface").MindmapInsideOptions;
-    contextNodeId: string;
-    contextType: import("../interface").ContextMenuTypes;
-    contextData: any;
-    currentEditLinkNodeIds: NodeIds;
-    currentEditNoteNodeIds: NodeIds;
-    currentEditTagNodeIds: NodeIds;
-    hideEditLink: Function;
-    hideEditNote: Function;
-}>>(Base: TBase) => TBase;
+import { Item } from '@antv/g6/lib/types';
+import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor } from '../interface';
+declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
+    new (...args: any[]): {
+        showEditTag(nodeIds: NodeIds): this;
+        hideEditTag(): this;
+        getCurrentEditTagNodeIds(): NodeIds;
+        tag(nodeIds: NodeIds, tags: string[] | string): this;
+        tagAdd(nodeIds: NodeIds, tags: string[] | string): this;
+        untag(nodeIds: NodeIds, untags: string[] | string): this;
+        untagByIndex(nodeIds: NodeIds, index: number): this;
+        graph: TreeGraph;
+        G6: typeof import("@antv/g6");
+        data: MindmapNodeItem;
+        dragging: boolean;
+        editting: boolean;
+        editElements: import("../interface").MindNodeElements;
+        editNode: Item;
+        editContent: string;
+        editZoom: number;
+        contextNodeId: string;
+        contextType: import("../interface").ContextMenuTypes;
+        contextData: any;
+        currentEditLinkNodeIds: NodeIds;
+        currentEditNoteNodeIds: NodeIds;
+        currentEditTagNodeIds: NodeIds;
+        eventList: import("../interface").EventList;
+        keydownState: {
+            mod: boolean;
+        };
+        _options: import("../interface").MindmapInsideOptions;
+        readData(data: import("../interface").MindmapDataItem): any;
+        clearSelectedNode(): any;
+        focusNodeTextEditor(nodeId: string, clean?: boolean): any;
+        blurNodeTextEditor(): any;
+        editorInput(content: string): any;
+        on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
+        emit(eventName: import("../interface").EventNames): any;
+        showLink(nodeId: string): any;
+    };
+} & TBase;
 export default _default;

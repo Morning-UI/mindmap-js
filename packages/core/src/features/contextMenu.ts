@@ -1,11 +1,11 @@
 import {
-    MindmapCoreConstructor,
     ShowContextMenuOptions,
     ContextMenuTypes,
+    MindmapCoreL1Ctor,
     ContextMenuFeatures,
 }                                               from '../interface';
 
-export default <TBase extends MindmapCoreConstructor>(Base: TBase): TBase =>
+export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
     class extends Base implements ContextMenuFeatures {
 
         showContextMenu (options: ShowContextMenuOptions): this {

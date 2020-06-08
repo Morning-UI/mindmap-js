@@ -1,2 +1,3 @@
 import { BehaviorOption } from '@antv/g6/lib/types';
-export declare const getNodeDragBehavior: (mindmap: any) => BehaviorOption;
+import { MindmapCoreType } from '../interface';
+export declare const getNodeDragBehavior: (mindmap: MindmapCoreType) => BehaviorOption;

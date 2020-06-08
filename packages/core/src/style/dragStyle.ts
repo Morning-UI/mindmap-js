@@ -1,10 +1,14 @@
 import {
     NodeStyle,
 }                                               from '../interface';
+import {
+    LINE_WIDTH,
+    HOLDER_COLOR,
+}                                               from './base';
 
 export const DRAG_NODE_STYLE: NodeStyle = {
-    bgColor : 'rgba(75, 201, 218, 0.3)',
-    borderColor : 'rgba(75, 201, 218, 1)',
-    borderWidth : 2,
+    bgColor : 'rgba(149, 222, 253, 0.3)',
+    borderColor : HOLDER_COLOR,
+    borderWidth : LINE_WIDTH + 1,
     borderDash : [5, 5],
 };

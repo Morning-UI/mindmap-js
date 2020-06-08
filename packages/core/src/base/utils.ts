@@ -9,22 +9,26 @@ import {
     IShape,
 }                                               from '@antv/g-base/lib/interfaces';
 import {
+    INode,
+}                                               from '@antv/g6/lib/interface/item';
+import {
     MindmapNodeItem,
     NodeStyle,
     MindNodeShapes,
     MindNodeElements,
     NodeAppendItem,
     NodeIds,
+    MindmapCoreType,
+    toggleNodeVisibilityCallback,
+    MindmapDataItem,
 }                                               from '../interface';
-import MindmapClass, {
-    MindmapCore,
-}                                               from '../index';
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
 import {
     MIND_NODE_STYLE,
 }                                               from '../style';
+import globalData                               from '../base/globalData';
 
 export const genNodeStyles = (styles: NodeStyle, cfg: MindmapNodeItem): NodeStyle => {
 
@@ -37,7 +41,7 @@ export const genNodeStyles = (styles: NodeStyle, cfg: MindmapNodeItem): NodeStyl
 
 };
 
-export const inNodeShape = (mindmap: MindmapCore, evt: IG6GraphEvent, element: IElement): boolean => {
+export const inNodeShape = (mindmap: MindmapCoreType, evt: IG6GraphEvent, element: IElement): boolean => {
 
     if (element === undefined) {
 
@@ -258,5 +262,151 @@ export const fillNodeIds = (nodeIds: NodeIds): string[] => {
     }
 
     return nodeIds as string[];
+
+};
+
+export const toggleAllChildrenVisibility = (
+    node: INode,
+    type: 'show'|'hide' = 'show',
+    callback: toggleNodeVisibilityCallback,
+): void => {
+
+    const outEdges = node.getOutEdges();
+
+    for (const edge of outEdges) {
+
+        const child = edge.getTarget();
+        const model = child.getModel() as MindmapNodeItem;
+
+        edge[type]();
+        child[type]();
+
+        if (typeof callback === 'function') {
+
+            // eslint-disable-next-line callback-return
+            callback(type, model);
+
+        }
+
+        if (child.getOutEdges().length > 0) {
+
+            toggleAllChildrenVisibility(child, type, callback);
+
+        }
+
+    }
+
+};
+
+export const toggleNodeVisibility = (
+    node: INode,
+    type: 'show'|'hide' = 'show',
+    callback: toggleNodeVisibilityCallback,
+): void => {
+
+    // 隐藏边
+    node.getInEdges()[0][type]();
+
+    // 隐藏文本和主容器
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.text)[
+            type
+        ]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.con)[
+            type
+        ]();
+    // node
+    //     .get('group')
+    //     .getChildByIndex(NODE_SHAPE_INDEX.bottomline)[
+    //         type
+    //     ]();
+    // node
+    //     .get('group')
+    //     .getChildByIndex(NODE_SHAPE_INDEX.markConGroup)[
+    //         type
+    //     ]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.appendConGroup)[
+            type
+        ]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.tagConGroup)[
+            type
+        ]();
+    // node
+    //     .get('group')
+    //     .getChildByIndex(NODE_SHAPE_INDEX.collapseBtnGroup)[
+    //         type
+    //     ]();
+
+    toggleAllChildrenVisibility(node, type, callback);
+
+};
+
+// ITEM INCLUEDS:
+// --------------
+// INPUT DATA:
+//      text : 文案
+//      children : 子节点
+//      link : 链接
+//      note : 备注
+//      tag : 标签
+// --------------
+// G6 DATA:
+//      id : node id
+//      anchorPoints : 锚点
+//      style : 额外的样式
+//      type : 采用的图形
+// --------------
+// INSIDE PROP:
+//      _isRoot : 是否是根节点
+//      _isNode : 是节点
+//      _isDragging : 正在拖拽
+//      _isHolder : 占位节点
+// --------------
+export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
+
+    const globalId = globalData.id;
+    const nodeItem: MindmapNodeItem = {
+        id : globalData.id++,
+        // eslint-disable-next-line no-magic-numbers
+        anchorPoints : [[0, 0.5], [1, 0.5]],
+        style : {},
+        // TODO : type diff when node is root
+        type : 'mind-node',
+        link : null,
+        note : null,
+        tag : null,
+        ...item,
+        _isRoot : globalId === 1,
+        _isNode : true,
+        _isDragging : false,
+        _isHolder : false,
+    };
+
+    return nodeItem;
+
+};
+
+export const traverseData = (data: MindmapDataItem): MindmapNodeItem => {
+
+    const nodeData: MindmapNodeItem = traverseOneItem(data);
+
+    if (nodeData.children) {
+
+        for (const index in nodeData.children) {
+
+            nodeData.children[index] = traverseData(nodeData.children[index]);
+
+        }
+
+    }
+
+    return nodeData;
 
 };

@@ -1,17 +1,66 @@
+import map                                      from 'lodash.map';
 import {
     INode,
 }                                               from '@antv/g6/lib/interface/item';
 import {
     NodeIds,
-    MindmapCoreConstructor,
+    MindmapCoreL1Ctor,
     MindmapNodeItem,
     NodeFeatures,
+    NodeId,
+    MindmapDatas,
+    MindmapData,
 }                                               from '../interface';
 import {
     fillNodeIds,
+    traverseData,
 }                                               from '../base/utils';
 
-export default <TBase extends MindmapCoreConstructor>(Base: TBase): TBase =>
+const parseNodeDataOnce = (data: MindmapData): MindmapData => {
+
+    let _data = data;
+
+    if (typeof _data === 'string') {
+
+        try {
+
+            _data = JSON.parse(_data);
+
+        // eslint-disable-next-line no-empty
+        } catch (e) {}
+
+    }
+
+    _data = {
+        text : '新的节点',
+        ..._data,
+    };
+
+    return _data;
+
+};
+
+const parseNodeData = (datas: MindmapDatas): MindmapDatas => {
+
+    const _datas = datas;
+
+    if (Array.isArray(_datas)) {
+
+        for (const key in _datas) {
+
+            _datas[key] = parseNodeDataOnce(_datas[Number(key)]);
+
+        }
+
+        return _datas;
+
+    }
+
+    return [parseNodeDataOnce(_datas as MindmapData)];
+
+};
+
+export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
     class extends Base implements NodeFeatures {
 
         removeNode (nodeIds: NodeIds, _refresh = true): this {
@@ -48,6 +97,92 @@ export default <TBase extends MindmapCoreConstructor>(Base: TBase): TBase =>
             }
 
             return this;
+
+        }
+
+        insertSubNode (
+            nodeId: NodeId,
+            datas: MindmapDatas,
+            index = -1,
+            _refresh = true,
+        ): string | string[] {
+
+            const node = this.graph.findById(String(nodeId)) as INode;
+            const model = node.getModel() as MindmapNodeItem;
+            // let parent = node.getInEdges()[0].getSource();
+            // TODO : 支持折叠
+            // let children = model._collapsed ? model._collapsedChildren : model.children;
+            const isSingle = !Array.isArray(datas);
+
+            let _datas = parseNodeData(datas);
+            let children = model.children;
+
+            if (children === undefined) {
+
+                // TODO : 支持折叠
+                // if (model._collapsed) {
+
+                //     model._collapsedChildren = [];
+                //     children = model._collapsedChildren;
+
+                // } else {
+
+                model.children = [];
+                children = model.children;
+
+                // }
+
+            }
+
+            if (!Array.isArray(_datas)) {
+
+                _datas = [_datas];
+
+            }
+
+            for (const _index in _datas) {
+
+                _datas[_index] = traverseData(_datas[_index]);
+
+            }
+
+            if (index > -1) {
+
+                _datas = Object.assign([], _datas);
+                _datas.reverse();
+
+                for (const item of _datas) {
+
+                    children.splice(index, 0, item);
+
+                }
+
+            } else {
+
+                for (const item of _datas) {
+
+                    children.push(item);
+
+                }
+
+            }
+
+            if (_refresh) {
+
+                // 刷新当前节点的展开按钮
+                node.draw();
+                this.graph.changeData();
+                this.graph.refreshLayout();
+
+            }
+
+            if (isSingle) {
+
+                return _datas[0].id;
+
+            }
+
+            return map(_datas, 'id');
 
         }
 

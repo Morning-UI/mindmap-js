@@ -2,8 +2,6 @@ import * as G6                                  from '@antv/g6';
 import {
     ShapeOptions,
 }                                               from '@antv/g6/lib/interface/shape';
-// import {
-// }                                               from '@antv/g-canvas/lib/interfaces';
 import {
     IShape,
     IElement,
@@ -61,6 +59,9 @@ export interface MindmapCreateOptions {
     // 最大显示的标签数
     maxShowTagNum?: number;
 
+    // 脑图方向
+    direction?: 'LR';
+
 }
 
 export interface MindmapInsideOptions extends MindmapCreateOptions {
@@ -78,7 +79,7 @@ export interface MindmapDataItem extends TreeGraphData {
     link?: string;
     note?: string;
     tag?: string[];
-    children?: Array<MindmapDataItem>;
+    children?: MindmapDataItem[];
 }
 
 export interface MindmapNodeItem extends MindmapDataItem, NodeConfig {
@@ -89,8 +90,13 @@ export interface MindmapNodeItem extends MindmapDataItem, NodeConfig {
     style?: ShapeStyle;
     type?: string;
     _isRoot: boolean;
-    _isNode: true;
+    _isNode: boolean;
+    _isDragging: boolean;
+    _isHolder: boolean;
 }
+
+export type MindmapData = MindmapNodeItem | MindmapDataItem;
+export type MindmapDatas = MindmapData[] | MindmapData;
 
 export interface NodeStyle {
     outlineRadius?: number;
@@ -122,6 +128,8 @@ export interface NodeStyle {
     tagPaddingY?: number;
     tagMarginLeft?: number;
     tagMarginTop?: number;
+    width?: number;
+    height?: number;
 }
 
 export interface MindShapeOptions extends ShapeOptions {}
@@ -190,6 +198,11 @@ export enum EventNames {
     ZoomChange,
 }
 
+export type EventList = {
+    [EventNames.EditContentChange]?: EditContentChangeCallback[];
+    [EventNames.ZoomChange]?: ZoomChangeCallback[];
+};
+
 export type EditContentChangeCallback = {
     (editContent: string): void;
 }
@@ -223,7 +236,7 @@ export interface ShowContextMenuOptions {
 }
 
 export type NodeId = string | number;
-export type NodeIds = NodeId[];
+export type NodeIds = NodeId[] | NodeId;
 
 export type NodeDragBehaviorCfg = {
     dragOptions: DragOptions;
@@ -236,8 +249,8 @@ export type BehaviorEvents = {
 export type DragOptions = {
     originX: number;
     originY: number;
-    delegateShape: ;
-    type?: 'unselect-single';
+    delegateShape: IShape;
+    type?: 'unselect-single' | 'select';
     targets?: Item[];
     point?: {
         x: number;
@@ -255,55 +268,65 @@ export type DragTarget = {
     nodes: Item[];
     hidden: boolean;
     originNodeStyle: {
-        [key: string] : any;
+        [key: string]: any;
     };
     saveModel: {
-        [key: string] : MindmapNodeItem;
-    }
+        [key: string]: MindmapNodeItem;
+    };
 }
 
-// ------------------------------------------------------------------------------
-
-export type MindmapCore = MindmapCoreBase
-    & LinkFeatures
-    & NoteFeatures
-    & TagFeatures
-    & ContextMenuFeatures
-    & NodeFeatures;
-export type MindmapCoreWithLink = MindmapCoreBase & LinkFeatures;
+export type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
+export type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export interface LinkFeatures {
-    showEditLink(nodeIds: NodeIds): this;
-    // hideEditLink(): MindmapCore;
-    // getCurrentEditLinkNodeIds(): NodeIds;
-    // link(nodeIds: NodeIds, link: string): MindmapCore;
-    // unlink(nodeIds: NodeIds): MindmapCore;
-};
+    showEditLink (nodeIds: NodeIds): this;
+    hideEditLink (): this;
+    getCurrentEditLinkNodeIds (): NodeIds;
+    link (nodeIds: NodeIds, link: string): this;
+    unlink (nodeIds: NodeIds): this;
+}
 export interface NoteFeatures {
-    showEditNote (nodeIds: NodeIds): MindmapCore;
-    hideEditNote (): MindmapCore;
+    showEditNote (nodeIds: NodeIds): this;
+    hideEditNote (): this;
     getCurrentEditNoteNodeIds (): NodeIds;
-    note (nodeIds: NodeIds, note: string): MindmapCore;
-    unnote (nodeIds: NodeIds): MindmapCore;
-};
+    note (nodeIds: NodeIds, note: string): this;
+    unnote (nodeIds: NodeIds): this;
+}
 export interface TagFeatures {
-    showEditTag (nodeIds: NodeIds): MindmapCore;
-    hideEditTag (): MindmapCore;
+    showEditTag (nodeIds: NodeIds): this;
+    hideEditTag (): this;
     getCurrentEditTagNodeIds (): NodeIds;
-    tag (nodeIds: NodeIds, tags: string[]|string): MindmapCore;
-    tagAdd (nodeIds: NodeIds, tags: string[]|string): MindmapCore;
-    untag (nodeIds: NodeIds, untags: string[]|string): MindmapCore;
-    untagByIndex (nodeIds: NodeIds, index: number): MindmapCore;
-};
+    tag (nodeIds: NodeIds, tags: string[]|string): this;
+    tagAdd (nodeIds: NodeIds, tags: string[]|string): this;
+    untag (nodeIds: NodeIds, untags: string[]|string): this;
+    untagByIndex (nodeIds: NodeIds, index: number): this;
+}
 export interface ContextMenuFeatures {
-    showContextMenu (options: ShowContextMenuOptions): MindmapCore;
-    hideContextMenu (): MindmapCore;
-    hideAllContextMenu (): MindmapCore;
+    showContextMenu (options: ShowContextMenuOptions): this;
+    hideContextMenu (): this;
+    hideAllContextMenu (): this;
     getContextNodeId (): string;
     getContextType (): ContextMenuTypes;
     getContextData (): any;
-};
+}
 export interface NodeFeatures {
-    removeNode (nodeIds: NodeIds, _refresh: boolean): MindmapCore;
-};
-// export type MindmapCoreBaseConstructor<T = MindmapCoreBase> = new (...args: any[]) => T;
-export type MindmapCoreConstructor<T = MindmapCoreBase> = new (...args: any[]) => MindmapCore;
+    removeNode (nodeIds: NodeIds, _refresh: boolean): this;
+    insertSubNode (
+        nodeId: NodeId,
+        datas: MindmapDatas,
+        index: number,
+        _refresh: boolean,
+    ): string | string[];
+}
+export type MindmapCoreL0Type = MindmapCoreBase;
+export type MindmapCoreL1Type =
+    MindmapCoreL0Type
+    & LinkFeatures
+    & NoteFeatures
+    & TagFeatures;
+
+export type MindmapCoreType =
+    MindmapCoreL1Type
+    & ContextMenuFeatures
+    & NodeFeatures;
+
+export type toggleNodeVisibilityCallback = (type: 'show'|'hide', model: MindmapNodeItem) => void;

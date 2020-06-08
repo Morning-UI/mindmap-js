@@ -1,31 +1,24 @@
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 import { MIND_EDGE_STYLE, } from '../style';
-// const getPathWithBorderRadiusByPolyline = (points: PolyPoint[], borderRadius: number): string => {
-//     const pathSegments: string[] = [];
-//     const startPoint = points[0];
-//     pathSegments.push(`M${startPoint.x} ${startPoint.y}`);
-//     points.forEach((p, i) => {
-//         const p1 = points[i + 1];
-//         const p2 = points[i + 2];
-//         if (p1 && p2) {
-//             if (isBending(p, p1, p2)) {
-//                 const [ps, pt] = getBorderRadiusPoints(p, p1, p2, borderRadius);
-//                 pathSegments.push(`L${ps.x} ${ps.y}`);
-//                 pathSegments.push(`Q${p1.x} ${p1.y} ${pt.x} ${pt.y}`);
-//                 pathSegments.push(`L${pt.x} ${pt.y}`);
-//             } else {
-//                 pathSegments.push(`L${p1.x} ${p1.y}`);
-//             }
-//         } else if (p1) {
-//             pathSegments.push(`L${p1.x} ${p1.y}`);
-//         }
-//     });
-//     return pathSegments.join('');
-// };
-export var getMindEdge = function (mindmap) { return ({
+export var getMindEdge = function () { return ({
+    getStyles: function () {
+        return {};
+    },
     draw: function (cfg, group) {
+        var styles = __assign(__assign({}, MIND_EDGE_STYLE), this.getStyles());
         var startPoint = cfg.startPoint;
         var endPoint = cfg.endPoint;
-        var radius = MIND_EDGE_STYLE.radius;
+        var radius = styles.radius;
         var p1 = {
             x: ((endPoint.x - startPoint.x) / 3) + startPoint.x - radius,
             y: startPoint.y,
@@ -70,8 +63,8 @@ export var getMindEdge = function (mindmap) { return ({
         }
         var shape = group.addShape('path', {
             attrs: {
-                stroke: MIND_EDGE_STYLE.borderColor,
-                lineWidth: MIND_EDGE_STYLE.borderWidth,
+                stroke: styles.borderColor,
+                lineWidth: styles.borderWidth,
                 path: path,
             },
             name: 'path-shape',
