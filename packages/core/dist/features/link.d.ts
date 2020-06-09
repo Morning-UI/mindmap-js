@@ -25,6 +25,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         eventList: import("../interface").EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
         readData(data: import("../interface").MindmapDataItem): any;

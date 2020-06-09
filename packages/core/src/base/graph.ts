@@ -29,6 +29,9 @@ import {
 import {
     getNodeDragBehavior,
 }                                               from '../behavior/nodeDrag';
+import {
+    getNodeBrushSelectBehavior,
+}                                               from '../behavior/nodeBrushSelect';
 import bindNodeHover                            from '../events/nodeHover';
 import bindNodeSelect                           from '../events/nodeSelect';
 import bindNodeEdit                             from '../events/nodeEdit';
@@ -119,6 +122,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
         draggable : true,
         nodeDraggable : true,
         scalable : true,
+        brushSelectable : true,
         backgroundGrid : false,
         minimap : true,
         // eslint-disable-next-line no-magic-numbers
@@ -161,6 +165,12 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
     if (_options.nodeDraggable) {
 
         modes.push('mind-drag-node');
+
+    }
+
+    if (_options.brushSelectable) {
+
+        modes.push('mind-brush-select');
 
     }
 
@@ -270,6 +280,7 @@ export const register = (mindmap: MindmapCoreType): void => {
     G6.registerEdge('mind-holder-edge', getMindHolderEdge(), 'mind-edge');
 
     G6.registerBehavior('mind-drag-node', getNodeDragBehavior(mindmap));
+    G6.registerBehavior('mind-brush-select', getNodeBrushSelectBehavior(mindmap));
 
 };
 

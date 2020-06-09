@@ -12,6 +12,7 @@ export interface MindmapCreateOptions {
     draggable?: boolean;
     nodeDraggable?: boolean;
     scalable?: boolean;
+    brushSelectable?: boolean;
     backgroundGrid?: boolean;
     minimap?: boolean;
     nodeVGap?: number;
@@ -51,6 +52,9 @@ export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeCon
 }
 export declare type MindmapData = MindmapNodeItem | MindmapDataItem;
 export declare type MindmapDatas = MindmapData[] | MindmapData;
+export declare type MindmapDataItemGetter = {
+    [key in keyof MindmapDataItem]: Function;
+};
 export interface NodeStyle {
     outlineRadius?: number;
     outlinePadding?: number;
@@ -175,12 +179,16 @@ export declare type NodeIds = NodeId[] | NodeId;
 export declare type NodeDragBehaviorCfg = {
     dragOptions: DragOptions;
 };
+export declare type BrushSelectBehaviorCfg = {
+    includeEdges: boolean;
+};
 export declare type BehaviorEvents = {
     [key in G6Event]?: string;
 };
 export declare type DragOptions = {
     originX: number;
     originY: number;
+    originPoint: OriginPointType;
     delegateShape: IShape;
     type?: 'unselect-single' | 'select';
     targets?: Item[];
@@ -194,6 +202,14 @@ export interface UpdateDelegateOptions {
     evt: IG6GraphEvent;
     dragOptions: DragOptions;
 }
+export declare type OriginPointType = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    minX: number;
+    minY: number;
+};
 export declare type DragTarget = {
     nodes: Item[];
     hidden: boolean;
@@ -248,8 +264,15 @@ export interface NodeFeatures {
     removeNode(nodeIds: NodeIds, _refresh: boolean): this;
     insertSubNode(nodeId: NodeId, datas: MindmapDatas, index: number, _refresh: boolean): string | string[];
 }
+export interface GetFeatures {
+    getAllSelectedNodeIds(): NodeId[];
+    getAllSelectedNodeDetails(): MindmapDataItem[];
+    getSelectedNodeId(): NodeId;
+    getSelectedNodeDetail(): MindmapDataItem;
+    getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
+}
 export declare type MindmapCoreL0Type = MindmapCoreBase;
-export declare type MindmapCoreL1Type = MindmapCoreL0Type & LinkFeatures & NoteFeatures & TagFeatures;
+export declare type MindmapCoreL1Type = MindmapCoreL0Type & GetFeatures & LinkFeatures & NoteFeatures & TagFeatures;
 export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures;
 export declare type MindmapCoreType = MindmapCoreL2Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;

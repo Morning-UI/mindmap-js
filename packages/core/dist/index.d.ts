@@ -21,6 +21,7 @@ export declare class MindmapCoreBase {
     eventList: EventList;
     keydownState: {
         mod: boolean;
+        shift: boolean;
     };
     _options: MindmapInsideOptions;
     constructor(...args: any[]);
@@ -55,6 +56,7 @@ declare const MindmapCore: {
         eventList: EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
         };
         _options: MindmapInsideOptions;
         readData(data: MindmapDataItem): this;
@@ -66,6 +68,11 @@ declare const MindmapCore: {
         emit(eventName: EventNames): this;
         showLink(nodeId: string): this;
         getNodeBBox(nodeId: string): object;
+        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeDetails(): MindmapDataItem[];
+        getSelectedNodeId(): string | number;
+        getSelectedNodeDetail(): MindmapDataItem;
+        getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
         showEditLink(nodeIds: NodeIds): any;
         hideEditLink(): any;
         getCurrentEditLinkNodeIds(): NodeIds;
@@ -96,12 +103,12 @@ declare const MindmapCore: {
         menuItemTagEdit(): void;
         menuItemTagDelete(): void;
         removeNode(nodeIds: NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: import("./interface").NodeId, datas: import("./interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        insertSubNode(nodeId: string | number, datas: import("./interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
     };
 } & {
     new (...args: any[]): {
         removeNode(nodeIds: NodeIds, _refresh?: boolean): any;
-        insertSubNode(nodeId: import("./interface").NodeId, datas: import("./interface").MindmapDatas, index?: number, _refresh?: boolean): string | string[];
+        insertSubNode(nodeId: string | number, datas: import("./interface").MindmapDatas, index?: number, _refresh?: boolean): string | string[];
         graph: G6.TreeGraph;
         G6: typeof G6;
         data: MindmapNodeItem;
@@ -121,6 +128,7 @@ declare const MindmapCore: {
         eventList: EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
         };
         _options: MindmapInsideOptions;
         readData(data: MindmapDataItem): this;
@@ -132,6 +140,11 @@ declare const MindmapCore: {
         emit(eventName: EventNames): this;
         showLink(nodeId: string): this;
         getNodeBBox(nodeId: string): object;
+        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeDetails(): MindmapDataItem[];
+        getSelectedNodeId(): string | number;
+        getSelectedNodeDetail(): MindmapDataItem;
+        getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
         showEditLink(nodeIds: NodeIds): any;
         hideEditLink(): any;
         getCurrentEditLinkNodeIds(): NodeIds;
@@ -183,6 +196,7 @@ declare const MindmapCore: {
         eventList: EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
         };
         _options: MindmapInsideOptions;
         readData(data: MindmapDataItem): this;
@@ -194,6 +208,11 @@ declare const MindmapCore: {
         emit(eventName: EventNames): this;
         showLink(nodeId: string): this;
         getNodeBBox(nodeId: string): object;
+        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeDetails(): MindmapDataItem[];
+        getSelectedNodeId(): string | number;
+        getSelectedNodeDetail(): MindmapDataItem;
+        getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
         showEditLink(nodeIds: NodeIds): any;
         hideEditLink(): any;
         getCurrentEditLinkNodeIds(): NodeIds;
@@ -240,6 +259,7 @@ declare const MindmapCore: {
         eventList: EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
         };
         _options: MindmapInsideOptions;
         readData(data: MindmapDataItem): this;
@@ -278,6 +298,7 @@ declare const MindmapCore: {
         eventList: EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
         };
         _options: MindmapInsideOptions;
         readData(data: MindmapDataItem): this;
@@ -316,6 +337,46 @@ declare const MindmapCore: {
         eventList: EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
+        };
+        _options: MindmapInsideOptions;
+        readData(data: MindmapDataItem): this;
+        clearSelectedNode(): this;
+        focusNodeTextEditor(nodeId: string, clean?: boolean): this;
+        blurNodeTextEditor(): this;
+        editorInput(content: string): this;
+        on(eventName: EventNames, callback: EventCallbacks): this;
+        emit(eventName: EventNames): this;
+        showLink(nodeId: string): this;
+        getNodeBBox(nodeId: string): object;
+    };
+} & {
+    new (...args: any[]): {
+        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeDetails(): MindmapDataItem[];
+        getSelectedNodeId(): string | number;
+        getSelectedNodeDetail(): MindmapDataItem;
+        getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
+        graph: G6.TreeGraph;
+        G6: typeof G6;
+        data: MindmapNodeItem;
+        dragging: boolean;
+        editting: boolean;
+        editElements: MindNodeElements;
+        editNode: G6Types.Item;
+        editContent: string;
+        editZoom: number;
+        contextNodeId: string;
+        contextType: ContextMenuTypes;
+        contextData: any;
+        currentEditLinkNodeIds: NodeIds;
+        currentEditNoteNodeIds: NodeIds;
+        currentEditTagNodeIds: NodeIds;
+        isMindmap: boolean;
+        eventList: EventList;
+        keydownState: {
+            mod: boolean;
+            shift: boolean;
         };
         _options: MindmapInsideOptions;
         readData(data: MindmapDataItem): this;

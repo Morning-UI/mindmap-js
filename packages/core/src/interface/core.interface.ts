@@ -9,6 +9,9 @@ import {
 }                                               from '@antv/g-base/lib/interfaces';
 import GGroup                                   from '@antv/g-canvas/lib/group';
 import {
+    INode,
+}                                               from '@antv/g6/lib/interface/item';
+import {
     ShapeAttrs,
 }                                               from '@antv/g-base';
 import {
@@ -39,6 +42,9 @@ export interface MindmapCreateOptions {
 
     // 是否可缩放
     scalable?: boolean;
+
+    // 是否可以批量选择
+    brushSelectable?: boolean;
 
     // 是否显示背景网格
     backgroundGrid?: boolean;
@@ -94,6 +100,10 @@ export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeCon
 
 export type MindmapData = MindmapNodeItem | MindmapDataItem;
 export type MindmapDatas = MindmapData[] | MindmapData;
+
+export type MindmapDataItemGetter = {
+    [key in keyof MindmapDataItem]: Function;
+};
 
 export interface NodeStyle {
     outlineRadius?: number;
@@ -238,6 +248,9 @@ export type NodeIds = NodeId[] | NodeId;
 export type NodeDragBehaviorCfg = {
     dragOptions: DragOptions;
 }
+export type BrushSelectBehaviorCfg = {
+    includeEdges: boolean;
+}
 
 export type BehaviorEvents = {
     [key in G6Event]?: string;
@@ -246,6 +259,7 @@ export type BehaviorEvents = {
 export type DragOptions = {
     originX: number;
     originY: number;
+    originPoint: OriginPointType;
     delegateShape: IShape;
     type?: 'unselect-single' | 'select';
     targets?: Item[];
@@ -260,6 +274,15 @@ export interface UpdateDelegateOptions {
     evt: IG6GraphEvent;
     dragOptions: DragOptions;
 }
+
+export type OriginPointType = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    minX: number;
+    minY: number;
+};
 
 export type DragTarget = {
     nodes: Item[];
@@ -321,9 +344,17 @@ export interface NodeFeatures {
         _refresh: boolean,
     ): string | string[];
 }
+export interface GetFeatures {
+    getAllSelectedNodeIds (): NodeId[];
+    getAllSelectedNodeDetails (): MindmapDataItem[];
+    getSelectedNodeId (): NodeId;
+    getSelectedNodeDetail (): MindmapDataItem;
+    getNodeDetail (nodeIds: NodeIds): MindmapDataItem|MindmapDataItem[];
+}
 export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
     MindmapCoreL0Type
+    & GetFeatures
     & LinkFeatures
     & NoteFeatures
     & TagFeatures;

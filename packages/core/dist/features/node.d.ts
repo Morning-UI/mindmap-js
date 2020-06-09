@@ -22,6 +22,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         eventList: import("../interface").EventList;
         keydownState: {
             mod: boolean;
+            shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
         readData(data: import("../interface").MindmapDataItem): any;
@@ -33,6 +34,11 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
+        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
+        getSelectedNodeId(): string | number;
+        getSelectedNodeDetail(): import("../interface").MindmapDataItem;
+        getNodeDetail(nodeIds: NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
         showEditLink(nodeIds: NodeIds): any;
         hideEditLink(): any;
         getCurrentEditLinkNodeIds(): NodeIds;

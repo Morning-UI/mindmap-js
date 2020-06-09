@@ -34,6 +34,7 @@ import mixinNote                                from './features/note';
 import mixinTag                                 from './features/tag';
 import mixinContextMenu                         from './features/contextMenu';
 import mixinNode                                from './features/node';
+import mixinGet                                 from './features/get';
 
 export class MindmapCoreBase {
 
@@ -58,6 +59,7 @@ export class MindmapCoreBase {
 
     keydownState = {
         mod : false,
+        shift : false,
     };
 
     _options: MindmapInsideOptions;
@@ -303,8 +305,9 @@ const MindmapCoreL1 =
     mixinTag(
     mixinNote(
     mixinLink(
+    mixinGet(
         MindmapCoreBase
-    )));
+    ))));
 
 const MindmapCoreL2 = 
     mixinNode(

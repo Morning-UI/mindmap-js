@@ -42,7 +42,7 @@
 <script>
 import {
     default as Mindmap,
-    EventNamesEnum,
+    EventNames,
     testData,
 }                                               from 'mindmap-core';
 
@@ -63,7 +63,7 @@ export default {
             $con : this.$el,
         })
         .readData(testData.data2)
-        .on(EventNamesEnum.EditContentChange, (editContent) => {
+        .on(EventNames.EditContentChange, (editContent) => {
             this.editContent = editContent;
         });
 

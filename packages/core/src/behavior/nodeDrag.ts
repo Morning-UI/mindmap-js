@@ -3,6 +3,7 @@ import {
     BehaviorOption,
     IG6GraphEvent,
     IBBox,
+    Item,
 }                                               from '@antv/g6/lib/types';
 import {
     INode,
@@ -21,6 +22,7 @@ import {
     DragTarget,
     MindmapNodeItem,
     MindmapCoreType,
+    OriginPointType,
 }                                               from '../interface';
 import {
     DRAG_NODE_STYLE,
@@ -411,6 +413,70 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
 
 }, DRAG_REFRESH_INTERVAL);
 
+const calculationGroupPosition = (mindmap: MindmapCoreType): OriginPointType => {
+
+    const graph = mindmap.graph;
+    const nodes = graph.findAllByState('node', 'selected');
+
+    let minx = Infinity;
+    let maxx = -Infinity;
+    let miny = Infinity;
+    let maxy = -Infinity;
+
+    // 获取已节点的所有最大最小x y值
+    for (const node of nodes) {
+
+        const item = (typeof node === 'string') ? graph.findById(node) : node;
+        const bbox = item.getBBox();
+        const {
+            minX,
+            minY,
+            maxX,
+            maxY,
+        } = bbox;
+
+        if (minX < minx) {
+
+            minx = minX;
+
+        }
+
+        if (minY < miny) {
+
+            miny = minY;
+
+        }
+
+        if (maxX > maxx) {
+
+            maxx = maxX;
+
+        }
+
+        if (maxY > maxy) {
+
+            maxy = maxY;
+
+        }
+
+    }
+
+    const x = Math.floor(minx);
+    const y = Math.floor(miny);
+    const width = Math.ceil(maxx) - x;
+    const height = Math.ceil(maxy) - y;
+
+    return {
+        x,
+        y,
+        width,
+        height,
+        minX : minx,
+        minY : miny,
+    };
+
+};
+
 const updateDelegate = (options: UpdateDelegateOptions): void => {
 
     const {
@@ -432,38 +498,22 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
 
         if (dragOptions.type === 'select') {
 
-            // const {
-            //     x,
-            //     y,
-            //     width,
-            //     height,
-            //     minX,
-            //     minY
-            // } = this._calculationGroupPosition();
-
-            // this.originPoint = {
-            //     x,
-            //     y,
-            //     width,
-            //     height,
-            //     minX,
-            //     minY
-            // };
-
-            // this.dragOptions.delegateShape = parent.addShape('rect', {
-            //     attrs : Object.assign({
-            //         width,
-            //         height,
-            //         x,
-            //         y
-            //     }, delegateShapeAttr)
-            // });
-            // dragTarget = {
-            //     nodes : this.targets,
-            //     hidden : false,
-            //     originNodeStyle : {},
-            //     saveModel : {}
-            // };
+            dragOptions.originPoint = calculationGroupPosition(mindmap);
+            dragOptions.delegateShape = parentGroup.addShape('rect', {
+                attrs : {
+                    width : dragOptions.originPoint.width,
+                    height : dragOptions.originPoint.height,
+                    x : dragOptions.originPoint.x,
+                    y : dragOptions.originPoint.y,
+                    ...delegateShapeAttr,
+                },
+            });
+            dragTarget = {
+                nodes : dragOptions.targets,
+                hidden : false,
+                originNodeStyle : {},
+                saveModel : {},
+            };
 
         } else if (dragOptions.type === 'unselect-single') {
 
@@ -509,18 +559,34 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
 
     } else if (dragOptions.type === 'select') {
 
-        // let clientX = evt.x - this.dragOptions.originX + this.originPoint.minX;
-        // let clientY = evt.y - this.dragOptions.originY + this.originPoint.minY;
+        const clientX = evt.x - dragOptions.originX + dragOptions.originPoint.minX;
+        const clientY = evt.y - dragOptions.originY + dragOptions.originPoint.minY;
 
-        // this.dragOptions.delegateShape.attr({
-        //     x : clientX,
-        //     y : clientY
-        // });
-        // _refreshDragHolder(vm, this.dragOptions.delegateShape, null);
+        dragOptions.delegateShape.attr({
+            x : clientX,
+            y : clientY,
+        });
+        refreshDragHolder(mindmap, dragOptions.delegateShape, null);
 
     }
 
     mindmap.graph.paint();
+
+};
+
+const getTopSelectedNodeModel = (node: INode): MindmapNodeItem => {
+
+    const parentNode = node.getInEdges()[0].getSource();
+
+    let model = node.getModel() as MindmapNodeItem;
+
+    if (parentNode.getStates().indexOf('selected') !== -1) {
+
+        model = getTopSelectedNodeModel(parentNode);
+
+    }
+
+    return model;
 
 };
 
@@ -562,15 +628,17 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
         const dragOptions: DragOptions = {
             originX : evt.x,
             originY : evt.y,
+            originPoint : null,
             delegateShape : null,
+            targets : [],
         };
 
         // 获取所有选中的元素
-        const nodes = mindmap.graph.findAllByState('node', 'selected');
+        const nodeIds = mindmap.getAllSelectedNodeIds();
         const targetNodeId: string = evt.item.get('id');
 
         // 当前拖动的节点是否是选中的节点
-        const dragNodes = nodes.filter((node) => targetNodeId === node.get('id'));
+        const dragNodes = nodeIds.filter((id) => targetNodeId === id);
 
         if (dragNodes.length === 0) {
 
@@ -584,49 +652,35 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
                 y : currentModel.y,
             };
 
+        } else if (nodeIds.length === 1) {
+
+            // 拖动选中节点
+            dragOptions.targets = [evt.item];
+            dragOptions.type = 'select';
+
+        } else {
+
+            const models: MindmapNodeItem[] = [];
+
+            // 拖动多个节点
+            nodeIds.forEach((id) => {
+
+                const node = mindmap.graph.findById(id) as INode;
+                const nodeModel = getTopSelectedNodeModel(node);
+
+                // 仅计算top节点
+                if (models.indexOf(nodeModel) === -1) {
+
+                    models.push(nodeModel);
+                    dragOptions.targets.push(node);
+
+                }
+
+            });
+
+            dragOptions.type = 'select';
+
         }
-        // else if (nodes.length === 1) {
-
-        //     // 拖动选中节点
-        //     this.targets.push(evt.item);
-        //     this.dragOptions.type = 'select';
-
-        // } else {
-
-        //     let models = [];
-        //     let getTopSelectedNodeModel = node => {
-                
-        //         let model = node.getModel();
-        //         let parentNode = this.graph.findById(model.id).getInEdges()[0].getSource();
-
-        //         if (parentNode.getStates().indexOf('selected') !== -1) {
-
-        //             model = getTopSelectedNodeModel(parentNode);
-
-        //         }
-
-        //         return model;
-
-        //     };
-            
-        //     // 拖动多个节点
-        //     nodes.forEach(node => {
-
-        //         let model = getTopSelectedNodeModel(node);
-
-        //         // 仅计算top节点
-        //         if (models.indexOf(model) === -1) {
-
-        //             models.push(model);
-        //             this.targets.push(node);
-                
-        //         }
-
-        //     });
-
-        //     this.dragOptions.type = 'select';
-
-        // }
 
         this.dragOptions = dragOptions;
 
@@ -648,23 +702,23 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
 
         }
 
-        // if (dragOptions.type === 'unselect-single') {
+        if (dragOptions.type === 'unselect-single') {
 
-        updateDelegate({
-            mindmap,
-            evt,
-            dragOptions,
-        });
+            updateDelegate({
+                mindmap,
+                evt,
+                dragOptions,
+            });
 
-        // } else {
+        } else {
 
-        //     updateDelegate({
-        //         mindmap,
-        //         evt,
-        //         dragOptions,
-        //     });
+            updateDelegate({
+                mindmap,
+                evt,
+                dragOptions,
+            });
 
-        // }
+        }
 
         mindmap.dragging = true;
 

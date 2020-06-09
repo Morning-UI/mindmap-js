@@ -7,9 +7,9 @@ import {
     DRAG_COLOR,
 }                                               from './base';
 
-export const DRAG_NODE_STYLE: NodeStyle = {
+export const BRUSH_SELECT_STYLE: NodeStyle = {
     bgColor : DRAG_COLOR,
     borderColor : HOLDER_COLOR,
-    borderWidth : LINE_WIDTH + 1,
+    borderWidth : LINE_WIDTH,
     borderDash : [5, 5],
 };

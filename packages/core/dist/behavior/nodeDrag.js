@@ -241,6 +241,45 @@ var refreshDragHolder = throttle(function (mindmap, delegateShape, targetNode) {
         });
     }
 }, DRAG_REFRESH_INTERVAL);
+var calculationGroupPosition = function (mindmap) {
+    var graph = mindmap.graph;
+    var nodes = graph.findAllByState('node', 'selected');
+    var minx = Infinity;
+    var maxx = -Infinity;
+    var miny = Infinity;
+    var maxy = -Infinity;
+    // 获取已节点的所有最大最小x y值
+    for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
+        var node = nodes_1[_i];
+        var item = (typeof node === 'string') ? graph.findById(node) : node;
+        var bbox = item.getBBox();
+        var minX = bbox.minX, minY = bbox.minY, maxX = bbox.maxX, maxY = bbox.maxY;
+        if (minX < minx) {
+            minx = minX;
+        }
+        if (minY < miny) {
+            miny = minY;
+        }
+        if (maxX > maxx) {
+            maxx = maxX;
+        }
+        if (maxY > maxy) {
+            maxy = maxY;
+        }
+    }
+    var x = Math.floor(minx);
+    var y = Math.floor(miny);
+    var width = Math.ceil(maxx) - x;
+    var height = Math.ceil(maxy) - y;
+    return {
+        x: x,
+        y: y,
+        width: width,
+        height: height,
+        minX: minx,
+        minY: miny,
+    };
+};
 var updateDelegate = function (options) {
     var mindmap = options.mindmap, evt = options.evt, dragOptions = options.dragOptions;
     // 如果还没创建代理元素
@@ -253,36 +292,16 @@ var updateDelegate = function (options) {
             lineDash: DRAG_NODE_STYLE.borderDash,
         };
         if (dragOptions.type === 'select') {
-            // const {
-            //     x,
-            //     y,
-            //     width,
-            //     height,
-            //     minX,
-            //     minY
-            // } = this._calculationGroupPosition();
-            // this.originPoint = {
-            //     x,
-            //     y,
-            //     width,
-            //     height,
-            //     minX,
-            //     minY
-            // };
-            // this.dragOptions.delegateShape = parent.addShape('rect', {
-            //     attrs : Object.assign({
-            //         width,
-            //         height,
-            //         x,
-            //         y
-            //     }, delegateShapeAttr)
-            // });
-            // dragTarget = {
-            //     nodes : this.targets,
-            //     hidden : false,
-            //     originNodeStyle : {},
-            //     saveModel : {}
-            // };
+            dragOptions.originPoint = calculationGroupPosition(mindmap);
+            dragOptions.delegateShape = parentGroup.addShape('rect', {
+                attrs: __assign({ width: dragOptions.originPoint.width, height: dragOptions.originPoint.height, x: dragOptions.originPoint.x, y: dragOptions.originPoint.y }, delegateShapeAttr),
+            });
+            dragTarget = {
+                nodes: dragOptions.targets,
+                hidden: false,
+                originNodeStyle: {},
+                saveModel: {},
+            };
         }
         else if (dragOptions.type === 'unselect-single') {
             var keyShape = dragOptions.targets[0].get('keyShape');
@@ -315,15 +334,23 @@ var updateDelegate = function (options) {
         refreshDragHolder(mindmap, dragOptions.delegateShape, null);
     }
     else if (dragOptions.type === 'select') {
-        // let clientX = evt.x - this.dragOptions.originX + this.originPoint.minX;
-        // let clientY = evt.y - this.dragOptions.originY + this.originPoint.minY;
-        // this.dragOptions.delegateShape.attr({
-        //     x : clientX,
-        //     y : clientY
-        // });
-        // _refreshDragHolder(vm, this.dragOptions.delegateShape, null);
+        var clientX = evt.x - dragOptions.originX + dragOptions.originPoint.minX;
+        var clientY = evt.y - dragOptions.originY + dragOptions.originPoint.minY;
+        dragOptions.delegateShape.attr({
+            x: clientX,
+            y: clientY,
+        });
+        refreshDragHolder(mindmap, dragOptions.delegateShape, null);
     }
     mindmap.graph.paint();
+};
+var getTopSelectedNodeModel = function (node) {
+    var parentNode = node.getInEdges()[0].getSource();
+    var model = node.getModel();
+    if (parentNode.getStates().indexOf('selected') !== -1) {
+        model = getTopSelectedNodeModel(parentNode);
+    }
+    return model;
 };
 export var getNodeDragBehavior = function (mindmap) { return ({
     getDefaultCfg: function () {
@@ -350,13 +377,15 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         var dragOptions = {
             originX: evt.x,
             originY: evt.y,
+            originPoint: null,
             delegateShape: null,
+            targets: [],
         };
         // 获取所有选中的元素
-        var nodes = mindmap.graph.findAllByState('node', 'selected');
+        var nodeIds = mindmap.getAllSelectedNodeIds();
         var targetNodeId = evt.item.get('id');
         // 当前拖动的节点是否是选中的节点
-        var dragNodes = nodes.filter(function (node) { return targetNodeId === node.get('id'); });
+        var dragNodes = nodeIds.filter(function (id) { return targetNodeId === id; });
         if (dragNodes.length === 0) {
             // 只拖动当前节点
             var currentModel = evt.item.getModel();
@@ -367,31 +396,25 @@ export var getNodeDragBehavior = function (mindmap) { return ({
                 y: currentModel.y,
             };
         }
-        // else if (nodes.length === 1) {
-        //     // 拖动选中节点
-        //     this.targets.push(evt.item);
-        //     this.dragOptions.type = 'select';
-        // } else {
-        //     let models = [];
-        //     let getTopSelectedNodeModel = node => {
-        //         let model = node.getModel();
-        //         let parentNode = this.graph.findById(model.id).getInEdges()[0].getSource();
-        //         if (parentNode.getStates().indexOf('selected') !== -1) {
-        //             model = getTopSelectedNodeModel(parentNode);
-        //         }
-        //         return model;
-        //     };
-        //     // 拖动多个节点
-        //     nodes.forEach(node => {
-        //         let model = getTopSelectedNodeModel(node);
-        //         // 仅计算top节点
-        //         if (models.indexOf(model) === -1) {
-        //             models.push(model);
-        //             this.targets.push(node);
-        //         }
-        //     });
-        //     this.dragOptions.type = 'select';
-        // }
+        else if (nodeIds.length === 1) {
+            // 拖动选中节点
+            dragOptions.targets = [evt.item];
+            dragOptions.type = 'select';
+        }
+        else {
+            var models_1 = [];
+            // 拖动多个节点
+            nodeIds.forEach(function (id) {
+                var node = mindmap.graph.findById(id);
+                var nodeModel = getTopSelectedNodeModel(node);
+                // 仅计算top节点
+                if (models_1.indexOf(nodeModel) === -1) {
+                    models_1.push(nodeModel);
+                    dragOptions.targets.push(node);
+                }
+            });
+            dragOptions.type = 'select';
+        }
         this.dragOptions = dragOptions;
     },
     onDrag: function (evt) {
@@ -403,19 +426,20 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         if (!this.get('shouldUpdate').call(this, evt) || model._isRoot) {
             return;
         }
-        // if (dragOptions.type === 'unselect-single') {
-        updateDelegate({
-            mindmap: mindmap,
-            evt: evt,
-            dragOptions: dragOptions,
-        });
-        // } else {
-        //     updateDelegate({
-        //         mindmap,
-        //         evt,
-        //         dragOptions,
-        //     });
-        // }
+        if (dragOptions.type === 'unselect-single') {
+            updateDelegate({
+                mindmap: mindmap,
+                evt: evt,
+                dragOptions: dragOptions,
+            });
+        }
+        else {
+            updateDelegate({
+                mindmap: mindmap,
+                evt: evt,
+                dragOptions: dragOptions,
+            });
+        }
         mindmap.dragging = true;
     },
     onDragEnd: function (evt) {

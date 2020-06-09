@@ -21,6 +21,7 @@ import {
     toggleNodeVisibilityCallback,
     MindmapDataItem,
     MindmapCoreL0Type,
+    MindmapDataItemGetter,
 }                                               from '../interface';
 import {
     NODE_SHAPE_INDEX,
@@ -453,6 +454,87 @@ export const traverseData = (data: MindmapDataItem): MindmapNodeItem => {
     }
 
     return nodeData;
+
+};
+
+export const nodeDataItemGetter: MindmapDataItemGetter = {
+    text : (model: MindmapNodeItem): string => model.text,
+    link : (model: MindmapNodeItem): string => model.link,
+    // mark : (model: MindmapNodeItem):  => (model.mark),
+    note : (model: MindmapNodeItem): string => model.note,
+    tag : (model: MindmapNodeItem): string[] => model.tag,
+    children : (
+        model: MindmapNodeItem,
+        callback: Function,
+        getter: object,
+        mindmap: MindmapCoreL0Type,
+    ): void => {
+
+        // TODO : 支持折叠
+        // let children = model._collapsed ? item._collapsedChildren : item.children;
+        if (model.children) {
+
+            return callback(model.children, getter, mindmap);
+
+        }
+
+        return undefined;
+
+    },
+};
+
+export const pluckDataFromNodes = (
+    children: MindmapNodeItem[],
+    getter: MindmapDataItemGetter = nodeDataItemGetter,
+    mindmap: MindmapCoreL0Type
+): MindmapDataItem[] => {
+
+    const cleanData = [];
+
+    let _children = children;
+
+    if (!Array.isArray(_children)) {
+
+        _children = [_children];
+
+    }
+
+    for (const model of children) {
+
+        const cleanItem: MindmapDataItem = {};
+
+        for (const key in getter) {
+
+            const val = getter[key as keyof MindmapDataItemGetter](model, pluckDataFromNodes, getter, mindmap);
+
+            if (val !== undefined) {
+
+                cleanItem[key as keyof MindmapDataItemGetter] = val;
+
+            }
+
+        }
+
+        cleanData.push(cleanItem);
+
+    }
+
+    return cleanData;
+
+};
+
+export const clearSelectedNode = (mindmap: MindmapCoreType, selectedState: 'selected'): void => {
+
+    const graph = mindmap.graph;
+    const autoPaint = graph.get('autoPaint');
+    const nodes = graph.findAllByState('node', selectedState);
+    const edges = graph.findAllByState('edge', selectedState);
+
+    graph.setAutoPaint(false);
+    nodes.forEach((_node) => graph.setItemState(_node, selectedState, false));
+    edges.forEach((edge) => graph.setItemState(edge, selectedState, false));
+    graph.paint();
+    graph.setAutoPaint(autoPaint);
 
 };
 

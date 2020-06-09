@@ -16,6 +16,7 @@ import { getMindHolderNode, } from '../nodes/mindHolderNode';
 import { getMindEdge, } from '../edges/mindEdge';
 import { getMindHolderEdge, } from '../edges/mindHolderEdge';
 import { getNodeDragBehavior, } from '../behavior/nodeDrag';
+import { getNodeBrushSelectBehavior, } from '../behavior/nodeBrushSelect';
 import bindNodeHover from '../events/nodeHover';
 import bindNodeSelect from '../events/nodeSelect';
 import bindNodeEdit from '../events/nodeEdit';
@@ -73,7 +74,7 @@ var hiddenMenus = function (mindmap, evt) {
 // for TODO :
 // shapeStyle : 使用的图形样式（用户设置）；未启用；
 export var create = function (mindmap, options) {
-    var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, backgroundGrid: false, minimap: true, 
+    var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, brushSelectable: true, backgroundGrid: false, minimap: true, 
         // eslint-disable-next-line no-magic-numbers
         nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag') }, options);
     var modes = [];
@@ -89,6 +90,9 @@ export var create = function (mindmap, options) {
     }
     if (_options.nodeDraggable) {
         modes.push('mind-drag-node');
+    }
+    if (_options.brushSelectable) {
+        modes.push('mind-brush-select');
     }
     if (_options.backgroundGrid) {
         plugins.push(new G6.Grid());
@@ -160,6 +164,7 @@ export var register = function (mindmap) {
     G6.registerEdge('mind-edge', getMindEdge());
     G6.registerEdge('mind-holder-edge', getMindHolderEdge(), 'mind-edge');
     G6.registerBehavior('mind-drag-node', getNodeDragBehavior(mindmap));
+    G6.registerBehavior('mind-brush-select', getNodeBrushSelectBehavior(mindmap));
 };
 export var bindEvent = function (mindmap) {
     var graph = mindmap.graph;

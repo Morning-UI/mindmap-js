@@ -6,3 +6,4 @@ export declare const ITEM_RADIUS = 3;
 export declare const OUTLINE_COLOR = "rgba(147, 223, 254, 1)";
 export declare const OUTLINE_COLOR_ACTIVE = "rgba(38, 190, 252, 1)";
 export declare const HOLDER_COLOR = "rgba(149, 222, 253, 1)";
+export declare const DRAG_COLOR = "rgba(149, 222, 253, 0.3)";

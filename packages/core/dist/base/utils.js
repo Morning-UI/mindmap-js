@@ -279,6 +279,52 @@ export var traverseData = function (data) {
     }
     return nodeData;
 };
+export var nodeDataItemGetter = {
+    text: function (model) { return model.text; },
+    link: function (model) { return model.link; },
+    // mark : (model: MindmapNodeItem):  => (model.mark),
+    note: function (model) { return model.note; },
+    tag: function (model) { return model.tag; },
+    children: function (model, callback, getter, mindmap) {
+        // TODO : 支持折叠
+        // let children = model._collapsed ? item._collapsedChildren : item.children;
+        if (model.children) {
+            return callback(model.children, getter, mindmap);
+        }
+        return undefined;
+    },
+};
+export var pluckDataFromNodes = function (children, getter, mindmap) {
+    if (getter === void 0) { getter = nodeDataItemGetter; }
+    var cleanData = [];
+    var _children = children;
+    if (!Array.isArray(_children)) {
+        _children = [_children];
+    }
+    for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
+        var model = children_1[_i];
+        var cleanItem = {};
+        for (var key in getter) {
+            var val = getter[key](model, pluckDataFromNodes, getter, mindmap);
+            if (val !== undefined) {
+                cleanItem[key] = val;
+            }
+        }
+        cleanData.push(cleanItem);
+    }
+    return cleanData;
+};
+export var clearSelectedNode = function (mindmap, selectedState) {
+    var graph = mindmap.graph;
+    var autoPaint = graph.get('autoPaint');
+    var nodes = graph.findAllByState('node', selectedState);
+    var edges = graph.findAllByState('edge', selectedState);
+    graph.setAutoPaint(false);
+    nodes.forEach(function (_node) { return graph.setItemState(_node, selectedState, false); });
+    edges.forEach(function (edge) { return graph.setItemState(edge, selectedState, false); });
+    graph.paint();
+    graph.setAutoPaint(autoPaint);
+};
 // export const getBoxHeightWithAllChildren = (node: INode): number => {
 //     const height = node.getBBox().height;
 //     const edges = node.getOutEdges();
