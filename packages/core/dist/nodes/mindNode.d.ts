@@ -1,6 +1,6 @@
-import { MindShapeOptions, MindNodeElements, MindmapNodeItem } from '../interface';
-export declare const mindNodeAdjustPosition: (elements: MindNodeElements, cfg: MindmapNodeItem, mindmap: any) => void;
-export declare const getMindNode: (mindmap: any) => MindShapeOptions;
+import { MindShapeOptions, MindNodeElements, MindmapNodeItem, MindmapCoreL0Type } from '../interface';
+export declare const mindNodeAdjustPosition: (elements: MindNodeElements, cfg: MindmapNodeItem, mindmap: MindmapCoreL0Type) => void;
+export declare const getMindNode: (mindmap: MindmapCoreL0Type) => MindShapeOptions;
 export declare const NODE_SHAPE_INDEX: {
-    [index: string]: number;
+    [name: string]: number;
 };

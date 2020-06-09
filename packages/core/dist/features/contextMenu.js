@@ -82,6 +82,30 @@ export default (function (Base) {
         class_1.prototype.getContextData = function () {
             return this.contextData;
         };
+        class_1.prototype.menuItemLinkEdit = function () {
+            this.showEditLink(this.getContextNodeId());
+            this.hideContextMenu();
+        };
+        class_1.prototype.menuItemLinkDelete = function () {
+            this.unlink(this.getContextNodeId());
+            this.hideContextMenu();
+        };
+        class_1.prototype.menuItemNoteEdit = function () {
+            this.showEditNote(this.getContextNodeId());
+            this.hideContextMenu();
+        };
+        class_1.prototype.menuItemNoteDelete = function () {
+            this.unnote(this.getContextNodeId());
+            this.hideContextMenu();
+        };
+        class_1.prototype.menuItemTagEdit = function () {
+            this.showEditTag(this.getContextNodeId());
+            this.hideContextMenu();
+        };
+        class_1.prototype.menuItemTagDelete = function () {
+            this.untagByIndex(this.getContextNodeId(), this.getContextData().tagIndex);
+            this.hideContextMenu();
+        };
         return class_1;
     }(Base));
 });

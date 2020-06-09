@@ -102,7 +102,8 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
         tagAdd (nodeIds: NodeIds, tags: string[]|string): this {
 
             const ids = fillNodeIds(nodeIds);
-            const _tags = typeof tags === 'string' ? [tags] : tags;
+
+            let _tags = typeof tags === 'string' ? [tags] : tags;
 
             _tags = difference(_tags, ['']);
 

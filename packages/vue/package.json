@@ -14,7 +14,7 @@
         "url": "git+https://github.com/Morning-UI/mindmap-js.git"
     },
     "scripts": {
-        "lint": "../../node_modules/.bin/eslint --ext js,ts,tsx,vue src/",
+        "lint": "../../node_modules/.bin/eslint --ext js,ts,vue src/",
         "build": "../../node_modules/.bin/webpack --config ./scripts/webpack.config.prod.js",
         "dev": "../../node_modules/.bin/webpack-dev-server --config ./scripts/webpack.config.dev.js"
     },

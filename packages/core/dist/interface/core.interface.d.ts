@@ -4,11 +4,9 @@ import { IShape, IElement, IGroup } from '@antv/g-base/lib/interfaces';
 import GGroup from '@antv/g-canvas/lib/group';
 import { ShapeAttrs } from '@antv/g-base';
 import { ShapeStyle, TreeGraphData, NodeConfig, G6Event, Item, IG6GraphEvent } from '@antv/g6/lib/types';
-import { MindmapCore } from '../index';
+import { MindmapCoreBase } from '../index';
 export interface MindmapCreateOptions {
     $con: HTMLElement;
-    $canvas: HTMLElement;
-    $editor: HTMLElement;
     width?: number | string;
     height?: number | string;
     draggable?: boolean;
@@ -19,8 +17,11 @@ export interface MindmapCreateOptions {
     nodeVGap?: number;
     nodeHGap?: number;
     maxShowTagNum?: number;
+    direction?: 'LR';
 }
 export interface MindmapInsideOptions extends MindmapCreateOptions {
+    $canvas: HTMLElement;
+    $editor: HTMLElement;
     $editorInput: HTMLElement;
     $contextMenuLink: HTMLElement;
     $contextMenuNote: HTMLElement;
@@ -29,22 +30,27 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $boxEditNote: HTMLElement;
     $boxEditTag: HTMLElement;
 }
-export interface MindmapDataItem extends TreeGraphData {
+export interface MindmapDataItem {
     text?: string;
     link?: string;
     note?: string;
     tag?: string[];
-    children?: Array<MindmapDataItem>;
+    children?: MindmapDataItem[];
 }
-export interface MindmapNodeItem extends MindmapDataItem, NodeConfig {
-    children?: (MindmapDataItem | MindmapNodeItem)[];
+export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeConfig {
+    children?: MindmapNodeItem[];
+    _originChildren?: MindmapDataItem[];
     id: string;
     anchorPoints?: number[][];
     style?: ShapeStyle;
     type?: string;
     _isRoot: boolean;
-    _isNode: true;
+    _isNode: boolean;
+    _isDragging: boolean;
+    _isHolder: boolean;
 }
+export declare type MindmapData = MindmapNodeItem | MindmapDataItem;
+export declare type MindmapDatas = MindmapData[] | MindmapData;
 export interface NodeStyle {
     outlineRadius?: number;
     outlinePadding?: number;
@@ -75,12 +81,14 @@ export interface NodeStyle {
     tagPaddingY?: number;
     tagMarginLeft?: number;
     tagMarginTop?: number;
+    width?: number;
+    height?: number;
 }
 export interface MindShapeOptions extends ShapeOptions {
 }
 export interface InitNodeOptions {
     shapes: MindNodeShapes;
-    mindmap: MindmapCore;
+    mindmap: MindmapCoreL0Type;
     cfg: MindmapNodeItem;
     group: GGroup;
     style: NodeStyle;
@@ -92,7 +100,7 @@ export interface InitNodeAppendsOptions {
 }
 export interface InitNodeTagsOptions {
     shapes: MindNodeShapes;
-    mindmap: MindmapCore;
+    mindmap: MindmapCoreL0Type;
     cfg: MindmapNodeItem;
     style: NodeStyle;
 }
@@ -122,11 +130,11 @@ export interface StateChangeOptions {
     style: NodeStyle;
     cfg?: MindmapNodeItem;
     group?: IGroup;
-    mindmap?: MindmapCore;
+    mindmap?: MindmapCoreL0Type;
 }
 export interface EventOptions {
     graph?: G6.TreeGraph;
-    mindmap?: MindmapCore;
+    mindmap?: MindmapCoreType;
 }
 export declare enum EventNames {
     EditContentChange = 0,
@@ -163,7 +171,7 @@ export interface ShowContextMenuOptions {
     data?: any;
 }
 export declare type NodeId = string | number;
-export declare type NodeIds = NodeId[];
+export declare type NodeIds = NodeId[] | NodeId;
 export declare type NodeDragBehaviorCfg = {
     dragOptions: DragOptions;
 };
@@ -173,7 +181,7 @@ export declare type BehaviorEvents = {
 export declare type DragOptions = {
     originX: number;
     originY: number;
-    delegateShape: any;
+    delegateShape: IShape;
     type?: 'unselect-single' | 'select';
     targets?: Item[];
     point?: {
@@ -182,7 +190,7 @@ export declare type DragOptions = {
     };
 };
 export interface UpdateDelegateOptions {
-    mindmap: MindmapCore;
+    mindmap: MindmapCoreType;
     evt: IG6GraphEvent;
     dragOptions: DragOptions;
 }
@@ -196,8 +204,9 @@ export declare type DragTarget = {
         [key: string]: MindmapNodeItem;
     };
 };
-export declare type MindmapCoreCtor<T = MindmapCore> = new (...args: any[]) => T;
-export declare type MindmapCoreWithLinkCtor<T = MindmapCore & LinkFeatures> = new (...args: any[]) => T;
+export declare type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
+export declare type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
+export declare type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
 export interface LinkFeatures {
     showEditLink(nodeIds: NodeIds): this;
     hideEditLink(): this;
@@ -228,8 +237,19 @@ export interface ContextMenuFeatures {
     getContextNodeId(): string;
     getContextType(): ContextMenuTypes;
     getContextData(): any;
+    menuItemLinkEdit(): void;
+    menuItemLinkDelete(): void;
+    menuItemNoteEdit(): void;
+    menuItemNoteDelete(): void;
+    menuItemTagEdit(): void;
+    menuItemTagDelete(): void;
 }
 export interface NodeFeatures {
-    removeNode(nodeIds: NodeIds, _refresh?: boolean): this;
+    removeNode(nodeIds: NodeIds, _refresh: boolean): this;
+    insertSubNode(nodeId: NodeId, datas: MindmapDatas, index: number, _refresh: boolean): string | string[];
 }
-export declare type MindmapCoreType = MindmapCore & LinkFeatures & NoteFeatures & TagFeatures & ContextMenuFeatures & NodeFeatures;
+export declare type MindmapCoreL0Type = MindmapCoreBase;
+export declare type MindmapCoreL1Type = MindmapCoreL0Type & LinkFeatures & NoteFeatures & TagFeatures;
+export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures;
+export declare type MindmapCoreType = MindmapCoreL2Type;
+export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;

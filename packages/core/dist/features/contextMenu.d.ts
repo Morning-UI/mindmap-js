@@ -7,6 +7,12 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getContextNodeId(): string;
         getContextType(): ContextMenuTypes;
         getContextData(): any;
+        menuItemLinkEdit(): void;
+        menuItemLinkDelete(): void;
+        menuItemNoteEdit(): void;
+        menuItemNoteDelete(): void;
+        menuItemTagEdit(): void;
+        menuItemTagDelete(): void;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: import("../interface").MindmapNodeItem;
@@ -22,6 +28,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         currentEditLinkNodeIds: import("../interface").NodeIds;
         currentEditNoteNodeIds: import("../interface").NodeIds;
         currentEditTagNodeIds: import("../interface").NodeIds;
+        isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
             mod: boolean;
@@ -35,6 +42,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
+        getNodeBBox(nodeId: string): object;
         showEditLink(nodeIds: import("../interface").NodeIds): any;
         hideEditLink(): any;
         getCurrentEditLinkNodeIds(): import("../interface").NodeIds;

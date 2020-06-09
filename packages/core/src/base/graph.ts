@@ -4,11 +4,15 @@ import {
     IG6GraphEvent,
 }                                               from '@antv/g6/lib/types';
 import {
+    INode,
+}                                               from '@antv/g6/lib/interface/item';
+import {
     MindmapNodeItem,
     MindmapCreateOptions,
     MindmapInsideOptions,
     EventNames,
     MindmapCoreType,
+    MindmapCoreL0Type,
 }                                               from '../interface';
 import {
     getMindNode,
@@ -81,7 +85,7 @@ const _nodeEventShouldEmit = (evt: IG6GraphEvent): boolean => {
 
 };
 
-const hiddenMenus = (mindmap: MindmapCore, evt: IG6GraphEvent): void => {
+const hiddenMenus = (mindmap: MindmapCoreType, evt: IG6GraphEvent): void => {
 
     mindmap.hideEditLink();
     mindmap.hideEditNote();
@@ -99,7 +103,6 @@ const hiddenMenus = (mindmap: MindmapCore, evt: IG6GraphEvent): void => {
 //      note : 备注
 //      mark : 标记(用户设置)
 // PRIVATE >>>
-//      
 //      _shapeStyle : 计算完的图形样式
 //      _origin : 原始数据
 //      _mark : 标记(经过转换后)
@@ -108,7 +111,7 @@ const hiddenMenus = (mindmap: MindmapCore, evt: IG6GraphEvent): void => {
 // for TODO :
 // shapeStyle : 使用的图形样式（用户设置）；未启用；
 
-export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.TreeGraph => {
+export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions): G6.TreeGraph => {
 
     const _options: MindmapInsideOptions = {
         width : '100%',
@@ -124,7 +127,9 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
         maxShowTagNum : 4,
         direction : 'LR',
 
-        $editorInput : options.$editor.querySelector('textarea'),
+        $canvas : options.$con.querySelector('.mindmap-canvas'),
+        $editor : options.$con.querySelector('.mindmap-editor'),
+        $editorInput : options.$con.querySelector('textarea'),
         $contextMenuLink : options.$con.querySelector('.mindmap-menu-link'),
         $contextMenuNote : options.$con.querySelector('.mindmap-menu-note'),
         $contextMenuTag : options.$con.querySelector('.mindmap-menu-tag'),
@@ -191,29 +196,17 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
             type : 'compactBox',
             getHeight : (cfg: MindmapNodeItem): number => {
 
-                const node = mindmap.graph.findById(cfg.id);
+                const node = mindmap.graph.findById(cfg.id) as INode;
 
                 if (
                     !node
                     || (node && node.destroyed)
-                    || (node && node.getModel()._isDragging)
+                    || (node && (node.getModel() as MindmapNodeItem)._isDragging)
                 ) {
 
                     return 0;
 
                 }
-
-                // TODO : computedRadius
-                // const model = node.getModel();
-                // if (model.style && model.style.computedRadius) {
-
-                //     node.get('group').getChildByIndex(NODE_SHAPE_INDEX.con)
-                //         .attr({
-                //             radius : node.getBBox().height * model.style.computedRadius
-                //         });
-                //     node.get('group').set('radius', node.getBBox().height * model.style.computedRadius);
-
-                // }
 
                 return node.getBBox().height;
 
@@ -237,9 +230,13 @@ export const create = (mindmap: MindmapCore, options: MindmapCreateOptions): G6.
             },
             getVGap : (cfg: MindmapNodeItem): number => {
 
-                const node = mindmap.graph.findById(cfg.id);
+                const node = mindmap.graph.findById(cfg.id) as INode;
 
-                if (node && (node.getModel() as MindmapNodeItem)._isDragging) {
+                if (
+                    !node
+                    || (node && node.destroyed)
+                    || (node && (node.getModel() as MindmapNodeItem)._isDragging)
+                ) {
 
                     return 0;
 

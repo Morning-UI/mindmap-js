@@ -27,12 +27,6 @@ export interface MindmapCreateOptions {
     // 主容器
     $con: HTMLElement;
 
-    // 画布容器
-    $canvas: HTMLElement;
-
-    // 文本输入容器
-    $editor: HTMLElement;
-
     // 画布尺寸
     width?: number | string;
     height?: number | string;
@@ -65,6 +59,8 @@ export interface MindmapCreateOptions {
 }
 
 export interface MindmapInsideOptions extends MindmapCreateOptions {
+    $canvas: HTMLElement;
+    $editor: HTMLElement;
     $editorInput: HTMLElement;
     $contextMenuLink: HTMLElement;
     $contextMenuNote: HTMLElement;
@@ -74,7 +70,7 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $boxEditTag: HTMLElement;
 }
 
-export interface MindmapDataItem extends TreeGraphData {
+export interface MindmapDataItem {
     text?: string;
     link?: string;
     note?: string;
@@ -82,8 +78,9 @@ export interface MindmapDataItem extends TreeGraphData {
     children?: MindmapDataItem[];
 }
 
-export interface MindmapNodeItem extends MindmapDataItem, NodeConfig {
-    children?: (MindmapDataItem | MindmapNodeItem)[];
+export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeConfig {
+    children?: MindmapNodeItem[];
+    _originChildren?: MindmapDataItem[];
 
     id: string;
     anchorPoints?: number[][];
@@ -136,7 +133,7 @@ export interface MindShapeOptions extends ShapeOptions {}
 
 export interface InitNodeOptions {
     shapes: MindNodeShapes;
-    mindmap: MindmapCore;
+    mindmap: MindmapCoreL0Type;
     cfg: MindmapNodeItem;
     group: GGroup;
     style: NodeStyle;
@@ -150,7 +147,7 @@ export interface InitNodeAppendsOptions {
 
 export interface InitNodeTagsOptions {
     shapes: MindNodeShapes;
-    mindmap: MindmapCore;
+    mindmap: MindmapCoreL0Type;
     cfg: MindmapNodeItem;
     style: NodeStyle;
 }
@@ -185,12 +182,12 @@ export interface StateChangeOptions {
     style: NodeStyle;
     cfg?: MindmapNodeItem;
     group?: IGroup;
-    mindmap?: MindmapCore;
+    mindmap?: MindmapCoreL0Type;
 }
 
 export interface EventOptions {
     graph?: G6.TreeGraph;
-    mindmap?: MindmapCore;
+    mindmap?: MindmapCoreType;
 }
 
 export enum EventNames {
@@ -259,7 +256,7 @@ export type DragOptions = {
 }
 
 export interface UpdateDelegateOptions {
-    mindmap: MindmapCore;
+    mindmap: MindmapCoreType;
     evt: IG6GraphEvent;
     dragOptions: DragOptions;
 }
@@ -277,6 +274,7 @@ export type DragTarget = {
 
 export type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
 export type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
+export type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
 export interface LinkFeatures {
     showEditLink (nodeIds: NodeIds): this;
     hideEditLink (): this;
@@ -307,6 +305,12 @@ export interface ContextMenuFeatures {
     getContextNodeId (): string;
     getContextType (): ContextMenuTypes;
     getContextData (): any;
+    menuItemLinkEdit (): void;
+    menuItemLinkDelete (): void;
+    menuItemNoteEdit (): void;
+    menuItemNoteDelete (): void;
+    menuItemTagEdit (): void;
+    menuItemTagDelete (): void;
 }
 export interface NodeFeatures {
     removeNode (nodeIds: NodeIds, _refresh: boolean): this;
@@ -324,9 +328,11 @@ export type MindmapCoreL1Type =
     & NoteFeatures
     & TagFeatures;
 
-export type MindmapCoreType =
+export type MindmapCoreL2Type =
     MindmapCoreL1Type
     & ContextMenuFeatures
     & NodeFeatures;
+
+export type MindmapCoreType = MindmapCoreL2Type;
 
 export type toggleNodeVisibilityCallback = (type: 'show'|'hide', model: MindmapNodeItem) => void;

@@ -2,7 +2,6 @@ import * as G6                                  from '@antv/g6';
 import * as G6Types                             from '@antv/g6/lib/types';
 // import * as G6Graph                             from '@antv/g6/lib/interface/graph';
 import {
-    MindmapCreateOptions,
     MindmapDataItem,
     MindmapNodeItem,
     MindNodeElements,
@@ -14,13 +13,8 @@ import {
     EventCallbacks,
     ContextMenuTypes,
     NodeIds,
-    MindmapCoreType,
-    MindmapCoreL1Type,
 }                                               from './interface';
 import {
-    create,
-    register,
-    bindEvent,
     manualPaint,
 }                                               from './base/graph';
 import {
@@ -32,7 +26,9 @@ import {
 }                                               from './base/editor';
 import {
     mindNodeAdjustPosition,
+    NODE_SHAPE_INDEX,
 }                                               from './nodes/mindNode';
+import mixinConstructor                         from './features/constructor';
 import mixinLink                                from './features/link';
 import mixinNote                                from './features/note';
 import mixinTag                                 from './features/tag';
@@ -57,6 +53,7 @@ export class MindmapCoreBase {
     currentEditNoteNodeIds: NodeIds;
     currentEditTagNodeIds: NodeIds;
 
+    isMindmap = true;
     eventList: EventList = {};
 
     keydownState = {
@@ -65,13 +62,7 @@ export class MindmapCoreBase {
 
     _options: MindmapInsideOptions;
 
-    constructor (options: MindmapCreateOptions) {
-
-        register(this);
-        this.graph = create(this, options);
-        this.G6 = G6;
-        bindEvent(this);
-        // this._options.$editorInput = this._options.$editor.querySelector('textarea');
+    constructor (...args: any[]) {
 
         return this;
 
@@ -84,7 +75,7 @@ export class MindmapCoreBase {
 
         setTimeout(() => {
 
-            this.graph.refreshLayout(true);
+            this.graph.layout(true);
             // this.$refs['mor-mindmap-zoomslider'].set(vm.getZoom() * 100);
 
         });
@@ -168,7 +159,7 @@ export class MindmapCoreBase {
         this.editZoom = 1;
         this.editNode.setState('editing', false);
         this.editNode = null;
-        this.graph.refreshLayout();
+        this.graph.layout();
         setTimeout(() => {
 
             this.editting = false;
@@ -240,6 +231,12 @@ export class MindmapCoreBase {
 
         const fns = this.eventList[eventName];
 
+        if (!fns) {
+
+            return this;
+
+        }
+
         for (const fn of fns) {
 
             switch (eventName) {
@@ -276,6 +273,26 @@ export class MindmapCoreBase {
 
     }
 
+    getNodeBBox (nodeId: string): object {
+
+        const node = this.graph.findById(nodeId);
+        const group = node.getContainer();
+        const bbox: {
+            [name: string]: G6Types.IBBox,
+        } = {
+            _node : node.getBBox(),
+        };
+
+        for (const name in NODE_SHAPE_INDEX) {
+
+            bbox[name] = group.getChildByIndex(NODE_SHAPE_INDEX[name]).getBBox();
+
+        }
+
+        return bbox;
+
+    }
+
 }
 
 /* eslint-disable */
@@ -294,7 +311,13 @@ const MindmapCoreL2 =
     mixinContextMenu(
         MindmapCoreL1
     ));
+
+const MindmapCore =
+    mixinConstructor(
+        MindmapCoreL2
+    );
 /* eslint-enable */
 
-export default MindmapCoreL2;
-export const EventNamesEnum = EventNames;
+export default MindmapCore;
+export * from './utils/testData';
+export * from './interface';

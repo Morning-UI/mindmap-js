@@ -72,7 +72,7 @@ export default (function (Base) {
             }
             if (_refresh) {
                 this.graph.changeData();
-                this.graph.refreshLayout();
+                this.graph.layout();
             }
             return this;
         };
@@ -100,20 +100,20 @@ export default (function (Base) {
             if (!Array.isArray(_datas)) {
                 _datas = [_datas];
             }
+            var _nodeItems = [];
             for (var _index in _datas) {
-                _datas[_index] = traverseData(_datas[_index]);
+                _nodeItems[_index] = traverseData(_datas[_index]);
             }
             if (index > -1) {
-                _datas = Object.assign([], _datas);
-                _datas.reverse();
-                for (var _i = 0, _datas_1 = _datas; _i < _datas_1.length; _i++) {
-                    var item = _datas_1[_i];
+                _nodeItems.reverse();
+                for (var _i = 0, _nodeItems_1 = _nodeItems; _i < _nodeItems_1.length; _i++) {
+                    var item = _nodeItems_1[_i];
                     children.splice(index, 0, item);
                 }
             }
             else {
-                for (var _a = 0, _datas_2 = _datas; _a < _datas_2.length; _a++) {
-                    var item = _datas_2[_a];
+                for (var _a = 0, _nodeItems_2 = _nodeItems; _a < _nodeItems_2.length; _a++) {
+                    var item = _nodeItems_2[_a];
                     children.push(item);
                 }
             }
@@ -121,12 +121,12 @@ export default (function (Base) {
                 // 刷新当前节点的展开按钮
                 node.draw();
                 this.graph.changeData();
-                this.graph.refreshLayout();
+                this.graph.layout();
             }
             if (isSingle) {
-                return _datas[0].id;
+                return _nodeItems[0].id;
             }
-            return map(_datas, 'id');
+            return map(_nodeItems, 'id');
         };
         return class_1;
     }(Base));

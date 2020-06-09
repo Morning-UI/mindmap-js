@@ -1,13 +1,13 @@
 // import * as G6Types                             from '@antv/g6/lib/types';
-import MindmapCore                              from '../index';
 import {
     getNodeElements,
 }                                               from './utils';
 import {
     EventNames,
+    MindmapCoreL0Type,
 }                                               from '../interface';
 
-export const refreshTextEditorPosition = (mindmap: MindmapCore): void => {
+export const refreshTextEditorPosition = (mindmap: MindmapCoreL0Type): void => {
 
     const node = mindmap.editNode;
 

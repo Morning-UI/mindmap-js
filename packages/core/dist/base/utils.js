@@ -1,14 +1,3 @@
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 import * as G6 from '@antv/g6';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 import { MIND_NODE_STYLE, } from '../style';
@@ -111,8 +100,10 @@ export var appendConGroupAdjustPosition = function (shapes, cfg) {
 export var tagConGroupAdjustPosition = function (shapes, cfg, mindmap) {
     var style = genNodeStyles(MIND_NODE_STYLE, cfg);
     var tags = cfg.tag;
+    var maxWidth = shapes.box.getBBox().width;
     if (tags && tags.length > 0) {
         var tagWidthTotal = 0;
+        var row = 0;
         for (var index in tags) {
             var _index = Number(index);
             if (_index > mindmap._options.maxShowTagNum) {
@@ -124,16 +115,36 @@ export var tagConGroupAdjustPosition = function (shapes, cfg, mindmap) {
             var conBbox = shapes.con.getBBox();
             var tagConBbox = tagCon.getBBox();
             var tagTextBbox = tagText.getBBox();
+            if (maxWidth < (tagWidthTotal + tagConBbox.width + style.tagMarginLeft)) {
+                row++;
+                tagWidthTotal = 0;
+            }
             var x = tagWidthTotal;
-            var y = conBbox.height + style.tagMarginTop;
+            var y = conBbox.height + style.tagMarginTop + ((tagConBbox.height + style.tagMarginTop) * row);
             tagCon.attr({
                 x: x,
                 y: y,
             });
             tagText.attr({
-                x: x + (tagTextBbox.width / 2) + style.tagPaddingX,
+                x: x + style.tagPaddingX,
                 y: y + (tagTextBbox.height / 2) + style.tagPaddingY,
             });
+            var afterConBbox = tagCon.getBBox();
+            var overflowRate = afterConBbox.width / maxWidth;
+            // 单行标签溢出
+            if (overflowRate > 1) {
+                var text = tagText.attr('text');
+                var len = text.length;
+                len = Math.floor(len / overflowRate) - 2;
+                text = text.slice(0, len);
+                tagCon.attr({
+                    width: maxWidth,
+                });
+                tagText.attr({
+                    text: text + "...",
+                    width: maxWidth,
+                });
+            }
             tagWidthTotal += tagConBbox.width + style.tagMarginLeft;
         }
     }
@@ -236,19 +247,51 @@ export var toggleNodeVisibility = function (node, type, callback) {
 // --------------
 export var traverseOneItem = function (item) {
     var globalId = globalData.id;
-    var nodeItem = __assign(__assign({ id: globalData.id++, 
+    var nodeItem = {
+        id: String(globalData.id++),
         // eslint-disable-next-line no-magic-numbers
-        anchorPoints: [[0, 0.5], [1, 0.5]], style: {}, 
+        anchorPoints: [[0, 0.5], [1, 0.5]],
+        style: {},
         // TODO : type diff when node is root
-        type: 'mind-node', link: null, note: null, tag: null }, item), { _isRoot: globalId === 1, _isNode: true, _isDragging: false, _isHolder: false });
+        type: 'mind-node',
+        text: item.text || '新的节点',
+        link: item.link || null,
+        note: item.note || null,
+        tag: item.tag || null,
+        _isRoot: globalId === 1,
+        _isNode: true,
+        _isDragging: false,
+        _isHolder: false,
+    };
+    nodeItem._originChildren = item.children;
     return nodeItem;
 };
 export var traverseData = function (data) {
     var nodeData = traverseOneItem(data);
-    if (nodeData.children) {
-        for (var index in nodeData.children) {
-            nodeData.children[index] = traverseData(nodeData.children[index]);
+    if (nodeData._originChildren) {
+        for (var index in nodeData._originChildren) {
+            if (nodeData.children === undefined) {
+                nodeData.children = [];
+            }
+            nodeData.children[index] = traverseData(nodeData._originChildren[index]);
         }
+        delete nodeData._originChildren;
     }
     return nodeData;
 };
+// export const getBoxHeightWithAllChildren = (node: INode): number => {
+//     const height = node.getBBox().height;
+//     const edges = node.getOutEdges();
+//     let childrenHeight = 0;
+//     for (const edge of edges) {
+//         const childNode = edge.getTarget();
+//         let childBoxHeight = 0;
+//         if (node.getOutEdges().length > 0) {
+//             childBoxHeight = getBoxHeightWithAllChildren(childNode);
+//         } else {
+//             childBoxHeight = childNode.getBBox().height;
+//         }
+//         childrenHeight += childBoxHeight;
+//     }
+//     return height > childrenHeight ? height : childrenHeight;
+// };

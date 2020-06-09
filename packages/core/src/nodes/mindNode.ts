@@ -6,9 +6,6 @@ import {
     IGroup,
 }                                               from '@antv/g-base/lib/interfaces';
 import {
-    MindmapCore,
-}                                               from '../index';
-import {
     genNodeStyles,
     getAppends,
     appendConGroupAdjustPosition,
@@ -33,10 +30,12 @@ import {
     InitNodeAppendsOptions,
     InitNodeTagsOptions,
     StateChangeOptions,
+    MindmapCoreType,
+    MindmapCoreL0Type,
 }                                               from '../interface';
 
 const _NODE_SHAPE_INDEX: {
-    [index: string]: number;
+    [name: string]: number;
 } = {};
 const DEBUG_BOX_SIZING = false;
 
@@ -94,7 +93,6 @@ const initNodeBase = (options: InitNodeOptions): void => {
 
     const {
         shapes,
-        mindmap,
         cfg,
         group,
         style,
@@ -288,7 +286,7 @@ const initNodeTags = (options: InitNodeTagsOptions): void => {
                     // eslint-disable-next-line no-magic-numbers
                     fillOpacity : 0.6,
                     fontSize : style.tagFontSize,
-                    textAlign : 'center',
+                    textAlign : 'left',
                     textBaseline : 'middle',
                     text : tag,
                 },
@@ -513,7 +511,7 @@ const tagStateChange = (options: StateChangeOptions): void => {
 
 };
 
-export const mindNodeAdjustPosition = (elements: MindNodeElements, cfg: MindmapNodeItem, mindmap: MindmapCore): void => {
+export const mindNodeAdjustPosition = (elements: MindNodeElements, cfg: MindmapNodeItem, mindmap: MindmapCoreL0Type): void => {
 
     const style = cfg._isRoot ? genNodeStyles(ROOT_MIND_NODE_STYLE, cfg) : genNodeStyles(MIND_NODE_STYLE, cfg);
     // const markConGroupBbox = elements.markConGroup.getBBox();
@@ -631,6 +629,7 @@ export const mindNodeAdjustPosition = (elements: MindNodeElements, cfg: MindmapN
     if (tags && tags.length > 0) {
 
         tagConGroupAdjustPosition({
+            box : elements.box as IShape,
             con : elements.con as IShape,
             tagConGroup : elements.tagConGroup as IShape,
         }, cfg, mindmap);
@@ -647,18 +646,21 @@ export const mindNodeAdjustPosition = (elements: MindNodeElements, cfg: MindmapN
 
         // 调整锚点至居中
         boxBBox = elements.box.getBBox();
-        cfg.anchorPoints[0] = [0, ((conBBox.height / 2) / boxBBox.height)];
+        cfg.anchorPoints[0] = [0, (conBBox.height / 2) / boxBBox.height];
+        cfg.anchorPoints[1] = [conBBox.width / boxBBox.width, (conBBox.height / 2) / boxBBox.height];
 
     } else {
 
-        // eslint-disable-next-line no-magic-numbers
+        /* eslint-disable no-magic-numbers*/
         cfg.anchorPoints[0] = [0, 0.5];
+        cfg.anchorPoints[1] = [1, 0.5];
+        /* eslint-enable no-magic-numbers*/
 
     }
 
 };
 
-export const getMindNode = (mindmap: MindmapCore): MindShapeOptions => ({
+export const getMindNode = (mindmap: MindmapCoreL0Type): MindShapeOptions => ({
     drawShape : (cfg: MindmapNodeItem, group): IShape => {
 
         const shapes: MindNodeShapes = {};

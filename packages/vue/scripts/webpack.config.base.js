@@ -10,10 +10,13 @@ module.exports = {
     entry : './src/index.ts',
     plugins : [
         new MiniCssExtractPlugin({
-            filename: 'index.css',
+            filename : 'index.css',
         }),
         new VueLoaderPlugin(),
     ],
+    externals : {
+        vue : 'Vue',
+    },
     module : {
         rules : [
             {

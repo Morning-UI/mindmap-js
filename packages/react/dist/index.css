@@ -1,0 +1,127 @@
+@font-face {
+  font-family: 'mindmap-icon';
+  src: url(data:font/woff;base64,d09GRgABAAAAAATkAAsAAAAAB6wAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABHU1VCAAABCAAAADMAAABCsP6z7U9TLzIAAAE8AAAARAAAAFY8n0hqY21hcAAAAYAAAABVAAABhmZ70SBnbHlmAAAB2AAAARoAAAGQo8Lj5mhlYWQAAAL0AAAALwAAADYZFMPLaGhlYQAAAyQAAAAcAAAAJAfeA4RobXR4AAADQAAAAAwAAAAMDAAAAGxvY2EAAANMAAAACAAAAAgAXgDIbWF4cAAAA1QAAAAfAAAAIAERAExuYW1lAAADdAAAAUUAAAJtPlT+fXBvc3QAAAS8AAAAKAAAADlLVmFQeJxjYGRgYOBikGPQYWB0cfMJYeBgYGGAAJAMY05meiJQDMoDyrGAaQ4gZoOIAgCKIwNPAHicY2BkYWCcwMDKwMHUyXSGgYGhH0IzvmYwYuRgYGBiYGVmwAoC0lxTGByeaT6rYG7438AQw9zA0AAUZgTJAQDpagyEeJztkMENgDAMAy9p6QMxCEgMxIs5OnHXKG4KW2DpYsXJy8ACJHGKDHZjDF1KLfLEGnmOnyI3vB2t9g6fS6ZbCXeNwq8t5v5uPtqajGZbneAPH0APygAAAHicXY+xToRAEIZ3gB0q9hL2hFiYg0uE5oALh1gpiYUk8gA+hS9gd9DZ+hQ2JlfY2mBlZbzEV7ESnAXFxC1m/m/++ZNZZjB6+q32wWZswRJWMCYP5s7GT/MzyILQF3AEI5+exBD6S3T/jfgfD5E7W8CrsG3R5apqN8IGsMXXvSU9NYCHcdBdD/ajkFJoT55q3uC8+5aUlk9a7mhvohcFKqNAnc1Y/6bv9DU7ZBt1+XEwAwFhkBeQJ0CAc9dJCUIZLIkW4BRwDq6Dv5BnPJh0qF2a2CR1lhpxw3lEUJZVW9WIn1V71SCuJr8eoeyeEXvOSVPdI9axkWbbdYPmioDCZUlauxhaxHmj/Dr5gardct4jRqqa9KVv2/9CAgAAeJxjYGRgYADifwXFd+P5bb4ycLMwgMCtX/ufI+j/F1gYmA2AXA4GJpAoAIb1DXMAeJxjYGRgYG7438AQw8IAAkCSkQEVMAMARwkCbAQAAAAEAAAABAAAAAAAAAAAXgDIeJxjYGRgYGBmcGBgYQABJiDmAkIGhv9gPgMADzcBXgB4nGWPTU7DMBCFX/oHpBKqqGCH5AViASj9EatuWFRq911036ZOmyqJI8et1ANwHo7ACTgC3IA78EgnmzaWx9+8eWNPANzgBx6O3y33kT1cMjtyDRe4F65TfxBukF+Em2jjVbhF/U3YxzOmwm10YXmD17hi9oR3YQ8dfAjXcI1P4Tr1L+EG+Vu4iTv8CrfQ8erCPuZeV7iNRy/2x1YvnF6p5UHFockikzm/gple75KFrdLqnGtbxCZTg6BfSVOdaVvdU+zXQ+ciFVmTqgmrOkmMyq3Z6tAFG+fyUa8XiR6EJuVYY/62xgKOcQWFJQ6MMUIYZIjK6Og7VWb0r7FDwl57Vj3N53RbFNT/c4UBAvTPXFO6stJ5Ok+BPV8bUnV0K27LnpQ0kV7NSRKyQl7WtlRC6gE2ZVeOEXpc0Yk/KGdI/wAJWm7IAAAAeJxjYGKAAC4G7ICZkYmRmZGFgaOqND+lNLMwkyUnMy+bgQEANCsFUA==) format('woff');
+}
+.mindmap {
+  display: block;
+  position: relative;
+}
+.mindmap .mindmap-canvas {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+.mindmap .mindmap-editor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: left top;
+}
+.mindmap .mindmap-editor textarea {
+  padding: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  background: #FFF;
+  color: #000;
+  position: absolute;
+  box-sizing: border-box;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+.mindmap .mindmap-box-edit-link,
+.mindmap .mindmap-box-edit-note,
+.mindmap .mindmap-box-edit-tag,
+.mindmap .mindmap-menu-link,
+.mindmap .mindmap-menu-note,
+.mindmap .mindmap-menu-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: none;
+  background: #FFF;
+  border: 1px #E0E0E0 solid;
+  border-radius: 5px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.15);
+}
+.mindmap .mindmap-box-edit-link,
+.mindmap .mindmap-box-edit-note,
+.mindmap .mindmap-box-edit-tag {
+  margin-top: 6px;
+  padding: 12px;
+}
+.mindmap .mindmap-box-edit-link .arrow,
+.mindmap .mindmap-box-edit-note .arrow,
+.mindmap .mindmap-box-edit-tag .arrow {
+  border-color: #FFFFFF #0000 #0000 #FFFFFF;
+  box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.1);
+  top: -5px;
+  left: calc(50% - 10px);
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px;
+  transform: rotate(45deg);
+}
+.mindmap .mindmap-box-edit-link h3,
+.mindmap .mindmap-box-edit-note h3,
+.mindmap .mindmap-box-edit-tag h3 {
+  padding: 0 0 16px 0;
+  margin: 0;
+  font-size: 14px;
+  font-weight: normal;
+  color: #666;
+}
+.mindmap .mindmap-box-edit-link textarea,
+.mindmap .mindmap-box-edit-note textarea,
+.mindmap .mindmap-box-edit-tag textarea {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  resize: none;
+  min-width: 200px;
+}
+.mindmap .mindmap-menu-link,
+.mindmap .mindmap-menu-note,
+.mindmap .mindmap-menu-tag {
+  padding: 6px 0;
+  flex-direction: column;
+}
+.mindmap .mindmap-menu-link i.line,
+.mindmap .mindmap-menu-note i.line,
+.mindmap .mindmap-menu-tag i.line {
+  display: block;
+  height: 1px;
+  background-color: #cfcfcf;
+  margin: 6px 0;
+}
+.mindmap .mindmap-menu-link a,
+.mindmap .mindmap-menu-note a,
+.mindmap .mindmap-menu-tag a {
+  color: #444;
+  text-decoration: none;
+  padding: 3px 12px;
+  font-size: 13px;
+  min-width: 40px;
+  text-align: center;
+}
+.mindmap .mindmap-menu-link a:hover,
+.mindmap .mindmap-menu-note a:hover,
+.mindmap .mindmap-menu-tag a:hover {
+  background-color: #5496d2;
+  color: #FFF;
+}
+.mindmap .mindmap-menu-link a:last-child,
+.mindmap .mindmap-menu-note a:last-child,
+.mindmap .mindmap-menu-tag a:last-child {
+  border-bottom: none;
+}
+.mindmap .g6-minimap {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+

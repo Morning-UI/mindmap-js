@@ -2,7 +2,6 @@ import G6                                       from '@antv/g6';
 import {
     BehaviorOption,
     IG6GraphEvent,
-    G6Event,
     IBBox,
 }                                               from '@antv/g6/lib/types';
 import {
@@ -170,7 +169,7 @@ const updateDragTarget = (mindmap: MindmapCoreType, dragging = false): void => {
     if (dragging && !dragTarget.hidden) {
 
         dragTarget.hidden = true;
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
 
     } else if (!dragging && dragTarget.hidden) {
 
@@ -187,7 +186,7 @@ const updateDragTarget = (mindmap: MindmapCoreType, dragging = false): void => {
 
         mindmap.graph.paint();
         mindmap.graph.changeData();
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
 
     }
 
@@ -392,12 +391,15 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
             // eslint-disable-next-line no-magic-numbers
             // TODO 和tag的兼容性
             anchorPoints : [[0, 0.5], [1, 0.5]],
+            _isRoot : false,
+            _isNode : true,
+            _isDragging : false,
             _isHolder : true,
         });
         dragHolderParentModel = model;
         mindmap.graph.paint();
         mindmap.graph.changeData();
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
 
         const node = mindmap.graph.findById(String(globalData.id - 1)) as INode;
 
@@ -710,13 +712,13 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
         // TODO : 支持折叠
         // if (dragHolderParentModel._collapsed) {
 
-        //     this.graph.refreshLayout();
+        //     this.graph.layout();
         //     vm.collapseChildren(dragHolderParentModel.id, false);
 
         // } else {
 
         removeOldDragPlaceholder(mindmap);
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
 
         // }
 

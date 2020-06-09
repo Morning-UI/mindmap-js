@@ -69,7 +69,7 @@ export default (function (Base) {
                 model.link = null;
                 node.draw();
             }
-            this.graph.refreshLayout();
+            this.graph.layout();
             return this;
         };
         return class_1;

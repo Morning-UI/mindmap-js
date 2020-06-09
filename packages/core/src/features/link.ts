@@ -89,7 +89,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             }
 
-            this.graph.refreshLayout();
+            this.graph.layout();
             return this;
 
         }

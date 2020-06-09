@@ -97,7 +97,7 @@ var updateDragTarget = function (mindmap, dragging) {
     }
     if (dragging && !dragTarget.hidden) {
         dragTarget.hidden = true;
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
     }
     else if (!dragging && dragTarget.hidden) {
         dragTarget.hidden = false;
@@ -109,7 +109,7 @@ var updateDragTarget = function (mindmap, dragging) {
         // }
         mindmap.graph.paint();
         mindmap.graph.changeData();
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
     }
 };
 var fillChildBBox = function (mindmap, bbox, node) {
@@ -226,12 +226,15 @@ var refreshDragHolder = throttle(function (mindmap, delegateShape, targetNode) {
             // eslint-disable-next-line no-magic-numbers
             // TODO 和tag的兼容性
             anchorPoints: [[0, 0.5], [1, 0.5]],
+            _isRoot: false,
+            _isNode: true,
+            _isDragging: false,
             _isHolder: true,
         });
         dragHolderParentModel = model;
         mindmap.graph.paint();
         mindmap.graph.changeData();
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
         var node = mindmap.graph.findById(String(globalData.id - 1));
         node.getInEdges()[0].update({
             type: 'mind-holder-edge',
@@ -440,11 +443,11 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         // 并且不需要_removeOldDragPlaceholder，因为展开时会自动删除当前的children
         // TODO : 支持折叠
         // if (dragHolderParentModel._collapsed) {
-        //     this.graph.refreshLayout();
+        //     this.graph.layout();
         //     vm.collapseChildren(dragHolderParentModel.id, false);
         // } else {
         removeOldDragPlaceholder(mindmap);
-        mindmap.graph.refreshLayout();
+        mindmap.graph.layout();
         // }
         dragHolderParentModel = null;
         dragHolderIndexOfParent = null;

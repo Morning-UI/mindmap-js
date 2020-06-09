@@ -14,6 +14,7 @@ import {
 import {
     fillNodeIds,
     traverseData,
+    traverseOneItem,
 }                                               from '../base/utils';
 
 const parseNodeDataOnce = (data: MindmapData): MindmapData => {
@@ -92,7 +93,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             if (_refresh) {
 
                 this.graph.changeData();
-                this.graph.refreshLayout();
+                this.graph.layout();
 
             }
 
@@ -140,18 +141,19 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             }
 
+            const _nodeItems: MindmapNodeItem[] = [];
+
             for (const _index in _datas) {
 
-                _datas[_index] = traverseData(_datas[_index]);
+                _nodeItems[_index] = traverseData(_datas[_index]);
 
             }
 
             if (index > -1) {
 
-                _datas = Object.assign([], _datas);
-                _datas.reverse();
+                _nodeItems.reverse();
 
-                for (const item of _datas) {
+                for (const item of _nodeItems) {
 
                     children.splice(index, 0, item);
 
@@ -159,7 +161,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             } else {
 
-                for (const item of _datas) {
+                for (const item of _nodeItems) {
 
                     children.push(item);
 
@@ -172,17 +174,17 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
                 // 刷新当前节点的展开按钮
                 node.draw();
                 this.graph.changeData();
-                this.graph.refreshLayout();
+                this.graph.layout();
 
             }
 
             if (isSingle) {
 
-                return _datas[0].id;
+                return _nodeItems[0].id;
 
             }
 
-            return map(_datas, 'id');
+            return map(_nodeItems, 'id');
 
         }
 

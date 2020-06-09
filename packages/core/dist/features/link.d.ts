@@ -21,6 +21,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         currentEditLinkNodeIds: NodeIds;
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
+        isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
             mod: boolean;
@@ -34,6 +35,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
+        getNodeBBox(nodeId: string): object;
     };
 } & TBase;
 export default _default;

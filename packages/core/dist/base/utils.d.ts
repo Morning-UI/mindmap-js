@@ -1,14 +1,14 @@
 import { IG6GraphEvent, Item } from '@antv/g6/lib/types';
 import { IElement } from '@antv/g-base/lib/interfaces';
 import { INode } from '@antv/g6/lib/interface/item';
-import { MindmapNodeItem, NodeStyle, MindNodeShapes, MindNodeElements, NodeAppendItem, NodeIds, MindmapCoreType, toggleNodeVisibilityCallback, MindmapDataItem } from '../interface';
+import { MindmapNodeItem, NodeStyle, MindNodeShapes, MindNodeElements, NodeAppendItem, NodeIds, MindmapCoreType, toggleNodeVisibilityCallback, MindmapDataItem, MindmapCoreL0Type } from '../interface';
 export declare const genNodeStyles: (styles: NodeStyle, cfg: MindmapNodeItem) => NodeStyle;
 export declare const inNodeShape: (mindmap: MindmapCoreType, evt: IG6GraphEvent, element: IElement) => boolean;
 export declare const getNodeElements: (item: Item) => MindNodeElements;
 export declare const getAppends: (cfg: MindmapNodeItem) => NodeAppendItem[];
 export declare const appendConGroupAdjustPosition: (shapes: MindNodeShapes, cfg: MindmapNodeItem) => void;
-export declare const tagConGroupAdjustPosition: (shapes: MindNodeShapes, cfg: MindmapNodeItem, mindmap: any) => void;
-export declare const inAnnex: (mindmap: any, evt: IG6GraphEvent, groupIndex: number, shapeIndex: number) => boolean;
+export declare const tagConGroupAdjustPosition: (shapes: MindNodeShapes, cfg: MindmapNodeItem, mindmap: MindmapCoreL0Type) => void;
+export declare const inAnnex: (mindmap: MindmapCoreType, evt: IG6GraphEvent, groupIndex: number, shapeIndex: number) => boolean;
 export declare const fillNodeIds: (nodeIds: NodeIds) => string[];
 export declare const toggleAllChildrenVisibility: (node: INode, type: 'show' | 'hide', callback: toggleNodeVisibilityCallback) => void;
 export declare const toggleNodeVisibility: (node: INode, type: 'show' | 'hide', callback: toggleNodeVisibilityCallback) => void;

@@ -1,3 +1,4 @@
+// import * as G6Types                             from '@antv/g6/lib/types';
 import { getNodeElements, } from './utils';
 import { EventNames, } from '../interface';
 export var refreshTextEditorPosition = function (mindmap) {

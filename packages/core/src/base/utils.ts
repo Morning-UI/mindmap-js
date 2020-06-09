@@ -6,7 +6,6 @@ import {
 import {
     IGroup,
     IElement,
-    IShape,
 }                                               from '@antv/g-base/lib/interfaces';
 import {
     INode,
@@ -21,6 +20,7 @@ import {
     MindmapCoreType,
     toggleNodeVisibilityCallback,
     MindmapDataItem,
+    MindmapCoreL0Type,
 }                                               from '../interface';
 import {
     NODE_SHAPE_INDEX,
@@ -29,6 +29,7 @@ import {
     MIND_NODE_STYLE,
 }                                               from '../style';
 import globalData                               from '../base/globalData';
+import node from 'src/features/node';
 
 export const genNodeStyles = (styles: NodeStyle, cfg: MindmapNodeItem): NodeStyle => {
 
@@ -177,21 +178,25 @@ export const appendConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: Mindma
 
 };
 
-export const tagConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: MindmapNodeItem, mindmap: MindmapCore): void => {
+export const tagConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: MindmapNodeItem, mindmap: MindmapCoreL0Type): void => {
 
     const style = genNodeStyles(MIND_NODE_STYLE, cfg);
     const tags = cfg.tag;
+    const maxWidth: number = shapes.box.getBBox().width;
 
     if (tags && tags.length > 0) {
 
         let tagWidthTotal = 0;
+        let row = 0;
 
         for (const index in tags) {
 
             const _index = Number(index);
 
             if (_index > mindmap._options.maxShowTagNum) {
+
                 break;
+
             }
 
             const tagConGroup = shapes.tagConGroup as IGroup;
@@ -200,17 +205,47 @@ export const tagConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: MindmapNo
             const conBbox = shapes.con.getBBox();
             const tagConBbox = tagCon.getBBox();
             const tagTextBbox = tagText.getBBox();
+
+            if (maxWidth < (tagWidthTotal + tagConBbox.width + style.tagMarginLeft)) {
+
+                row++;
+                tagWidthTotal = 0;
+
+            }
+
             const x = tagWidthTotal;
-            const y = conBbox.height + style.tagMarginTop;
+            const y = conBbox.height + style.tagMarginTop + ((tagConBbox.height + style.tagMarginTop) * row);
 
             tagCon.attr({
                 x,
                 y,
             });
             tagText.attr({
-                x : x + (tagTextBbox.width / 2) + style.tagPaddingX,
+                x : x + style.tagPaddingX,
                 y : y + (tagTextBbox.height / 2) + style.tagPaddingY,
             });
+
+            const afterConBbox = tagCon.getBBox();
+            const overflowRate = afterConBbox.width / maxWidth;
+
+            // 单行标签溢出
+            if (overflowRate > 1) {
+
+                let text: string = tagText.attr('text');
+                let len = text.length;
+
+                len = Math.floor(len / overflowRate) - 2;
+                text = text.slice(0, len);
+
+                tagCon.attr({
+                    width : maxWidth,
+                });
+                tagText.attr({
+                    text : `${text}...`,
+                    width : maxWidth,
+                });
+
+            }
 
             tagWidthTotal += tagConBbox.width + style.tagMarginLeft;
 
@@ -230,7 +265,7 @@ export const tagConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: MindmapNo
 
 };
 
-export const inAnnex = (mindmap: MindmapCore, evt: IG6GraphEvent, groupIndex: number, shapeIndex: number): boolean => {
+export const inAnnex = (mindmap: MindmapCoreType, evt: IG6GraphEvent, groupIndex: number, shapeIndex: number): boolean => {
 
     const parent = shapeIndex === null
         ? evt.item.get('group')
@@ -373,21 +408,23 @@ export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
 
     const globalId = globalData.id;
     const nodeItem: MindmapNodeItem = {
-        id : globalData.id++,
+        id : String(globalData.id++),
         // eslint-disable-next-line no-magic-numbers
         anchorPoints : [[0, 0.5], [1, 0.5]],
         style : {},
         // TODO : type diff when node is root
         type : 'mind-node',
-        link : null,
-        note : null,
-        tag : null,
-        ...item,
+        text : item.text || '新的节点',
+        link : item.link || null,
+        note : item.note || null,
+        tag : item.tag || null,
         _isRoot : globalId === 1,
         _isNode : true,
         _isDragging : false,
         _isHolder : false,
     };
+
+    nodeItem._originChildren = item.children;
 
     return nodeItem;
 
@@ -397,16 +434,55 @@ export const traverseData = (data: MindmapDataItem): MindmapNodeItem => {
 
     const nodeData: MindmapNodeItem = traverseOneItem(data);
 
-    if (nodeData.children) {
+    if (nodeData._originChildren) {
 
-        for (const index in nodeData.children) {
+        for (const index in nodeData._originChildren) {
 
-            nodeData.children[index] = traverseData(nodeData.children[index]);
+            if (nodeData.children === undefined) {
+
+                nodeData.children = [];
+
+            }
+
+            nodeData.children[index] = traverseData(nodeData._originChildren[index]);
 
         }
+
+        delete nodeData._originChildren;
 
     }
 
     return nodeData;
 
 };
+
+// export const getBoxHeightWithAllChildren = (node: INode): number => {
+
+//     const height = node.getBBox().height;
+//     const edges = node.getOutEdges();
+
+//     let childrenHeight = 0;
+
+//     for (const edge of edges) {
+
+//         const childNode = edge.getTarget();
+
+//         let childBoxHeight = 0;
+
+//         if (node.getOutEdges().length > 0) {
+
+//             childBoxHeight = getBoxHeightWithAllChildren(childNode);
+
+//         } else {
+
+//             childBoxHeight = childNode.getBBox().height;
+
+//         }
+
+//         childrenHeight += childBoxHeight;
+
+//     }
+
+//     return height > childrenHeight ? height : childrenHeight;
+
+// };

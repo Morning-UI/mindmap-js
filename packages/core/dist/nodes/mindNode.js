@@ -28,7 +28,7 @@ var addGroup = function (options) {
     });
 };
 var initNodeBase = function (options) {
-    var shapes = options.shapes, mindmap = options.mindmap, cfg = options.cfg, group = options.group, style = options.style;
+    var shapes = options.shapes, cfg = options.cfg, group = options.group, style = options.style;
     // TODO : if node is root, cursor is default.
     var cursor = 'move';
     // const data = mindmap.graph.findDataById(cfg.id);
@@ -181,7 +181,7 @@ var initNodeTags = function (options) {
                     // eslint-disable-next-line no-magic-numbers
                     fillOpacity: 0.6,
                     fontSize: style.tagFontSize,
-                    textAlign: 'center',
+                    textAlign: 'left',
                     textBaseline: 'middle',
                     text: tag,
                 },
@@ -405,6 +405,7 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
     // });
     if (tags && tags.length > 0) {
         tagConGroupAdjustPosition({
+            box: elements.box,
             con: elements.con,
             tagConGroup: elements.tagConGroup,
         }, cfg, mindmap);
@@ -417,11 +418,14 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
         });
         // 调整锚点至居中
         boxBBox = elements.box.getBBox();
-        cfg.anchorPoints[0] = [0, ((conBBox.height / 2) / boxBBox.height)];
+        cfg.anchorPoints[0] = [0, (conBBox.height / 2) / boxBBox.height];
+        cfg.anchorPoints[1] = [conBBox.width / boxBBox.width, (conBBox.height / 2) / boxBBox.height];
     }
     else {
-        // eslint-disable-next-line no-magic-numbers
+        /* eslint-disable no-magic-numbers*/
         cfg.anchorPoints[0] = [0, 0.5];
+        cfg.anchorPoints[1] = [1, 0.5];
+        /* eslint-enable no-magic-numbers*/
     }
 };
 export var getMindNode = function (mindmap) { return ({

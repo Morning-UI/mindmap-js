@@ -1,0 +1,33 @@
+{
+    "name": "mindmap-react",
+    "version": "0.0.0",
+    "description": "> TODO: description",
+    "author": "EarlyH <earlyhe0@gmail.com>",
+    "homepage": "https://github.com/Morning-UI/mindmap-js#readme",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "files": [
+        "dist"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Morning-UI/mindmap-js.git"
+    },
+    "scripts": {
+        "lint": "../../node_modules/.bin/eslint --ext js,ts,tsx src/",
+        "build": "../../node_modules/.bin/webpack --config ./scripts/webpack.config.prod.js",
+        "dev": "../../node_modules/.bin/webpack-dev-server --config ./scripts/webpack.config.dev.js"
+    },
+    "bugs": {
+        "url": "https://github.com/Morning-UI/mindmap-js/issues"
+    },
+    "dependencies": {
+        "mindmap-core": "^0.0.0"
+    },
+    "devDependencies": {
+        "@types/react": "^16.9.35",
+        "@types/react-dom": "^16.9.8",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1"
+    }
+}

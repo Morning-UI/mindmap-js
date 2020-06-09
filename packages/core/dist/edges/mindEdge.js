@@ -20,19 +20,11 @@ export var getMindEdge = function () { return ({
         var endPoint = cfg.endPoint;
         var radius = styles.radius;
         var p1 = {
-            x: ((endPoint.x - startPoint.x) / 3) + startPoint.x - radius,
+            x: ((endPoint.x - startPoint.x) / 3) + startPoint.x,
             y: startPoint.y,
-        };
-        var p12c = {
-            x: p1.x + radius,
-            y: startPoint.y,
-        };
-        var p2 = {
-            x: p1.x + radius,
-            y: startPoint.y < endPoint.y ? startPoint.y + radius : startPoint.y - radius,
         };
         var p3 = {
-            x: p2.x,
+            x: p1.x,
             y: startPoint.y < endPoint.y ? endPoint.y - radius : endPoint.y + radius,
         };
         var p34c = {
@@ -43,12 +35,14 @@ export var getMindEdge = function () { return ({
             x: p3.x + radius,
             y: endPoint.y,
         };
+        // const dir = startPoint.y < endPoint.y ? 'up' : 'down';
         var path;
         if (startPoint.y !== endPoint.y) {
+            // 曲线
             path = [
                 ['M', startPoint.x, startPoint.y],
                 ['L', p1.x, p1.y],
-                ['Q', p12c.x, p12c.y, p2.x, p2.y],
+                // ['Q', p12c.x, p12c.y, p2.x, p2.y],
                 ['L', p3.x, p3.y],
                 ['Q', p34c.x, p34c.y, p4.x, p4.y],
                 ['L', endPoint.x, endPoint.y],

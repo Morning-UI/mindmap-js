@@ -65,7 +65,6 @@ var hiddenMenus = function (mindmap, evt) {
 //      note : 备注
 //      mark : 标记(用户设置)
 // PRIVATE >>>
-//      
 //      _shapeStyle : 计算完的图形样式
 //      _origin : 原始数据
 //      _mark : 标记(经过转换后)
@@ -76,7 +75,7 @@ var hiddenMenus = function (mindmap, evt) {
 export var create = function (mindmap, options) {
     var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, backgroundGrid: false, minimap: true, 
         // eslint-disable-next-line no-magic-numbers
-        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', $editorInput: options.$editor.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag') }, options);
+        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag') }, options);
     var modes = [];
     var plugins = [];
     _options.width = convertSize('width', _options.width, _options.$con);
@@ -122,15 +121,6 @@ export var create = function (mindmap, options) {
                     || (node && node.getModel()._isDragging)) {
                     return 0;
                 }
-                // TODO : computedRadius
-                // const model = node.getModel();
-                // if (model.style && model.style.computedRadius) {
-                //     node.get('group').getChildByIndex(NODE_SHAPE_INDEX.con)
-                //         .attr({
-                //             radius : node.getBBox().height * model.style.computedRadius
-                //         });
-                //     node.get('group').set('radius', node.getBBox().height * model.style.computedRadius);
-                // }
                 return node.getBBox().height;
             },
             getWidth: function (cfg) {
@@ -144,7 +134,9 @@ export var create = function (mindmap, options) {
             },
             getVGap: function (cfg) {
                 var node = mindmap.graph.findById(cfg.id);
-                if (node && node.getModel()._isDragging) {
+                if (!node
+                    || (node && node.destroyed)
+                    || (node && node.getModel()._isDragging)) {
                     return 0;
                 }
                 return _options.nodeVGap;

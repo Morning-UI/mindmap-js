@@ -4,6 +4,7 @@ import {
 import {
     EventOptions,
     ContextMenuTypes,
+    MindmapNodeItem,
     // MindmapNodeItem,
 }                                               from '../interface';
 import {
@@ -26,7 +27,7 @@ export default {
 
         if (evt.item) {
 
-            const model = evt.item.getModel();
+            const model = evt.item.getModel() as MindmapNodeItem;
 
             if (!model._isNode) {
 

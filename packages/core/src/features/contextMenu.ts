@@ -107,4 +107,46 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         }
 
+        menuItemLinkEdit (): void {
+
+            this.showEditLink(this.getContextNodeId());
+            this.hideContextMenu();
+
+        }
+
+        menuItemLinkDelete (): void {
+
+            this.unlink(this.getContextNodeId());
+            this.hideContextMenu();
+
+        }
+
+        menuItemNoteEdit (): void {
+
+            this.showEditNote(this.getContextNodeId());
+            this.hideContextMenu();
+
+        }
+
+        menuItemNoteDelete (): void {
+
+            this.unnote(this.getContextNodeId());
+            this.hideContextMenu();
+
+        }
+
+        menuItemTagEdit (): void {
+
+            this.showEditTag(this.getContextNodeId());
+            this.hideContextMenu();
+
+        }
+
+        menuItemTagDelete (): void {
+
+            this.untagByIndex(this.getContextNodeId(), this.getContextData().tagIndex);
+            this.hideContextMenu();
+
+        }
+
     };
