@@ -19,8 +19,10 @@ import {
 }                                               from './base/graph';
 import {
     getNodeElements,
-    traverseData,
 }                                               from './base/utils';
+import {
+    traverseData,
+}                                               from './utils/traverseData';
 import {
     refreshTextEditorPosition,
 }                                               from './base/editor';
@@ -32,6 +34,7 @@ import mixinConstructor                         from './features/constructor';
 import mixinLink                                from './features/link';
 import mixinNote                                from './features/note';
 import mixinTag                                 from './features/tag';
+import mixinMark                                from './features/mark';
 import mixinContextMenu                         from './features/contextMenu';
 import mixinNode                                from './features/node';
 import mixinGet                                 from './features/get';
@@ -54,6 +57,7 @@ export class MindmapCoreBase {
     currentEditLinkNodeIds: NodeIds;
     currentEditNoteNodeIds: NodeIds;
     currentEditTagNodeIds: NodeIds;
+    currentEditMarkNodeIds: NodeIds;
 
     isMindmap = true;
     eventList: EventList = {};
@@ -304,12 +308,13 @@ export class MindmapCoreBase {
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
 const MindmapCoreL1 = 
     mixinTag(
+    mixinMark(
     mixinNote(
     mixinLink(
     mixinGet(
     mixinFold(
         MindmapCoreBase
-    )))));
+    ))))));
 
 const MindmapCoreL2 = 
     mixinNode(

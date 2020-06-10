@@ -1,13 +1,15 @@
 // import * as G6Graph                             from '@antv/g6/lib/interface/graph';
 import { EventNames, } from './interface';
 import { manualPaint, } from './base/graph';
-import { getNodeElements, traverseData, } from './base/utils';
+import { getNodeElements, } from './base/utils';
+import { traverseData, } from './utils/traverseData';
 import { refreshTextEditorPosition, } from './base/editor';
 import { mindNodeAdjustPosition, NODE_SHAPE_INDEX, } from './nodes/mindNode';
 import mixinConstructor from './features/constructor';
 import mixinLink from './features/link';
 import mixinNote from './features/note';
 import mixinTag from './features/tag';
+import mixinMark from './features/mark';
 import mixinContextMenu from './features/contextMenu';
 import mixinNode from './features/node';
 import mixinGet from './features/get';
@@ -182,7 +184,7 @@ export { MindmapCoreBase };
 // LO includes : corebase.
 // L1(base function) includes : link/note/tag.
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
-var MindmapCoreL1 = mixinTag(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase)))));
+var MindmapCoreL1 = mixinTag(mixinMark(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase))))));
 var MindmapCoreL2 = mixinNode(mixinContextMenu(MindmapCoreL1));
 var MindmapCore = mixinConstructor(MindmapCoreL2);
 /* eslint-enable */

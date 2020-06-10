@@ -106,6 +106,11 @@ export default (function (Base) {
             this.untagByIndex(this.getContextNodeId(), this.getContextData().tagIndex);
             this.hideContextMenu();
         };
+        class_1.prototype.menuItemMarkChoose = function (evt) {
+            var $target = evt.target;
+            var markValue = $target.getAttribute('mark-value');
+            this.mark(this.getCurrentEditMarkNodeIds(), markValue);
+        };
         return class_1;
     }(Base));
 });

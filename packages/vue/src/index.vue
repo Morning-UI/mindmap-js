@@ -7,19 +7,19 @@
             ></textarea>
         </div>
         <div class="mindmap-menu-link">
-            <a @click="mindmap.menuItemLinkEdit">编辑链接</a>
+            <a @click="mindmap.menuItemLinkEdit($event)">编辑链接</a>
             <i class="line"></i>
-            <a @click="mindmap.menuItemLinkDelete">删除链接</a>
+            <a @click="mindmap.menuItemLinkDelete($event)">删除链接</a>
         </div>
         <div class="mindmap-menu-note">
-            <a @click="mindmap.menuItemNoteEdit">编辑备注</a>
+            <a @click="mindmap.menuItemNoteEdit($event)">编辑备注</a>
             <i class="line"></i>
-            <a @click="mindmap.menuItemNoteDelete">删除备注</a>
+            <a @click="mindmap.menuItemNoteDelete($event)">删除备注</a>
         </div>
         <div class="mindmap-menu-tag">
-            <a @click="mindmap.menuItemTagEdit">编辑标签</a>
+            <a @click="mindmap.menuItemTagEdit($event)">编辑标签</a>
             <i class="line"></i>
-            <a @click="mindmap.menuItemTagDelete">删除标签</a>
+            <a @click="mindmap.menuItemTagDelete($event)">删除标签</a>
         </div>
         <div class="mindmap-box-edit-link">
             <i class="arrow"></i>
@@ -35,6 +35,11 @@
             <i class="arrow"></i>
             <h3>编辑标签</h3>
             <textarea rows="5" v-model="edittingTag"></textarea>
+        </div>
+        <div class="mindmap-box-edit-mark">
+            <i class="arrow"></i>
+            <h3>编辑标记</h3>
+            <ul @click="mindmap.menuItemMarkChoose($event)"></ul>
         </div>
     </div>
 </template>

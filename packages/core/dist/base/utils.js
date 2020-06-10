@@ -1,7 +1,7 @@
 import * as G6 from '@antv/g6';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 import { MIND_NODE_STYLE, MARKS_STYLE, } from '../style';
-import globalData from '../base/globalData';
+import { markBuilder, } from '../utils/markBuilder';
 export var genNodeStyles = function (styles, cfg) {
     return G6.Util.deepMix({}, styles, 
     // nodeStyle._shapePresets[model._shapeStyle],
@@ -227,78 +227,6 @@ export var toggleNodeVisibility = function (node, type, callback) {
         .getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup)[type]();
     toggleAllChildrenVisibility(node, type, callback);
 };
-// ITEM INCLUEDS:
-// --------------
-// INPUT DATA:
-//      text : 文案
-//      children : 子节点
-//      link : 链接
-//      note : 备注
-//      tag : 标签
-//      mark : 标记
-// --------------
-// G6 DATA:
-//      id : node id
-//      anchorPoints : 锚点
-//      style : 额外的样式
-//      type : 采用的图形
-// --------------
-// INSIDE PROP:
-//      _isRoot : 是否是根节点
-//      _isNode : 是节点
-//      _isDragging : 正在拖拽
-//      _isHolder : 占位节点
-//      _isFolded : 子节点是否折叠收起
-// --------------
-// TODO left node props: 
-// ITEM INCLUEDS:
-//      tag : 标签
-//      note : 备注
-//      mark : 标记(用户设置)
-// PRIVATE >>>
-//      _shapeStyle : 计算完的图形样式
-//      _origin : 原始数据
-//      _mark : 标记(经过转换后)
-// for TODO :
-// shapeStyle : 使用的图形样式（用户设置）；未启用；
-export var traverseOneItem = function (item) {
-    var globalId = globalData.id;
-    var nodeItem = {
-        id: String(globalData.id++),
-        children: [],
-        _foldedChildren: item._foldedChildren || [],
-        // eslint-disable-next-line no-magic-numbers
-        anchorPoints: [[0, 0.5], [1, 0.5]],
-        style: {},
-        // TODO : type diff when node is root
-        type: 'mind-node',
-        text: item.text || '新的节点',
-        link: item.link || null,
-        note: item.note || null,
-        tag: item.tag || null,
-        mark: item.mark || null,
-        _isRoot: globalId === 1,
-        _isNode: true,
-        _isDragging: false,
-        _isHolder: false,
-        _isFolded: item._isFolded || false,
-    };
-    nodeItem._originChildren = item.children;
-    return nodeItem;
-};
-export var traverseData = function (data) {
-    var nodeData = traverseOneItem(data);
-    if (nodeData._originChildren) {
-        for (var index in nodeData._originChildren) {
-            if (nodeData.children === undefined) {
-                nodeData.children = [];
-            }
-            nodeData.children[index] = traverseData(nodeData._originChildren[index]);
-        }
-        delete nodeData._originChildren;
-    }
-    return nodeData;
-};
 export var nodeDataItemGetter = {
     text: function (model) { return model.text; },
     link: function (model) { return model.link; },
@@ -343,82 +271,6 @@ export var clearSelectedNode = function (mindmap, selectedState) {
     edges.forEach(function (edge) { return graph.setItemState(edge, selectedState, false); });
     graph.paint();
     graph.setAutoPaint(autoPaint);
-};
-// export const getBoxHeightWithAllChildren = (node: INode): number => {
-//     const height = node.getBBox().height;
-//     const edges = node.getOutEdges();
-//     let childrenHeight = 0;
-//     for (const edge of edges) {
-//         const childNode = edge.getTarget();
-//         let childBoxHeight = 0;
-//         if (node.getOutEdges().length > 0) {
-//             childBoxHeight = getBoxHeightWithAllChildren(childNode);
-//         } else {
-//             childBoxHeight = childNode.getBBox().height;
-//         }
-//         childrenHeight += childBoxHeight;
-//     }
-//     return height > childrenHeight ? height : childrenHeight;
-// };
-var markBuilder = {
-    tag: function () {
-        return {
-            text: {
-                cursor: 'pointer',
-            },
-        };
-    },
-    priority: function (options, markKey) {
-        return {
-            text: {
-                attrs: {
-                    fontSize: MARKS_STYLE[markKey].fontSize,
-                    fill: MARKS_STYLE[markKey].fontColor,
-                    textAlign: 'center',
-                    textBaseline: 'middle',
-                    fontWeight: MARKS_STYLE[markKey].fontWeight,
-                    text: options.markName.replace('p', ''),
-                    cursor: 'pointer',
-                },
-            },
-        };
-    },
-    task: function (options, markKey) {
-        return {
-            text: {
-                attrs: {
-                    x: 2,
-                    fontSize: MARKS_STYLE[markKey].fontSize,
-                    fill: MARKS_STYLE[markKey].fontColor,
-                    fontFamily: MARKS_STYLE[markKey].fontFamily,
-                    textAlign: 'center',
-                    textBaseline: 'middle',
-                    text: String.fromCharCode(parseInt(MARKS_STYLE[markKey].text, 16)),
-                    textOffsetY: MARKS_STYLE[markKey].textOffsetY,
-                    cursor: 'pointer',
-                },
-            },
-        };
-    },
-    star: function (options, markKey) {
-        return {
-            text: {
-                attrs: {
-                    x: 2,
-                    fontSize: MARKS_STYLE[markKey].fontSize,
-                    fill: MARKS_STYLE[markKey].fontColor,
-                    fontFamily: MARKS_STYLE[markKey].fontFamily,
-                    textAlign: 'center',
-                    textBaseline: 'middle',
-                    text: String.fromCharCode(parseInt(MARKS_STYLE[markKey].text, 16)),
-                    textOffsetY: MARKS_STYLE[markKey].textOffsetY,
-                    cursor: 'pointer',
-                },
-            },
-        };
-    },
-    flag: function (options, markKey) { return markBuilder.star(options, markKey); },
-    person: function (options, markKey) { return markBuilder.star(options, markKey); },
 };
 export var genMarkShape = function (options) {
     var shapes = options.shapes, markType = options.markType;

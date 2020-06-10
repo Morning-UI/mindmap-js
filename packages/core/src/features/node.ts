@@ -13,9 +13,10 @@ import {
 }                                               from '../interface';
 import {
     fillNodeIds,
-    traverseData,
-    traverseOneItem,
 }                                               from '../base/utils';
+import {
+    traverseData,
+}                                               from '../utils/traverseData';
 
 const parseNodeDataOnce = (data: MindmapData): MindmapData => {
 

@@ -80,6 +80,7 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $boxEditLink: HTMLElement;
     $boxEditNote: HTMLElement;
     $boxEditTag: HTMLElement;
+    $boxEditMark: HTMLElement;
 }
 
 export interface MindmapDataItem {
@@ -194,7 +195,7 @@ export interface InitNodeTagsOptions {
 
 export type GenMarkOptions = {
     markName: MindMarks;
-    markType: keyof MarkSet;
+    markType: keyof MindMarkTypes;
 } & InitNodeTagsOptions;
 
 export interface InitNodeMarksOptions {
@@ -376,6 +377,7 @@ export interface ContextMenuFeatures {
     menuItemNoteDelete (): void;
     menuItemTagEdit (): void;
     menuItemTagDelete (): void;
+    menuItemMarkChoose (evt: MouseEvent): void;
 }
 export interface NodeFeatures {
     removeNode (nodeIds: NodeIds, _refresh: boolean): this;
@@ -397,6 +399,12 @@ export interface FoldFeatures {
     fold (nodeIds: NodeIds, fold: boolean): this;
     unfold (nodeIds: NodeIds): this;
 }
+export interface MarkFeatures {
+    showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this;
+    mark (nodeIds: NodeIds, mark: MindMarks): this;
+    getCurrentEditMarkNodeIds (): NodeIds;
+    hideEditMark (): this;
+}
 export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
     MindmapCoreL0Type
@@ -404,7 +412,8 @@ export type MindmapCoreL1Type =
     & FoldFeatures
     & LinkFeatures
     & NoteFeatures
-    & TagFeatures;
+    & TagFeatures
+    & MarkFeatures;
 
 export type MindmapCoreL2Type =
     MindmapCoreL1Type
@@ -488,17 +497,50 @@ export type MindMarks =
     | MindMarksFlag
     | MindMarksPerson;
 
+export enum MindMarkTypes {
+    Tag = 'tag',
+    Priority = 'priority',
+    Task = 'task',
+    Star = 'star',
+    Flag = 'flag',
+    Person = 'person',
+};
+
 export type MarkSet = {
-    tag: MindMarksTag;
-    priority: MindMarksPriority;
-    task: MindMarksTask;
-    star: MindMarksStar;
-    flag: MindMarksFlag;
-    person: MindMarksPerson;
+    [MindMarkTypes.Tag]?: MindMarksTag;
+    [MindMarkTypes.Priority]?: MindMarksPriority;
+    [MindMarkTypes.Task]?: MindMarksTask;
+    [MindMarkTypes.Star]?: MindMarksStar;
+    [MindMarkTypes.Flag]?: MindMarksFlag;
+    [MindMarkTypes.Person]?: MindMarksPerson;
 }
 
+// export enum MindMarkValue {
+//     /* eslint-disable prefer-template*/
+//     Red = 'tag:' + MindMarksTag.Red,
+//     Yellow = 'tag:' + MindMarksTag.Yellow,
+//     Blue = 'tag:' + MindMarksTag.Blue,
+//     Purple = 'tag:' + MindMarksTag.Purple,
+//     Green = 'tag:' + MindMarksTag.Green,
+//     Cyan = 'tag:' + MindMarksTag.Cyan,
+//     Gray = 'tag:' + MindMarksTag.Gray,
+//     /* eslint-enable prefer-template*/
+// }
+
 export type MarkBuilder = {
-    [type in keyof MarkSet]: Function;
+    [type in MindMarkTypes]: Function;
+}
+
+export type MarkElementBuilder = {
+    [type in MindMarkTypes]:
+        (marks:
+            typeof MindMarksTag
+            | typeof MindMarksPriority
+            | typeof MindMarksTask
+            | typeof MindMarksStar
+            | typeof MindMarksFlag
+            | typeof MindMarksPerson
+        ) => Node[];
 }
 
 export type MarkShapeCfg = {

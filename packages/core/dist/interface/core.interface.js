@@ -83,3 +83,13 @@ export var MindMarksPerson;
     MindMarksPerson["PersonGray"] = "personGray";
 })(MindMarksPerson || (MindMarksPerson = {}));
 export var MindMarks = __assign(__assign(__assign(__assign(__assign(__assign({}, MindMarksTag), MindMarksPriority), MindMarksTask), MindMarksStar), MindMarksFlag), MindMarksPerson);
+export var MindMarkTypes;
+(function (MindMarkTypes) {
+    MindMarkTypes["Tag"] = "tag";
+    MindMarkTypes["Priority"] = "priority";
+    MindMarkTypes["Task"] = "task";
+    MindMarkTypes["Star"] = "star";
+    MindMarkTypes["Flag"] = "flag";
+    MindMarkTypes["Person"] = "person";
+})(MindMarkTypes || (MindMarkTypes = {}));
+;

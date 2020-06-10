@@ -1,18 +1,19 @@
-import { MindmapNodeItem, NodeIds, MindmapCoreL0Ctor } from '../interface';
+import { TreeGraph } from '@antv/g6';
+import { Item } from '@antv/g6/lib/types';
+import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor, MindMarks, MindMarkTypes } from '../interface';
 declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
     new (...args: any[]): {
-        showEditLink(nodeIds: NodeIds): this;
-        hideEditLink(): this;
-        getCurrentEditLinkNodeIds(): NodeIds;
-        link(nodeIds: NodeIds, link: string): this;
-        unlink(nodeIds: NodeIds): this;
-        graph: import("@antv/g6").TreeGraph;
+        showEditMark(nodeIds: NodeIds, markType: MindMarkTypes): this;
+        hideEditMark(): this;
+        getCurrentEditMarkNodeIds(): NodeIds;
+        mark(nodeIds: NodeIds, mark: MindMarks): this;
+        graph: TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
         editElements: import("../interface").MindNodeElements;
-        editNode: import("@antv/g6/lib/types").Item;
+        editNode: Item;
         editContent: string;
         editZoom: number;
         contextNodeId: string;

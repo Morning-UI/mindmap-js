@@ -17,6 +17,7 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         currentEditLinkNodeIds: import("../interface").NodeIds;
         currentEditNoteNodeIds: import("../interface").NodeIds;
         currentEditTagNodeIds: import("../interface").NodeIds;
+        currentEditMarkNodeIds: import("../interface").NodeIds;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
@@ -33,9 +34,9 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
-        getAllSelectedNodeIds(): import("../interface").NodeId[];
+        getAllSelectedNodeIds(): (string | number)[];
         getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
-        getSelectedNodeId(): import("../interface").NodeId;
+        getSelectedNodeId(): string | number;
         getSelectedNodeDetail(): import("../interface").MindmapDataItem;
         getNodeDetail(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
         fold(nodeIds: import("../interface").NodeIds, fold: boolean): any;
@@ -57,6 +58,10 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         tagAdd(nodeIds: import("../interface").NodeIds, tags: string | string[]): any;
         untag(nodeIds: import("../interface").NodeIds, untags: string | string[]): any;
         untagByIndex(nodeIds: import("../interface").NodeIds, index: number): any;
+        showEditMark(nodeIds: import("../interface").NodeIds, markType: import("../interface").MindMarkTypes): any;
+        mark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
+        getCurrentEditMarkNodeIds(): import("../interface").NodeIds;
+        hideEditMark(): any;
         showContextMenu(options: import("../interface").ShowContextMenuOptions): any;
         hideContextMenu(): any;
         hideAllContextMenu(): any;
@@ -69,8 +74,9 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         menuItemNoteDelete(): void;
         menuItemTagEdit(): void;
         menuItemTagDelete(): void;
+        menuItemMarkChoose(evt: MouseEvent): void;
         removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: import("../interface").NodeId, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        insertSubNode(nodeId: string | number, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
     };
 } & TBase;
 export default _default;

@@ -47,6 +47,7 @@
     .mindmap-box-edit-link,
     .mindmap-box-edit-note,
     .mindmap-box-edit-tag,
+    .mindmap-box-edit-mark,
     .mindmap-menu-link,
     .mindmap-menu-note,
     .mindmap-menu-tag{
@@ -62,7 +63,8 @@
 
     .mindmap-box-edit-link,
     .mindmap-box-edit-note,
-    .mindmap-box-edit-tag{
+    .mindmap-box-edit-tag,
+    .mindmap-box-edit-mark{
         margin-top: 6px;
         padding: 12px;
 
@@ -93,6 +95,113 @@
             font-size: 14px;
             resize: none;
             min-width: 200px;
+        }
+    }
+
+    .mindmap-box-edit-mark{
+        > ul {
+            display: flex;
+            margin: 0;
+            padding: 0;
+        }
+        .mark{
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            margin: 0 2px;
+            cursor: pointer;
+            padding: 3px;
+            position: relative;
+
+            &:hover{
+                background: #e0e0e0;
+                border-radius: 3px;
+            }
+
+            .icon{
+                width: 14px;
+                height: 14px;
+                border-radius: 14px;
+                border: 3px solid #e0e0e0;
+                font-size: sans-serif;
+            }
+
+            .icon-tag{}
+
+            .icon-tag-red{
+                background: rgb(248, 72, 66);
+                border-color: rgb(223, 65, 60);
+            }
+            .icon-tag-yellow{
+                background: rgb(255, 179, 50);
+                border-color: rgb(230, 161, 44);
+            }
+            .icon-tag-blue{
+                background: rgb(19, 128, 243);
+                border-color: rgb(19, 114, 219);
+            }
+            .icon-tag-purple{
+                background: rgb(171, 99, 209);
+                border-color: rgb(153, 89, 187);
+            }
+            .icon-tag-green{
+                background: rgb(86, 206, 96);
+                border-color: rgb(77, 185, 86);
+            }
+            .icon-tag-cyan{
+                background: rgb(0, 177, 229);
+                border-color: rgb(0, 159, 205);
+            }
+            .icon-tag-gray{
+                background: rgb(157, 157, 160);
+                border-color: rgb(141, 141, 144);
+            }
+
+            .icon-priority{
+                font-size: 14px;
+                color: #FFF;
+                font-weight: 700;
+                background: rgb(157, 157, 160);
+                border-color: rgb(157, 157, 160);
+                text-align: center;
+                line-height: 14px;
+            }
+
+            .icon-priority-p1{
+                background: rgb(248, 72, 66);
+                border-color: rgb(248, 72, 66);
+            }
+            .icon-priority-p2{
+                background: rgb(255, 179, 50);
+                border-color: rgb(255, 179, 50);
+            }
+            .icon-priority-p3{
+                background: rgb(19, 128, 243);
+                border-color: rgb(19, 128, 243);
+            }
+
+            .icon-task{
+                background: #FFF;
+                border-color: #FFF;
+                position: relative;
+
+                > i{
+                    font-family: mindmap-icon;
+                    font-size: 20px;
+                    text-align: center;
+                    font-style: normal;
+                    color: rgb(86, 206, 96);
+                    position: relative;
+                    left: -3px;
+                    top: -4px;
+                }
+            }
+
+            .icon-task-task0 > i{
+                left: -3px;
+                top: -3px;
+            }
         }
     }
 

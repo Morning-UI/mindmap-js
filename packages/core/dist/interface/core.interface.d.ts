@@ -32,6 +32,7 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $boxEditLink: HTMLElement;
     $boxEditNote: HTMLElement;
     $boxEditTag: HTMLElement;
+    $boxEditMark: HTMLElement;
 }
 export interface MindmapDataItem {
     text?: string;
@@ -135,7 +136,7 @@ export interface InitNodeTagsOptions {
 }
 export declare type GenMarkOptions = {
     markName: MindMarks;
-    markType: keyof MarkSet;
+    markType: keyof MindMarkTypes;
 } & InitNodeTagsOptions;
 export interface InitNodeMarksOptions {
     shapes: MindNodeShapes;
@@ -294,6 +295,7 @@ export interface ContextMenuFeatures {
     menuItemNoteDelete(): void;
     menuItemTagEdit(): void;
     menuItemTagDelete(): void;
+    menuItemMarkChoose(evt: MouseEvent): void;
 }
 export interface NodeFeatures {
     removeNode(nodeIds: NodeIds, _refresh: boolean): this;
@@ -310,8 +312,14 @@ export interface FoldFeatures {
     fold(nodeIds: NodeIds, fold: boolean): this;
     unfold(nodeIds: NodeIds): this;
 }
+export interface MarkFeatures {
+    showEditMark(nodeIds: NodeIds, markType: MindMarkTypes): this;
+    mark(nodeIds: NodeIds, mark: MindMarks): this;
+    getCurrentEditMarkNodeIds(): NodeIds;
+    hideEditMark(): this;
+}
 export declare type MindmapCoreL0Type = MindmapCoreBase;
-export declare type MindmapCoreL1Type = MindmapCoreL0Type & GetFeatures & FoldFeatures & LinkFeatures & NoteFeatures & TagFeatures;
+export declare type MindmapCoreL1Type = MindmapCoreL0Type & GetFeatures & FoldFeatures & LinkFeatures & NoteFeatures & TagFeatures & MarkFeatures;
 export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures;
 export declare type MindmapCoreType = MindmapCoreL2Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;
@@ -418,16 +426,27 @@ export declare const MindMarks: {
     Gray: MindMarksTag.Gray;
 };
 export declare type MindMarks = MindMarksTag | MindMarksPriority | MindMarksTask | MindMarksStar | MindMarksFlag | MindMarksPerson;
+export declare enum MindMarkTypes {
+    Tag = "tag",
+    Priority = "priority",
+    Task = "task",
+    Star = "star",
+    Flag = "flag",
+    Person = "person"
+}
 export declare type MarkSet = {
-    tag: MindMarksTag;
-    priority: MindMarksPriority;
-    task: MindMarksTask;
-    star: MindMarksStar;
-    flag: MindMarksFlag;
-    person: MindMarksPerson;
+    [MindMarkTypes.Tag]?: MindMarksTag;
+    [MindMarkTypes.Priority]?: MindMarksPriority;
+    [MindMarkTypes.Task]?: MindMarksTask;
+    [MindMarkTypes.Star]?: MindMarksStar;
+    [MindMarkTypes.Flag]?: MindMarksFlag;
+    [MindMarkTypes.Person]?: MindMarksPerson;
 };
 export declare type MarkBuilder = {
-    [type in keyof MarkSet]: Function;
+    [type in MindMarkTypes]: Function;
+};
+export declare type MarkElementBuilder = {
+    [type in MindMarkTypes]: (marks: typeof MindMarksTag | typeof MindMarksPriority | typeof MindMarksTask | typeof MindMarksStar | typeof MindMarksFlag | typeof MindMarksPerson) => Node[];
 };
 export declare type MarkShapeCfg = {
     con?: ShapeCfg;

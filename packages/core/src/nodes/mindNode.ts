@@ -36,6 +36,7 @@ import {
     MindmapCoreL0Type,
     InitNodeMarksOptions,
     MarkSet,
+    MindMarkTypes,
 }                                               from '../interface';
 
 const _NODE_SHAPE_INDEX: {
@@ -394,15 +395,14 @@ const initNodeMarks = (options: InitNodeMarksOptions): void => {
 
         return;
 
-
     }
 
     for (const index in marks) {
 
-        const markName = marks[index as keyof MarkSet];
+        const markName = marks[index as MindMarkTypes];
         genMarkShape({
             markName,
-            markType : index as keyof MarkSet,
+            markType : index as MindMarkTypes,
             ...options,
         });
 
@@ -732,7 +732,7 @@ export const mindNodeAdjustPosition = (
     // const conPaddingY = style.fontSize * 0.75;
     const textBBox = elements.text.getBBox();
     const conHeight = textBBox.height + (style.paddingY * 2);
-    const markTypes = Object.keys(cfg.mark || {}) as (keyof MarkSet)[];
+    const markTypes = Object.keys(cfg.mark || {}) as MindMarkTypes[];
 
     let textOffsetX = 0;
     let appendConGroupBbox = elements.appendConGroup.getBBox();

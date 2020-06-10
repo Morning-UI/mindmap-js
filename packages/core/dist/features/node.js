@@ -23,7 +23,8 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 import map from 'lodash.map';
-import { fillNodeIds, traverseData, } from '../base/utils';
+import { fillNodeIds, } from '../base/utils';
+import { traverseData, } from '../utils/traverseData';
 var parseNodeDataOnce = function (data) {
     var _data = data;
     if (typeof _data === 'string') {

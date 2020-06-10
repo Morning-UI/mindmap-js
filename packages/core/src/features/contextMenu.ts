@@ -3,6 +3,7 @@ import {
     ContextMenuTypes,
     MindmapCoreL1Ctor,
     ContextMenuFeatures,
+    MindMarks,
 }                                               from '../interface';
 
 export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
@@ -146,6 +147,15 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             this.untagByIndex(this.getContextNodeId(), this.getContextData().tagIndex);
             this.hideContextMenu();
+
+        }
+
+        menuItemMarkChoose (evt: MouseEvent): void {
+
+            const $target = evt.target as HTMLElement;
+            const markValue = $target.getAttribute('mark-value') as MindMarks;
+
+            this.mark(this.getCurrentEditMarkNodeIds(), markValue);
 
         }
 

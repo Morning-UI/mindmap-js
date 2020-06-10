@@ -36,6 +36,7 @@ import bindNodeHover                            from '../events/nodeHover';
 import bindNodeSelect                           from '../events/nodeSelect';
 import bindNodeEdit                             from '../events/nodeEdit';
 import bindMarksHover                           from '../events/marksHover';
+import bindMarksClick                           from '../events/marksClick';
 import bindAppendsHover                         from '../events/appendsHover';
 import bindAppendsClick                         from '../events/appendsClick';
 import bindContextMenu                          from '../events/contextMenu';
@@ -131,6 +132,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
         $boxEditLink : options.$con.querySelector('.mindmap-box-edit-link'),
         $boxEditNote : options.$con.querySelector('.mindmap-box-edit-note'),
         $boxEditTag : options.$con.querySelector('.mindmap-box-edit-tag'),
+        $boxEditMark : options.$con.querySelector('.mindmap-box-edit-mark'),
 
         ...options,
     };
@@ -315,9 +317,9 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
 
     graph.on('canvas:mousemove', (evt: IG6GraphEvent): void => {
 
-        bindAppendsHover.stop(evt, {
-            graph,
-        });
+        // bindAppendsHover.stop(evt, {
+        //     graph,
+        // });
 
         bindFoldBtnHover.stop(evt, {
             graph,
@@ -412,6 +414,11 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
             });
 
             bindFoldBtnClick.click(evt, {
+                mindmap,
+                graph,
+            });
+
+            bindMarksClick.click(evt, {
                 mindmap,
                 graph,
             });

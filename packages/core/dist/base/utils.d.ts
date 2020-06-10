@@ -12,8 +12,6 @@ export declare const inAnnex: (mindmap: MindmapCoreType, evt: IG6GraphEvent, gro
 export declare const fillNodeIds: (nodeIds: NodeIds) => string[];
 export declare const toggleAllChildrenVisibility: (node: INode, type: 'show' | 'hide', callback: toggleNodeVisibilityCallback) => void;
 export declare const toggleNodeVisibility: (node: INode, type: 'show' | 'hide', callback: toggleNodeVisibilityCallback) => void;
-export declare const traverseOneItem: (item: MindmapDataItem) => MindmapNodeItem;
-export declare const traverseData: (data: MindmapDataItem) => MindmapNodeItem;
 export declare const nodeDataItemGetter: MindmapDataItemGetter;
 export declare const pluckDataFromNodes: (children: MindmapNodeItem[], getter: MindmapDataItemGetter, mindmap: MindmapCoreL0Type) => MindmapDataItem[];
 export declare const clearSelectedNode: (mindmap: MindmapCoreType, selectedState: 'selected') => void;

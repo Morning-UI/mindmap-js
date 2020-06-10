@@ -1,7 +1,7 @@
 import { inAnnex, } from '../base/utils';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 export default {
-    move: function (evt, options) {
+    click: function (evt, options) {
         var model = evt.item.getModel();
         if (!model._isNode) {
             return;
@@ -11,13 +11,11 @@ export default {
             var index = (markTypes.length * 4) - 4;
             while (index >= 0) {
                 if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.markConGroup, index)) {
-                    options.graph.setItemState(evt.item, "mark-hover:" + index / 4, true);
-                }
-                else {
-                    options.graph.setItemState(evt.item, "mark-hover:" + index / 4, false);
+                    options.mindmap.showEditMark(model.id, markTypes[index / 4]);
+                    break;
                 }
                 index -= 4;
             }
         }
-    }
+    },
 };

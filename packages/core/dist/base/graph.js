@@ -21,6 +21,7 @@ import bindNodeHover from '../events/nodeHover';
 import bindNodeSelect from '../events/nodeSelect';
 import bindNodeEdit from '../events/nodeEdit';
 import bindMarksHover from '../events/marksHover';
+import bindMarksClick from '../events/marksClick';
 import bindAppendsHover from '../events/appendsHover';
 import bindAppendsClick from '../events/appendsClick';
 import bindContextMenu from '../events/contextMenu';
@@ -67,7 +68,7 @@ var hiddenMenus = function (mindmap, evt) {
 export var create = function (mindmap, options) {
     var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, brushSelectable: true, backgroundGrid: false, foldable: true, minimap: true, 
         // eslint-disable-next-line no-magic-numbers
-        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag') }, options);
+        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag'), $boxEditMark: options.$con.querySelector('.mindmap-box-edit-mark') }, options);
     var modes = [];
     var plugins = [];
     _options.width = convertSize('width', _options.width, _options.$con);
@@ -186,9 +187,9 @@ export var bindEvent = function (mindmap) {
         });
     });
     graph.on('canvas:mousemove', function (evt) {
-        bindAppendsHover.stop(evt, {
-            graph: graph,
-        });
+        // bindAppendsHover.stop(evt, {
+        //     graph,
+        // });
         bindFoldBtnHover.stop(evt, {
             graph: graph,
             mindmap: mindmap,
@@ -254,6 +255,10 @@ export var bindEvent = function (mindmap) {
                 graph: graph,
             });
             bindFoldBtnClick.click(evt, {
+                mindmap: mindmap,
+                graph: graph,
+            });
+            bindMarksClick.click(evt, {
                 mindmap: mindmap,
                 graph: graph,
             });

@@ -61,29 +61,29 @@ export default {
     },
     stop : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const hoverLinks = options.graph.findAllByState('node', 'link-hover');
+        // const hoverLinks = options.graph.findAllByState('node', 'link-hover');
 
-        if (hoverLinks && hoverLinks.length > 0) {
+        // if (hoverLinks && hoverLinks.length > 0) {
 
-            for (const link of hoverLinks) {
+        //     for (const link of hoverLinks) {
 
-                options.graph.setItemState(link, APPENDS_LIST.link.state, false);
+        //         options.graph.setItemState(link, APPENDS_LIST.link.state, false);
 
-            }
+        //     }
 
-        }
+        // }
 
-        const hoverNotes = options.graph.findAllByState('node', 'note-hover');
+        // const hoverNotes = options.graph.findAllByState('node', 'note-hover');
 
-        if (hoverNotes && hoverNotes.length > 0) {
+        // if (hoverNotes && hoverNotes.length > 0) {
 
-            for (const note of hoverNotes) {
+        //     for (const note of hoverNotes) {
 
-                options.graph.setItemState(note, APPENDS_LIST.note.state, false);
+        //         options.graph.setItemState(note, APPENDS_LIST.note.state, false);
 
-            }
+        //     }
 
-        }
+        // }
 
     },
 };
