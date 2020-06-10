@@ -1,4 +1,4 @@
-import { LINE_COLOR, FONT_SIZE, ITEM_RADIUS, OUTLINE_COLOR, OUTLINE_COLOR_ACTIVE, } from './base';
+import { LINE_COLOR, FONT_SIZE, ITEM_RADIUS, OUTLINE_COLOR, OUTLINE_COLOR_ACTIVE, FOLD_BTN_STYLE, } from './base';
 export var MIND_NODE_STYLE = {
     bgColor: 'rgba(219, 226, 227, 1)',
     fontColor: 'rgba(0, 0, 0, 1)',
@@ -30,4 +30,32 @@ export var MIND_NODE_STYLE = {
     tagPaddingY: 4,
     tagMarginLeft: 6,
     tagMarginTop: 6,
+    markConPadding: 2,
+    // 每一个mark之间的间隔
+    markConMarginRight: 0,
+    // 整个mark内容和右侧文本的距离
+    markConGroupMarginRight: 6,
+    markConBgColor: 'transparent',
+    markConBgColorHover: 'rgba(38, 190, 252, 0.3)',
+    markConBorderColor: 'transparent',
+    markConBorderColorHover: OUTLINE_COLOR_ACTIVE,
+    markConRadius: ITEM_RADIUS,
+    markMarginRight: 2,
+    markIconBorder: 1,
+    // _shapePresets : {
+    //     'round-rect' : {
+    //         radius : 6
+    //     },
+    //     rect : {
+    //         radius : 0
+    //     },
+    //     line : {
+    //         bgColor : 'transparent',
+    //         borderColor : 'transparent',
+    //         borderWidth : 0,
+    //         bottomlineBg : LINE_COLOR,
+    //         bottomlineHeight : 2
+    //     }
+    // }
+    FOLD_BTN_STYLE: FOLD_BTN_STYLE,
 };

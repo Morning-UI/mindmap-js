@@ -20,11 +20,14 @@ import { getNodeBrushSelectBehavior, } from '../behavior/nodeBrushSelect';
 import bindNodeHover from '../events/nodeHover';
 import bindNodeSelect from '../events/nodeSelect';
 import bindNodeEdit from '../events/nodeEdit';
+import bindMarksHover from '../events/marksHover';
 import bindAppendsHover from '../events/appendsHover';
 import bindAppendsClick from '../events/appendsClick';
 import bindContextMenu from '../events/contextMenu';
 import bindTagHover from '../events/tagHover';
 import bindNodeDrag from '../events/nodeDrag';
+import bindFoldBtnHover from '../events/foldBtnHover';
+import bindFoldBtnClick from '../events/foldBtnClick';
 var convertSize = function (type, value, $con) {
     var size;
     if (typeof value === 'string') {
@@ -45,10 +48,11 @@ var _nodeEventShouldEmit = function (evt) {
     if (evt.item && evt.item.destroyed) {
         return true;
     }
-    // const model = evt.item.getModel() as MindmapNodeItem;
-    // if (model.collapse || model.isDragging) {
-    //     return false;
-    // }
+    var model = evt.item.getModel();
+    // model.collapse
+    if (model._isDragging) {
+        return false;
+    }
     return true;
 };
 var hiddenMenus = function (mindmap, evt) {
@@ -60,21 +64,8 @@ var hiddenMenus = function (mindmap, evt) {
         graph: mindmap.graph,
     });
 };
-// TODO left node props: 
-// ITEM INCLUEDS:
-//      tag : 标签
-//      note : 备注
-//      mark : 标记(用户设置)
-// PRIVATE >>>
-//      _shapeStyle : 计算完的图形样式
-//      _origin : 原始数据
-//      _mark : 标记(经过转换后)
-//      _collapsed : 子节点折叠状态
-//      _collapsedChildren : 用于存放被折叠的子节点
-// for TODO :
-// shapeStyle : 使用的图形样式（用户设置）；未启用；
 export var create = function (mindmap, options) {
-    var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, brushSelectable: true, backgroundGrid: false, minimap: true, 
+    var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, brushSelectable: true, backgroundGrid: false, foldable: true, minimap: true, 
         // eslint-disable-next-line no-magic-numbers
         nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag') }, options);
     var modes = [];
@@ -198,10 +189,10 @@ export var bindEvent = function (mindmap) {
         bindAppendsHover.stop(evt, {
             graph: graph,
         });
-        // bindCollapseBtnHover.stop(evt, {
-        //     vm,
-        //     graph
-        // });
+        bindFoldBtnHover.stop(evt, {
+            graph: graph,
+            mindmap: mindmap,
+        });
     });
     // graph.on('node:mouseenter', (evt: IG6GraphEvent): void => {
     //     if (_nodeEventShouldEmit(evt)) {
@@ -237,10 +228,14 @@ export var bindEvent = function (mindmap) {
                 graph: graph,
                 mindmap: mindmap,
             });
-            // bindCollapseBtnHover.move(evt, {
-            //     graph,
-            //     vm
-            // });
+            bindFoldBtnHover.move(evt, {
+                graph: graph,
+                mindmap: mindmap,
+            });
+            bindMarksHover.move(evt, {
+                graph: graph,
+                mindmap: mindmap,
+            });
         }
     });
     graph.on('node:click', function (evt) {
@@ -258,10 +253,10 @@ export var bindEvent = function (mindmap) {
                 mindmap: mindmap,
                 graph: graph,
             });
-            // bindCollapseBtnClick.click(evt, {
-            //     vm,
-            //     graph
-            // });
+            bindFoldBtnClick.click(evt, {
+                mindmap: mindmap,
+                graph: graph,
+            });
         }
     });
     graph.on('node:dblclick', function (evt) {

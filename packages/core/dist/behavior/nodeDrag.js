@@ -59,12 +59,12 @@ var udpateOneDragTarget = function (mindmap, index, dragging, _dragHolderIndexOf
                 model._isDragging = false;
             }
         });
+        var appendIndexOfParent = _dragHolderIndexOfParent;
         // 如果父节点处于折叠状态，则默认追加到最后
-        // TODO
-        // if (dragHolderParentModel._collapsed) {
-        //     _dragHolderIndexOfParent = -1;
-        // }
-        mindmap.insertSubNode(dragHolderParentModel.id, nodeModel, _dragHolderIndexOfParent, false);
+        if (dragHolderParentModel._isFolded) {
+            appendIndexOfParent = -1;
+        }
+        mindmap.insertSubNode(dragHolderParentModel.id, nodeModel, appendIndexOfParent, false);
     }
 };
 var updateDragTarget = function (mindmap, dragging) {
@@ -103,10 +103,9 @@ var updateDragTarget = function (mindmap, dragging) {
         dragTarget.hidden = false;
         dragHolderIndexOfParent += targetNodes.length;
         // 如果父节点处于折叠状态，永远都是0
-        // TODO
-        // if (dragHolderParentModel._collapsed) {
-        //     dragHolderIndexOfParent = 0;
-        // }
+        if (dragHolderParentModel._isFolded) {
+            dragHolderIndexOfParent = 0;
+        }
         mindmap.graph.paint();
         mindmap.graph.changeData();
         mindmap.graph.layout();
@@ -465,14 +464,14 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         updateDragTarget(mindmap, false);
         // 若目标父节点处于折叠状态，则打开
         // 并且不需要_removeOldDragPlaceholder，因为展开时会自动删除当前的children
-        // TODO : 支持折叠
-        // if (dragHolderParentModel._collapsed) {
-        //     this.graph.layout();
-        //     vm.collapseChildren(dragHolderParentModel.id, false);
-        // } else {
-        removeOldDragPlaceholder(mindmap);
-        mindmap.graph.layout();
-        // }
+        if (dragHolderParentModel._isFolded) {
+            mindmap.graph.layout();
+            mindmap.fold(dragHolderParentModel.id, false);
+        }
+        else {
+            removeOldDragPlaceholder(mindmap);
+            mindmap.graph.layout();
+        }
         dragHolderParentModel = null;
         dragHolderIndexOfParent = null;
         this.dragOptions = null;

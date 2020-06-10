@@ -11,6 +11,7 @@ import mixinTag from './features/tag';
 import mixinContextMenu from './features/contextMenu';
 import mixinNode from './features/node';
 import mixinGet from './features/get';
+import mixinFold from './features/fold';
 var MindmapCoreBase = /** @class */ (function () {
     function MindmapCoreBase() {
         var args = [];
@@ -181,7 +182,7 @@ export { MindmapCoreBase };
 // LO includes : corebase.
 // L1(base function) includes : link/note/tag.
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
-var MindmapCoreL1 = mixinTag(mixinNote(mixinLink(mixinGet(MindmapCoreBase))));
+var MindmapCoreL1 = mixinTag(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase)))));
 var MindmapCoreL2 = mixinNode(mixinContextMenu(MindmapCoreL1));
 var MindmapCore = mixinConstructor(MindmapCoreL2);
 /* eslint-enable */

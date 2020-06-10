@@ -6,6 +6,104 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "399842",
+      "name": "play",
+      "font_class": "play1",
+      "unicode": "e649",
+      "unicode_decimal": 58953
+    },
+    {
+      "icon_id": "1012133",
+      "name": "正确",
+      "font_class": "wuuiconxuan",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "1013099",
+      "name": "进度2",
+      "font_class": "chart14",
+      "unicode": "e676",
+      "unicode_decimal": 58998
+    },
+    {
+      "icon_id": "1013100",
+      "name": "进度1",
+      "font_class": "chart18",
+      "unicode": "e677",
+      "unicode_decimal": 58999
+    },
+    {
+      "icon_id": "1013101",
+      "name": "进度6",
+      "font_class": "chart34",
+      "unicode": "e679",
+      "unicode_decimal": 59001
+    },
+    {
+      "icon_id": "1013102",
+      "name": "进度3",
+      "font_class": "chart38",
+      "unicode": "e67a",
+      "unicode_decimal": 59002
+    },
+    {
+      "icon_id": "1013107",
+      "name": "进度4",
+      "font_class": "chart12",
+      "unicode": "e67d",
+      "unicode_decimal": 59005
+    },
+    {
+      "icon_id": "1013108",
+      "name": "进度5",
+      "font_class": "chart58",
+      "unicode": "e67e",
+      "unicode_decimal": 59006
+    },
+    {
+      "icon_id": "1013109",
+      "name": "进度7",
+      "font_class": "chart78",
+      "unicode": "e67f",
+      "unicode_decimal": 59007
+    },
+    {
+      "icon_id": "1319970",
+      "name": "人",
+      "font_class": "ren",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "12309891",
+      "name": "flag_circle_fill",
+      "font_class": "flag_circle_fill",
+      "unicode": "e825",
+      "unicode_decimal": 59429
+    },
+    {
+      "icon_id": "14679363",
+      "name": "star_circle_fill",
+      "font_class": "star_circle_fill",
+      "unicode": "e6ca",
+      "unicode_decimal": 59082
+    },
+    {
+      "icon_id": "1567573",
+      "name": "minus",
+      "font_class": "minus",
+      "unicode": "e673",
+      "unicode_decimal": 58995
+    },
+    {
+      "icon_id": "1567601",
+      "name": "plus",
+      "font_class": "plus",
+      "unicode": "e685",
+      "unicode_decimal": 59013
+    },
+    {
       "icon_id": "2278039",
       "name": "左对齐",
       "font_class": "zuoduiqi",

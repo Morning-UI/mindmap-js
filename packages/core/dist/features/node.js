@@ -64,9 +64,7 @@ export default (function (Base) {
                 var model = node.getModel();
                 var parent_1 = node.getInEdges()[0].getSource();
                 var parentModel = parent_1.getModel();
-                // TODO : 支持collapsed
-                // const parentChildren = parentModel._collapsed ? parentModel._collapsedChildren : parentModel.children;
-                var parentChildren = parentModel.children;
+                var parentChildren = parentModel._isFolded ? parentModel._foldedChildren : parentModel.children;
                 var indexOfParent = parentChildren.indexOf(model);
                 parentChildren.splice(indexOfParent, 1);
             }
@@ -82,20 +80,18 @@ export default (function (Base) {
             var node = this.graph.findById(String(nodeId));
             var model = node.getModel();
             // let parent = node.getInEdges()[0].getSource();
-            // TODO : 支持折叠
-            // let children = model._collapsed ? model._collapsedChildren : model.children;
+            var children = model._isFolded ? model._foldedChildren : model.children;
             var isSingle = !Array.isArray(datas);
             var _datas = parseNodeData(datas);
-            var children = model.children;
             if (children === undefined) {
-                // TODO : 支持折叠
-                // if (model._collapsed) {
-                //     model._collapsedChildren = [];
-                //     children = model._collapsedChildren;
-                // } else {
-                model.children = [];
-                children = model.children;
-                // }
+                if (model._isFolded) {
+                    model._foldedChildren = [];
+                    children = model._foldedChildren;
+                }
+                else {
+                    model.children = [];
+                    children = model.children;
+                }
             }
             if (!Array.isArray(_datas)) {
                 _datas = [_datas];

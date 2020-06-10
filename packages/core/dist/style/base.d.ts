@@ -1,3 +1,4 @@
+import { NodeStyle } from '../interface';
 export declare const LINE_COLOR = "rgba(67, 75, 83, 1)";
 export declare const LINE_WIDTH = 1;
 export declare const LINE_RADIUS = 8;
@@ -7,3 +8,4 @@ export declare const OUTLINE_COLOR = "rgba(147, 223, 254, 1)";
 export declare const OUTLINE_COLOR_ACTIVE = "rgba(38, 190, 252, 1)";
 export declare const HOLDER_COLOR = "rgba(149, 222, 253, 1)";
 export declare const DRAG_COLOR = "rgba(149, 222, 253, 0.3)";
+export declare const FOLD_BTN_STYLE: NodeStyle;

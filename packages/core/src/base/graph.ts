@@ -35,11 +35,14 @@ import {
 import bindNodeHover                            from '../events/nodeHover';
 import bindNodeSelect                           from '../events/nodeSelect';
 import bindNodeEdit                             from '../events/nodeEdit';
+import bindMarksHover                           from '../events/marksHover';
 import bindAppendsHover                         from '../events/appendsHover';
 import bindAppendsClick                         from '../events/appendsClick';
 import bindContextMenu                          from '../events/contextMenu';
 import bindTagHover                             from '../events/tagHover';
 import bindNodeDrag                             from '../events/nodeDrag';
+import bindFoldBtnHover                         from '../events/foldBtnHover';
+import bindFoldBtnClick                         from '../events/foldBtnClick';
 
 const convertSize = (type: 'width' | 'height', value: number | string, $con: HTMLElement): number => {
 
@@ -76,13 +79,14 @@ const _nodeEventShouldEmit = (evt: IG6GraphEvent): boolean => {
 
     }
 
-    // const model = evt.item.getModel() as MindmapNodeItem;
+    const model = evt.item.getModel() as MindmapNodeItem;
 
-    // if (model.collapse || model.isDragging) {
+    // model.collapse
+    if (model._isDragging) {
 
-    //     return false;
+        return false;
 
-    // }
+    }
 
     return true;
 
@@ -100,20 +104,6 @@ const hiddenMenus = (mindmap: MindmapCoreType, evt: IG6GraphEvent): void => {
 
 };
 
-// TODO left node props: 
-// ITEM INCLUEDS:
-//      tag : 标签
-//      note : 备注
-//      mark : 标记(用户设置)
-// PRIVATE >>>
-//      _shapeStyle : 计算完的图形样式
-//      _origin : 原始数据
-//      _mark : 标记(经过转换后)
-//      _collapsed : 子节点折叠状态
-//      _collapsedChildren : 用于存放被折叠的子节点
-// for TODO :
-// shapeStyle : 使用的图形样式（用户设置）；未启用；
-
 export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions): G6.TreeGraph => {
 
     const _options: MindmapInsideOptions = {
@@ -124,6 +114,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
         scalable : true,
         brushSelectable : true,
         backgroundGrid : false,
+        foldable : true,
         minimap : true,
         // eslint-disable-next-line no-magic-numbers
         nodeHGap : 30,
@@ -328,10 +319,10 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
             graph,
         });
 
-        // bindCollapseBtnHover.stop(evt, {
-        //     vm,
-        //     graph
-        // });
+        bindFoldBtnHover.stop(evt, {
+            graph,
+            mindmap,
+        });
 
     });
 
@@ -385,10 +376,15 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
                 mindmap,
             });
 
-            // bindCollapseBtnHover.move(evt, {
-            //     graph,
-            //     vm
-            // });
+            bindFoldBtnHover.move(evt, {
+                graph,
+                mindmap,
+            });
+
+            bindMarksHover.move(evt, {
+                graph,
+                mindmap,
+            });
 
         }
 
@@ -415,10 +411,10 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
                 graph,
             });
 
-            // bindCollapseBtnClick.click(evt, {
-            //     vm,
-            //     graph
-            // });
+            bindFoldBtnClick.click(evt, {
+                mindmap,
+                graph,
+            });
 
         }
 

@@ -35,11 +35,36 @@ var data2 = {
                 {
                     text: "Different in",
                     link: 'http://baidu.com/',
-                    mark: ['priority:1', 'priority:2', 'star:red'],
+                    mark: {
+                        tag: 'gray',
+                        priority: 'p7',
+                        task: 'task1',
+                        star: 'starBlue',
+                        flag: 'flagCyan',
+                        person: 'personGreen',
+                    },
                 },
                 {
                     text: 'Linear discriminant analysis',
                     tag: ['标签1', '标签2', '标签2', '标签2', '标签2', '标签2'],
+                    children: [
+                        {
+                            text: '子主题4 - 1',
+                        },
+                        {
+                            text: '子主题4 - 2',
+                        },
+                        {
+                            text: '子主题4 - 3',
+                        },
+                    ],
+                },
+                {
+                    text: 'Decision trees',
+                    note: '123',
+                    mark: {
+                        priority: 'p7',
+                    },
                 },
                 {
                     text: 'Decision trees',

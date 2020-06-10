@@ -33,11 +33,13 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
-        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeIds(): import("../interface").NodeId[];
         getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
-        getSelectedNodeId(): string | number;
+        getSelectedNodeId(): import("../interface").NodeId;
         getSelectedNodeDetail(): import("../interface").MindmapDataItem;
         getNodeDetail(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
+        fold(nodeIds: import("../interface").NodeIds, fold: boolean): any;
+        unfold(nodeIds: import("../interface").NodeIds): any;
         showEditLink(nodeIds: import("../interface").NodeIds): any;
         hideEditLink(): any;
         getCurrentEditLinkNodeIds(): import("../interface").NodeIds;
@@ -68,7 +70,7 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         menuItemTagEdit(): void;
         menuItemTagDelete(): void;
         removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: string | number, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        insertSubNode(nodeId: import("../interface").NodeId, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
     };
 } & TBase;
 export default _default;

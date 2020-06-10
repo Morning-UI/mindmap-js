@@ -101,18 +101,19 @@ const udpateOneDragTarget = (
 
         });
 
+        let appendIndexOfParent = _dragHolderIndexOfParent;
+
         // 如果父节点处于折叠状态，则默认追加到最后
-        // TODO
-        // if (dragHolderParentModel._collapsed) {
+        if (dragHolderParentModel._isFolded) {
 
-        //     _dragHolderIndexOfParent = -1;
+            appendIndexOfParent = -1;
 
-        // }
+        }
 
         mindmap.insertSubNode(
             dragHolderParentModel.id,
             nodeModel,
-            _dragHolderIndexOfParent,
+            appendIndexOfParent,
             false
         );
 
@@ -179,12 +180,11 @@ const updateDragTarget = (mindmap: MindmapCoreType, dragging = false): void => {
         dragHolderIndexOfParent += targetNodes.length;
 
         // 如果父节点处于折叠状态，永远都是0
-        // TODO
-        // if (dragHolderParentModel._collapsed) {
+        if (dragHolderParentModel._isFolded) {
 
-        //     dragHolderIndexOfParent = 0;
+            dragHolderIndexOfParent = 0;
 
-        // }
+        }
 
         mindmap.graph.paint();
         mindmap.graph.changeData();
@@ -763,18 +763,17 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
 
         // 若目标父节点处于折叠状态，则打开
         // 并且不需要_removeOldDragPlaceholder，因为展开时会自动删除当前的children
-        // TODO : 支持折叠
-        // if (dragHolderParentModel._collapsed) {
+        if (dragHolderParentModel._isFolded) {
 
-        //     this.graph.layout();
-        //     vm.collapseChildren(dragHolderParentModel.id, false);
+            mindmap.graph.layout();
+            mindmap.fold(dragHolderParentModel.id, false);
 
-        // } else {
+        } else {
 
-        removeOldDragPlaceholder(mindmap);
-        mindmap.graph.layout();
+            removeOldDragPlaceholder(mindmap);
+            mindmap.graph.layout();
 
-        // }
+        }
 
         dragHolderParentModel = null;
         dragHolderIndexOfParent = null;

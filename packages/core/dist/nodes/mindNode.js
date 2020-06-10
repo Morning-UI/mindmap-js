@@ -1,6 +1,17 @@
-import { genNodeStyles, getAppends, appendConGroupAdjustPosition, tagConGroupAdjustPosition, } from '../base/utils';
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+import { genNodeStyles, getAppends, appendConGroupAdjustPosition, tagConGroupAdjustPosition, genMarkShape, } from '../base/utils';
 import { APPENDS_LIST, } from '../base/const';
-import { ROOT_MIND_NODE_STYLE, MIND_NODE_STYLE, } from '../style';
+import { ROOT_MIND_NODE_STYLE, MIND_NODE_STYLE, MARKS_STYLE, } from '../style';
 var _NODE_SHAPE_INDEX = {};
 var DEBUG_BOX_SIZING = false;
 var nodeShapeIndex = 0;
@@ -98,6 +109,12 @@ var initNodeBase = function (options) {
     addGroup({
         group: group,
         shapes: shapes,
+        name: 'markConGroup',
+        id: "node-" + cfg.id + "-mark-box",
+    });
+    addGroup({
+        group: group,
+        shapes: shapes,
         name: 'appendConGroup',
         id: "node-" + cfg.id + "-append-box",
     });
@@ -107,6 +124,45 @@ var initNodeBase = function (options) {
         name: 'tagConGroup',
         id: "node-" + cfg.id + "-tag-box",
     });
+    addGroup({
+        group: group,
+        shapes: shapes,
+        name: 'foldBtnGroup',
+        id: "node-" + cfg.id + "-fold-btn",
+    });
+};
+var initFoldBtn = function (options) {
+    var shapes = options.shapes, style = options.style, cfg = options.cfg;
+    shapes['foldBtnGroup.circle'] = shapes.foldBtnGroup.addShape('circle', {
+        attrs: {
+            r: style.FOLD_BTN_STYLE.width,
+            fill: style.FOLD_BTN_STYLE.bgColor,
+            stroke: style.FOLD_BTN_STYLE.borderColor,
+        },
+    });
+    shapes['foldBtnGroup.icon'] = shapes.foldBtnGroup.addShape('text', {
+        attrs: {
+            x: 0,
+            y: 0,
+            fill: style.FOLD_BTN_STYLE.fontColor,
+            fontFamily: 'mindmap-icon',
+            fontSize: style.FOLD_BTN_STYLE.fontSize,
+            textAlign: 'center',
+            textBaseline: 'middle',
+            text: String.fromCharCode(parseInt("e673;", 16)),
+        },
+    });
+    // 如果没有子节点不显示按钮
+    var children = cfg._isFolded ? cfg._foldedChildren : cfg.children;
+    if (!children || children.length === 0) {
+        shapes['foldBtnGroup.circle'].attr({
+            fillOpacity: 0,
+            strokeOpacity: 0,
+        });
+        shapes['foldBtnGroup.icon'].attr({
+            fillOpacity: 0,
+        });
+    }
 };
 var initNodeAppends = function (options) {
     var shapes = options.shapes, appends = options.appends, style = options.style;
@@ -202,6 +258,22 @@ var initNodeTags = function (options) {
             }
         }
     }
+};
+var initNodeMarks = function (options) {
+    var cfg = options.cfg;
+    var marks = cfg.mark;
+    if (!marks || Object.keys(marks).length === 0) {
+        return;
+    }
+    for (var index in marks) {
+        var markName = marks[index];
+        genMarkShape(__assign({ markName: markName, markType: index }, options));
+    }
+};
+var foldBtnGroupStateUpdate = function (shapes, state) {
+    shapes.foldBtnGroup.getChildByIndex(1).attr({
+        text: String.fromCharCode(parseInt(state ? "e685;" : "e673;", 16)),
+    });
 };
 var outlineStateChange = function (options) {
     var elements = options.elements, group = options.group, states = options.states, style = options.style, mindmap = options.mindmap;
@@ -315,42 +387,128 @@ var tagStateChange = function (options) {
         }
     }
 };
+var foldStateChange = function (options) {
+    var elements = options.elements, cfg = options.cfg, states = options.states, style = options.style;
+    if (states.indexOf('fold-btn-hover') !== -1) {
+        elements.foldBtnGroup.getChildByIndex(0).attr({
+            fill: style.FOLD_BTN_STYLE.bgColorHover,
+            cursor: 'pointer',
+        });
+        elements.foldBtnGroup.getChildByIndex(1).attr({
+            cursor: 'pointer',
+        });
+    }
+    else {
+        elements.foldBtnGroup.getChildByIndex(0).attr({
+            fill: style.FOLD_BTN_STYLE.bgColor,
+            cursor: 'default',
+        });
+        elements.foldBtnGroup.getChildByIndex(1).attr({
+            cursor: 'default',
+        });
+    }
+    if (states.indexOf('children-folded') !== -1
+        || cfg._isFolded) {
+        foldBtnGroupStateUpdate(elements, true);
+    }
+    else {
+        foldBtnGroupStateUpdate(elements, false);
+    }
+};
+var markStateChange = function (options) {
+    var elements = options.elements, cfg = options.cfg, states = options.states, style = options.style;
+    var markTypes = Object.keys(cfg.mark || {});
+    if (markTypes.length > 0) {
+        var index = 0;
+        var hoverState = void 0;
+        var markConGroup = elements.markConGroup;
+        var markConGroupChilren = markConGroup.getChildren();
+        for (var childIndex in markConGroupChilren) {
+            if (Number(childIndex) % 4 === 0) {
+                markConGroupChilren[childIndex].attr({
+                    fill: style.markConBgColor,
+                    stroke: style.markConBorderColor,
+                });
+            }
+        }
+        while (index < states.length) {
+            if ((/^mark-hover/u).test(states[index])) {
+                hoverState = states[index];
+                break;
+            }
+            index++;
+        }
+        if (hoverState) {
+            var markIndex = Number(hoverState.split(':')[1]);
+            var markCon = markConGroup.getChildByIndex(markIndex * 4);
+            if (markCon) {
+                markCon.attr({
+                    fill: style.markConBgColorHover,
+                    stroke: style.markConBorderColorHover,
+                });
+            }
+        }
+    }
+};
 export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
     var style = cfg._isRoot ? genNodeStyles(ROOT_MIND_NODE_STYLE, cfg) : genNodeStyles(MIND_NODE_STYLE, cfg);
-    // const markConGroupBbox = elements.markConGroup.getBBox();
-    // const textX = 0;
     var appends = getAppends(cfg);
     var tags = cfg.tag;
     // const conPaddingX = style.fontSize * 1.5;
     // const conPaddingY = style.fontSize * 0.75;
     var textBBox = elements.text.getBBox();
     var conHeight = textBBox.height + (style.paddingY * 2);
+    var markTypes = Object.keys(cfg.mark || {});
     var textOffsetX = 0;
     var appendConGroupBbox = elements.appendConGroup.getBBox();
+    var markConGroupBBox = elements.markConGroup.getBBox();
     var conWidth = textBBox.width + (style.paddingX * 2);
-    // if (cfg._mark && cfg._mark.length > 0) {
-    //     for (let index in cfg._mark) {
-    //         let markCon = shapes.markConGroup.getChildByIndex(index * 2);
-    //         let mark = shapes.markConGroup.getChildByIndex((index * 2) + 1);
-    //         let markBbox = mark.getBBox();
-    //         let markConBbox = markCon.getBBox();
-    //         markCon.attr({
-    //             x : (markConBbox.width * index) + conPaddingX,
-    //             y : conPaddingY
-    //         });
-    //         mark.attr({
-    //             x : (markConBbox.width * index) + (markConBbox.width / 2) + conPaddingX,
-    //             y : (markConBbox.height / 2) + conPaddingY
-    //         });
-    //     }
-    //     markConGroupBbox = shapes.markConGroup.getBBox();
-    // }
-    // if (cfg._mark && cfg._mark.length > 0) {
-    //     conWidth += markConGroupBbox.width;
-    //     conWidth += MARKS_MARGIN.right;
-    //     textX += markConGroupBbox.width;
-    //     textX += MARKS_MARGIN.right;
-    // }
+    if (markTypes && markTypes.length > 0) {
+        for (var index in markTypes) {
+            var markType = markTypes[index];
+            var markKey = markType + ":" + cfg.mark[markType];
+            var _index = Number(index) * 4;
+            var markCon = elements.markConGroup.getChildByIndex(_index);
+            var markIconCon = elements.markConGroup.getChildByIndex(_index + 1);
+            var markIcon = elements.markConGroup.getChildByIndex(_index + 2);
+            var markText = elements.markConGroup.getChildByIndex(_index + 3);
+            // const markBBox = mark.getBBox();
+            var markIconBBox = markIcon.getBBox();
+            var markConWidth = markIconBBox.width + (style.markConPadding * 2) + (style.markIconBorder * 2);
+            markCon.attr({
+                x: ((markConWidth + style.markConMarginRight) * Number(index)) + style.paddingX - style.markConPadding - style.markIconBorder,
+                y: (conHeight / 2) - (markIconBBox.height / 2) - style.markConPadding - style.markIconBorder,
+                width: markConWidth,
+                height: markIconBBox.height + (style.markConPadding * 2) + (style.markIconBorder * 2),
+            });
+            var markConBBox = markCon.getBBox();
+            // markCon.attr({
+            //     radius : markConBBox.width / 2,
+            // });
+            markIconCon.attr({
+                x: markConBBox.x + style.markConPadding,
+                y: markConBBox.y + style.markConPadding,
+                width: markConBBox.width - (style.markConPadding * 2),
+                height: markConBBox.height - (style.markConPadding * 2),
+                radius: (markConBBox.width / 2) - style.markConPadding,
+            });
+            var markIconConBBox = markIconCon.getBBox();
+            markIcon.attr({
+                x: markIconConBBox.x + (MARKS_STYLE[markKey].borderWidth / 2) + style.markIconBorder,
+                y: markIconConBBox.y + (MARKS_STYLE[markKey].borderWidth / 2) + style.markIconBorder,
+            });
+            markIconBBox = markIcon.getBBox();
+            var markTextBBox = markIconCon.getBBox();
+            var markTextOffsetY = markText.attr('textOffsetY') || 0;
+            markText.attr({
+                x: markIconBBox.x + (markIconBBox.width / 2),
+                y: markIconBBox.y + (markIconBBox.height / 2) + markTextOffsetY,
+            });
+        }
+        markConGroupBBox = elements.markConGroup.getBBox();
+        conWidth += markConGroupBBox.width + style.markConGroupMarginRight;
+        textOffsetX += markConGroupBBox.width + style.markConGroupMarginRight;
+    }
     if (appends && appends.length > 0) {
         appendConGroupAdjustPosition({
             text: elements.text,
@@ -394,15 +552,15 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
     //     height : style.bottomlineHeight,
     //     width : boxBbox.width + 2
     // });
-    // shapes.collapseBtnGroup.getChildByIndex(0).attr({
-    //     x : boxBbox.maxX,
-    //     y : (textBbox.height / 2) + conPaddingY
-    // });
-    // let collapseBtnBbox = shapes.collapseBtnGroup.getChildByIndex(0).getBBox();
-    // shapes.collapseBtnGroup.getChildByIndex(1).attr({
-    //     x : collapseBtnBbox.maxX - (collapseBtnBbox.width / 2),
-    //     y : collapseBtnBbox.maxY - (collapseBtnBbox.height / 2)
-    // });
+    elements['foldBtnGroup.circle'].attr({
+        x: boxBBox.maxX,
+        y: (textBBox.height / 2) + style.paddingY,
+    });
+    var foldBtnBBox = elements['foldBtnGroup.circle'].getBBox();
+    elements['foldBtnGroup.icon'].attr({
+        x: foldBtnBBox.maxX - (foldBtnBBox.width / 2),
+        y: foldBtnBBox.maxY - (foldBtnBBox.height / 2),
+    });
     if (tags && tags.length > 0) {
         tagConGroupAdjustPosition({
             box: elements.box,
@@ -446,6 +604,11 @@ export var getMindNode = function (mindmap) { return ({
             group: group,
             style: style,
         });
+        initFoldBtn({
+            shapes: shapes,
+            cfg: cfg,
+            style: style,
+        });
         initNodeAppends({
             shapes: shapes,
             appends: appends,
@@ -457,7 +620,14 @@ export var getMindNode = function (mindmap) { return ({
             cfg: cfg,
             style: style,
         });
+        initNodeMarks({
+            shapes: shapes,
+            mindmap: mindmap,
+            cfg: cfg,
+            style: style,
+        });
         mindNodeAdjustPosition(shapes, cfg, mindmap);
+        foldBtnGroupStateUpdate(shapes, cfg._isFolded);
         return shapes.box;
     },
     setState: function (name, value, item) {
@@ -470,6 +640,7 @@ export var getMindNode = function (mindmap) { return ({
             markConGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.markConGroup),
             appendConGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.appendConGroup),
             tagConGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.tagConGroup),
+            foldBtnGroup: group.getChildByIndex(_NODE_SHAPE_INDEX.foldBtnGroup),
         };
         var style;
         if (cfg._isRoot) {
@@ -509,6 +680,18 @@ export var getMindNode = function (mindmap) { return ({
             style: style,
         });
         tagStateChange({
+            elements: elements,
+            cfg: cfg,
+            states: states,
+            style: style,
+        });
+        foldStateChange({
+            elements: elements,
+            cfg: cfg,
+            states: states,
+            style: style,
+        });
+        markStateChange({
             elements: elements,
             cfg: cfg,
             states: states,

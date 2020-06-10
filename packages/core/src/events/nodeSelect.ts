@@ -9,11 +9,15 @@ import {
     IG6GraphEvent,
 }                                               from '@antv/g6/lib/types';
 import {
+    IGroup,
+}                                               from '@antv/g-base/lib/interfaces';
+import {
     EventOptions,
     MindmapNodeItem,
 }                                               from '../interface';
 import {
     inAnnex,
+    inNodeShape,
 }                                               from '../base/utils';
 import {
     NODE_SHAPE_INDEX,
@@ -23,17 +27,24 @@ export default {
     select : (evt: IG6GraphEvent, options: EventOptions): void => {
 
         const model = evt.item.getModel() as MindmapNodeItem;
-        // const children = model._collapsed ? model._collapsedChildren : model.children;
+        const children = model._isFolded ? model._foldedChildren : model.children;
+        const group = evt.item.get('group') as IGroup;
 
-        // if (children && children.length > 0) {
+        if (children && children.length > 0) {
 
-        //     if (inNodeShape(options.vm, evt, evt.item.get('group').getChildByIndex(NODE_SHAPE_INDEX.collapseBtnGroup))) {
+            if (
+                inNodeShape(
+                    options.mindmap,
+                    evt,
+                    group.getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup)
+                )
+            ) {
 
-        //         return;
+                return;
 
-        //     }
+            }
 
-        // }
+        }
 
         if (options.mindmap.keydownState.mod) {
 

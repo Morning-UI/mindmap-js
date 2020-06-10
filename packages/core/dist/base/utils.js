@@ -1,6 +1,6 @@
 import * as G6 from '@antv/g6';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
-import { MIND_NODE_STYLE, } from '../style';
+import { MIND_NODE_STYLE, MARKS_STYLE, } from '../style';
 import globalData from '../base/globalData';
 export var genNodeStyles = function (styles, cfg) {
     return G6.Util.deepMix({}, styles, 
@@ -71,11 +71,16 @@ export var appendConGroupAdjustPosition = function (shapes, cfg) {
     // const conPaddingY = style.fontSize * 0.75;
     var appends = getAppends(cfg);
     var textBbox = shapes.text.getBBox();
-    // const markConGroupBbox = shapes.markConGroup.getBBox();
+    var markConGroupBbox = shapes.markConGroup.getBBox();
     if (appends && appends.length > 0) {
-        // TODO : markConGroupBbox
-        // const appendConX = textBbox.width + markConGroupBbox.width + style.paddingX + style.appendsMarginLeft;
-        var appendConX = textBbox.width + style.paddingX + style.appendsMarginLeft;
+        var appendConX = textBbox.width
+            + style.paddingX
+            + style.appendsMarginLeft;
+        if (markConGroupBbox.width > 0) {
+            appendConX
+                += markConGroupBbox.width
+                    + style.markConGroupMarginRight;
+        }
         var appendWidthTotal = 0;
         for (var index in appends) {
             var _index = Number(index);
@@ -217,11 +222,9 @@ export var toggleNodeVisibility = function (node, type, callback) {
     node
         .get('group')
         .getChildByIndex(NODE_SHAPE_INDEX.tagConGroup)[type]();
-    // node
-    //     .get('group')
-    //     .getChildByIndex(NODE_SHAPE_INDEX.collapseBtnGroup)[
-    //         type
-    //     ]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup)[type]();
     toggleAllChildrenVisibility(node, type, callback);
 };
 // ITEM INCLUEDS:
@@ -232,6 +235,7 @@ export var toggleNodeVisibility = function (node, type, callback) {
 //      link : 链接
 //      note : 备注
 //      tag : 标签
+//      mark : 标记
 // --------------
 // G6 DATA:
 //      id : node id
@@ -244,11 +248,25 @@ export var toggleNodeVisibility = function (node, type, callback) {
 //      _isNode : 是节点
 //      _isDragging : 正在拖拽
 //      _isHolder : 占位节点
+//      _isFolded : 子节点是否折叠收起
 // --------------
+// TODO left node props: 
+// ITEM INCLUEDS:
+//      tag : 标签
+//      note : 备注
+//      mark : 标记(用户设置)
+// PRIVATE >>>
+//      _shapeStyle : 计算完的图形样式
+//      _origin : 原始数据
+//      _mark : 标记(经过转换后)
+// for TODO :
+// shapeStyle : 使用的图形样式（用户设置）；未启用；
 export var traverseOneItem = function (item) {
     var globalId = globalData.id;
     var nodeItem = {
         id: String(globalData.id++),
+        children: [],
+        _foldedChildren: item._foldedChildren || [],
         // eslint-disable-next-line no-magic-numbers
         anchorPoints: [[0, 0.5], [1, 0.5]],
         style: {},
@@ -258,10 +276,12 @@ export var traverseOneItem = function (item) {
         link: item.link || null,
         note: item.note || null,
         tag: item.tag || null,
+        mark: item.mark || null,
         _isRoot: globalId === 1,
         _isNode: true,
         _isDragging: false,
         _isHolder: false,
+        _isFolded: item._isFolded || false,
     };
     nodeItem._originChildren = item.children;
     return nodeItem;
@@ -286,10 +306,9 @@ export var nodeDataItemGetter = {
     note: function (model) { return model.note; },
     tag: function (model) { return model.tag; },
     children: function (model, callback, getter, mindmap) {
-        // TODO : 支持折叠
-        // let children = model._collapsed ? item._collapsedChildren : item.children;
-        if (model.children) {
-            return callback(model.children, getter, mindmap);
+        var children = model._isFolded ? model._foldedChildren : model.children;
+        if (children) {
+            return callback(children, getter, mindmap);
         }
         return undefined;
     },
@@ -341,3 +360,107 @@ export var clearSelectedNode = function (mindmap, selectedState) {
 //     }
 //     return height > childrenHeight ? height : childrenHeight;
 // };
+var markBuilder = {
+    tag: function () {
+        return {
+            text: {
+                cursor: 'pointer',
+            },
+        };
+    },
+    priority: function (options, markKey) {
+        return {
+            text: {
+                attrs: {
+                    fontSize: MARKS_STYLE[markKey].fontSize,
+                    fill: MARKS_STYLE[markKey].fontColor,
+                    textAlign: 'center',
+                    textBaseline: 'middle',
+                    fontWeight: MARKS_STYLE[markKey].fontWeight,
+                    text: options.markName.replace('p', ''),
+                    cursor: 'pointer',
+                },
+            },
+        };
+    },
+    task: function (options, markKey) {
+        return {
+            text: {
+                attrs: {
+                    x: 2,
+                    fontSize: MARKS_STYLE[markKey].fontSize,
+                    fill: MARKS_STYLE[markKey].fontColor,
+                    fontFamily: MARKS_STYLE[markKey].fontFamily,
+                    textAlign: 'center',
+                    textBaseline: 'middle',
+                    text: String.fromCharCode(parseInt(MARKS_STYLE[markKey].text, 16)),
+                    textOffsetY: MARKS_STYLE[markKey].textOffsetY,
+                    cursor: 'pointer',
+                },
+            },
+        };
+    },
+    star: function (options, markKey) {
+        return {
+            text: {
+                attrs: {
+                    x: 2,
+                    fontSize: MARKS_STYLE[markKey].fontSize,
+                    fill: MARKS_STYLE[markKey].fontColor,
+                    fontFamily: MARKS_STYLE[markKey].fontFamily,
+                    textAlign: 'center',
+                    textBaseline: 'middle',
+                    text: String.fromCharCode(parseInt(MARKS_STYLE[markKey].text, 16)),
+                    textOffsetY: MARKS_STYLE[markKey].textOffsetY,
+                    cursor: 'pointer',
+                },
+            },
+        };
+    },
+    flag: function (options, markKey) { return markBuilder.star(options, markKey); },
+    person: function (options, markKey) { return markBuilder.star(options, markKey); },
+};
+export var genMarkShape = function (options) {
+    var shapes = options.shapes, markType = options.markType;
+    var markKey = options.markType + ":" + options.markName;
+    var markCfg = markBuilder[markType](options, markKey);
+    markCfg.con = {
+        attrs: {
+            x: 0,
+            y: 0,
+            radius: MIND_NODE_STYLE.markConRadius,
+            cursor: 'pointer',
+        },
+    };
+    markCfg.iconCon = {
+        attrs: {
+            x: 0,
+            y: 0,
+            fill: '#FFF',
+            cursor: 'pointer',
+        },
+    };
+    markCfg.icon = {
+        attrs: {
+            x: 0,
+            y: 0,
+            fill: MARKS_STYLE[markKey].bgColor,
+            stroke: MARKS_STYLE[markKey].borderColor,
+            lineWidth: MARKS_STYLE[markKey].borderWidth,
+            width: MARKS_STYLE[markKey].radius * 2,
+            height: MARKS_STYLE[markKey].radius * 2,
+            radius: MARKS_STYLE[markKey].radius,
+            cursor: 'pointer',
+        },
+    };
+    shapes.markConGroup.addShape('rect', markCfg.con);
+    shapes.markConGroup.addShape('rect', markCfg.iconCon);
+    shapes.markConGroup.addShape('rect', markCfg.icon);
+    shapes.markConGroup.addShape('text', markCfg.text);
+    // const markBbox = mark.getBBox();
+    // TODO
+    // markCon.attr({
+    //     width : markBbox.width + (MARKS_PADDING.x * 2),
+    //     height : markBbox.height + (MARKS_PADDING.y * 2)
+    // });
+};

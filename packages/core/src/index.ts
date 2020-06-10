@@ -35,6 +35,7 @@ import mixinTag                                 from './features/tag';
 import mixinContextMenu                         from './features/contextMenu';
 import mixinNode                                from './features/node';
 import mixinGet                                 from './features/get';
+import mixinFold                                from './features/fold';
 
 export class MindmapCoreBase {
 
@@ -306,8 +307,9 @@ const MindmapCoreL1 =
     mixinNote(
     mixinLink(
     mixinGet(
+    mixinFold(
         MindmapCoreBase
-    ))));
+    )))));
 
 const MindmapCoreL2 = 
     mixinNode(

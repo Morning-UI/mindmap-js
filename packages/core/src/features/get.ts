@@ -100,6 +100,6 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             return details;
 
-        },
+        }
 
     };

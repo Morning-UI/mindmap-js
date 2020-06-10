@@ -81,9 +81,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
                 const model = node.getModel() as MindmapNodeItem;
                 const parent = node.getInEdges()[0].getSource();
                 const parentModel = parent.getModel() as MindmapNodeItem;
-                // TODO : 支持collapsed
-                // const parentChildren = parentModel._collapsed ? parentModel._collapsedChildren : parentModel.children;
-                const parentChildren = parentModel.children;
+                const parentChildren = parentModel._isFolded ? parentModel._foldedChildren : parentModel.children;
                 const indexOfParent = parentChildren.indexOf(model);
 
                 parentChildren.splice(indexOfParent, 1);
@@ -111,27 +109,24 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             const node = this.graph.findById(String(nodeId)) as INode;
             const model = node.getModel() as MindmapNodeItem;
             // let parent = node.getInEdges()[0].getSource();
-            // TODO : 支持折叠
-            // let children = model._collapsed ? model._collapsedChildren : model.children;
+            let children = model._isFolded ? model._foldedChildren : model.children;
             const isSingle = !Array.isArray(datas);
 
             let _datas = parseNodeData(datas);
-            let children = model.children;
 
             if (children === undefined) {
 
-                // TODO : 支持折叠
-                // if (model._collapsed) {
+                if (model._isFolded) {
 
-                //     model._collapsedChildren = [];
-                //     children = model._collapsedChildren;
+                    model._foldedChildren = [];
+                    children = model._foldedChildren;
 
-                // } else {
+                } else {
 
-                model.children = [];
-                children = model.children;
+                    model.children = [];
+                    children = model.children;
 
-                // }
+                }
 
             }
 

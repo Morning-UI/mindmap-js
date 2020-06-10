@@ -34,11 +34,13 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
-        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeIds(): NodeId[];
         getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
-        getSelectedNodeId(): string | number;
+        getSelectedNodeId(): NodeId;
         getSelectedNodeDetail(): import("../interface").MindmapDataItem;
         getNodeDetail(nodeIds: NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
+        fold(nodeIds: NodeIds, fold: boolean): any;
+        unfold(nodeIds: NodeIds): any;
         showEditLink(nodeIds: NodeIds): any;
         hideEditLink(): any;
         getCurrentEditLinkNodeIds(): NodeIds;

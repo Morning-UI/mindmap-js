@@ -18,26 +18,53 @@ export declare const testData: {
             children: ({
                 text: string;
                 link: string;
-                mark: string[];
+                mark: {
+                    tag: string;
+                    priority: string;
+                    task: string;
+                    star: string;
+                    flag: string;
+                    person: string;
+                };
                 tag?: undefined;
+                children?: undefined;
                 note?: undefined;
             } | {
                 text: string;
                 tag: string[];
+                children: {
+                    text: string;
+                }[];
                 link?: undefined;
                 mark?: undefined;
                 note?: undefined;
             } | {
                 text: string;
                 note: string;
+                mark: {
+                    priority: string;
+                    tag?: undefined;
+                    task?: undefined;
+                    star?: undefined;
+                    flag?: undefined;
+                    person?: undefined;
+                };
+                link?: undefined;
+                tag?: undefined;
+                children?: undefined;
+            } | {
+                text: string;
+                note: string;
                 link?: undefined;
                 mark?: undefined;
                 tag?: undefined;
+                children?: undefined;
             } | {
                 text: string;
                 link: string;
                 mark?: undefined;
                 tag?: undefined;
+                children?: undefined;
                 note?: undefined;
             } | {
                 text: string;
@@ -45,11 +72,13 @@ export declare const testData: {
                 link: string;
                 mark?: undefined;
                 tag?: undefined;
+                children?: undefined;
             } | {
                 text: string;
                 link?: undefined;
                 mark?: undefined;
                 tag?: undefined;
+                children?: undefined;
                 note?: undefined;
             })[];
         } | {

@@ -22,15 +22,21 @@ import {
     MindmapDataItem,
     MindmapCoreL0Type,
     MindmapDataItemGetter,
+    MindMarks,
+    InitNodeTagsOptions,
+    GenMarkOptions,
+    MarkSet,
+    MarkBuilder,
+    MarkShapeCfg,
 }                                               from '../interface';
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
 import {
     MIND_NODE_STYLE,
+    MARKS_STYLE,
 }                                               from '../style';
 import globalData                               from '../base/globalData';
-import node from 'src/features/node';
 
 export const genNodeStyles = (styles: NodeStyle, cfg: MindmapNodeItem): NodeStyle => {
 
@@ -142,12 +148,21 @@ export const appendConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: Mindma
     // const conPaddingY = style.fontSize * 0.75;
     const appends = getAppends(cfg);
     const textBbox = shapes.text.getBBox();
-    // const markConGroupBbox = shapes.markConGroup.getBBox();
+    const markConGroupBbox = shapes.markConGroup.getBBox();
 
     if (appends && appends.length > 0) {
-        // TODO : markConGroupBbox
-        // const appendConX = textBbox.width + markConGroupBbox.width + style.paddingX + style.appendsMarginLeft;
-        const appendConX = textBbox.width + style.paddingX + style.appendsMarginLeft;
+
+        let appendConX
+            = textBbox.width
+            + style.paddingX
+            + style.appendsMarginLeft;
+
+        if (markConGroupBbox.width > 0) {
+
+            appendConX
+            += markConGroupBbox.width
+            + style.markConGroupMarginRight;
+        }
 
         let appendWidthTotal = 0;
 
@@ -374,11 +389,11 @@ export const toggleNodeVisibility = (
         .getChildByIndex(NODE_SHAPE_INDEX.tagConGroup)[
             type
         ]();
-    // node
-    //     .get('group')
-    //     .getChildByIndex(NODE_SHAPE_INDEX.collapseBtnGroup)[
-    //         type
-    //     ]();
+    node
+        .get('group')
+        .getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup)[
+            type
+        ]();
 
     toggleAllChildrenVisibility(node, type, callback);
 
@@ -392,6 +407,7 @@ export const toggleNodeVisibility = (
 //      link : 链接
 //      note : 备注
 //      tag : 标签
+//      mark : 标记
 // --------------
 // G6 DATA:
 //      id : node id
@@ -404,12 +420,28 @@ export const toggleNodeVisibility = (
 //      _isNode : 是节点
 //      _isDragging : 正在拖拽
 //      _isHolder : 占位节点
+//      _isFolded : 子节点是否折叠收起
 // --------------
+
+// TODO left node props: 
+// ITEM INCLUEDS:
+//      tag : 标签
+//      note : 备注
+//      mark : 标记(用户设置)
+// PRIVATE >>>
+//      _shapeStyle : 计算完的图形样式
+//      _origin : 原始数据
+//      _mark : 标记(经过转换后)
+// for TODO :
+// shapeStyle : 使用的图形样式（用户设置）；未启用；
+
 export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
 
     const globalId = globalData.id;
     const nodeItem: MindmapNodeItem = {
         id : String(globalData.id++),
+        children : [],
+        _foldedChildren : item._foldedChildren || [],
         // eslint-disable-next-line no-magic-numbers
         anchorPoints : [[0, 0.5], [1, 0.5]],
         style : {},
@@ -419,10 +451,12 @@ export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
         link : item.link || null,
         note : item.note || null,
         tag : item.tag || null,
+        mark : item.mark || null,
         _isRoot : globalId === 1,
         _isNode : true,
         _isDragging : false,
         _isHolder : false,
+        _isFolded : item._isFolded || false,
     };
 
     nodeItem._originChildren = item.children;
@@ -470,11 +504,11 @@ export const nodeDataItemGetter: MindmapDataItemGetter = {
         mindmap: MindmapCoreL0Type,
     ): void => {
 
-        // TODO : 支持折叠
-        // let children = model._collapsed ? item._collapsedChildren : item.children;
-        if (model.children) {
+        const children = model._isFolded ? model._foldedChildren : model.children;
 
-            return callback(model.children, getter, mindmap);
+        if (children) {
+
+            return callback(children, getter, mindmap);
 
         }
 
@@ -568,3 +602,126 @@ export const clearSelectedNode = (mindmap: MindmapCoreType, selectedState: 'sele
 //     return height > childrenHeight ? height : childrenHeight;
 
 // };
+
+const markBuilder: MarkBuilder = {
+    tag : (): MarkShapeCfg => {
+
+        return {
+            text : {
+                cursor : 'pointer',
+            },
+        };
+
+    },
+    priority : (options: GenMarkOptions, markKey: string): MarkShapeCfg => {
+
+        return {
+            text : {
+                attrs : {
+                    fontSize : MARKS_STYLE[markKey].fontSize,
+                    fill : MARKS_STYLE[markKey].fontColor,
+                    textAlign : 'center',
+                    textBaseline : 'middle',
+                    fontWeight : MARKS_STYLE[markKey].fontWeight,
+                    text : options.markName.replace('p', ''),
+                    cursor : 'pointer',
+                },
+            },
+        };
+
+    },
+    task : (options: GenMarkOptions, markKey: string): MarkShapeCfg => {
+
+        return {
+            text : {
+                attrs : {
+                    x : 2,
+                    fontSize : MARKS_STYLE[markKey].fontSize,
+                    fill : MARKS_STYLE[markKey].fontColor,
+                    fontFamily : MARKS_STYLE[markKey].fontFamily,
+                    textAlign : 'center',
+                    textBaseline : 'middle',
+                    text : String.fromCharCode(parseInt(MARKS_STYLE[markKey].text, 16)),
+                    textOffsetY : MARKS_STYLE[markKey].textOffsetY,
+                    cursor : 'pointer',
+                },
+            },
+        };
+
+    },
+    star : (options: GenMarkOptions, markKey: string): MarkShapeCfg => {
+
+        return {
+            text : {
+                attrs : {
+                    x : 2,
+                    fontSize : MARKS_STYLE[markKey].fontSize,
+                    fill : MARKS_STYLE[markKey].fontColor,
+                    fontFamily : MARKS_STYLE[markKey].fontFamily,
+                    textAlign : 'center',
+                    textBaseline : 'middle',
+                    text : String.fromCharCode(parseInt(MARKS_STYLE[markKey].text, 16)),
+                    textOffsetY : MARKS_STYLE[markKey].textOffsetY,
+                    cursor : 'pointer',
+                },
+            },
+        };
+
+    },
+    flag : (options: GenMarkOptions, markKey: string): MarkShapeCfg => markBuilder.star(options, markKey),
+    person : (options: GenMarkOptions, markKey: string): MarkShapeCfg => markBuilder.star(options, markKey),
+};
+
+export const genMarkShape = (options: GenMarkOptions): void => {
+
+    const {
+        shapes,
+        markType,
+    } = options;
+
+    const markKey = `${options.markType}:${options.markName}`;
+    const markCfg: MarkShapeCfg = markBuilder[markType](options, markKey);
+
+    markCfg.con = {
+        attrs : {
+            x : 0,
+            y : 0,
+            radius : MIND_NODE_STYLE.markConRadius,
+            cursor : 'pointer',
+        },
+    };
+    markCfg.iconCon = {
+        attrs : {
+            x : 0,
+            y : 0,
+            fill : '#FFF',
+            cursor : 'pointer',
+        },
+    };
+    markCfg.icon = {
+        attrs : {
+            x : 0,
+            y : 0,
+            fill : MARKS_STYLE[markKey].bgColor,
+            stroke : MARKS_STYLE[markKey].borderColor,
+            lineWidth : MARKS_STYLE[markKey].borderWidth,
+            width : MARKS_STYLE[markKey].radius * 2,
+            height : MARKS_STYLE[markKey].radius * 2,
+            radius : MARKS_STYLE[markKey].radius,
+            cursor : 'pointer',
+        },
+    };
+
+    (shapes.markConGroup as IGroup).addShape('rect', markCfg.con);
+    (shapes.markConGroup as IGroup).addShape('rect', markCfg.iconCon);
+    (shapes.markConGroup as IGroup).addShape('rect', markCfg.icon);
+    (shapes.markConGroup as IGroup).addShape('text', markCfg.text);
+
+    // const markBbox = mark.getBBox();
+
+    // TODO
+    // markCon.attr({
+    //     width : markBbox.width + (MARKS_PADDING.x * 2),
+    //     height : markBbox.height + (MARKS_PADDING.y * 2)
+    // });
+};

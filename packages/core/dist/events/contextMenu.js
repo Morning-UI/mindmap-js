@@ -57,5 +57,6 @@ export default {
     },
     hide: function (evt, options) {
         options.mindmap.hideContextMenu();
+        options.mindmap._options.$canvas.querySelector('canvas').style.cursor = 'move';
     },
 };

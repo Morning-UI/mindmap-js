@@ -4,17 +4,18 @@
 // import {
 //     inNodeShape,
 // }                                   from '../base/utils';
-import { inAnnex, } from '../base/utils';
+import { inAnnex, inNodeShape, } from '../base/utils';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 export default {
     select: function (evt, options) {
         var model = evt.item.getModel();
-        // const children = model._collapsed ? model._collapsedChildren : model.children;
-        // if (children && children.length > 0) {
-        //     if (inNodeShape(options.vm, evt, evt.item.get('group').getChildByIndex(NODE_SHAPE_INDEX.collapseBtnGroup))) {
-        //         return;
-        //     }
-        // }
+        var children = model._isFolded ? model._foldedChildren : model.children;
+        var group = evt.item.get('group');
+        if (children && children.length > 0) {
+            if (inNodeShape(options.mindmap, evt, group.getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup))) {
+                return;
+            }
+        }
         if (options.mindmap.keydownState.mod) {
             if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
                 if (evt.item.getStates().indexOf('selected') !== -1) {

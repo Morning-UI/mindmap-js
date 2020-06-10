@@ -105,6 +105,7 @@ export default {
     hide : (evt: IG6GraphEvent, options: EventOptions): void => {
 
         options.mindmap.hideContextMenu();
+        options.mindmap._options.$canvas.querySelector('canvas').style.cursor = 'move';
 
     },
 };

@@ -7,6 +7,9 @@ import {
     IElement,
     IGroup,
 }                                               from '@antv/g-base/lib/interfaces';
+import {
+    ShapeCfg,
+}                                               from '@antv/g-base/lib/types';
 import GGroup                                   from '@antv/g-canvas/lib/group';
 import {
     INode,
@@ -49,6 +52,9 @@ export interface MindmapCreateOptions {
     // 是否显示背景网格
     backgroundGrid?: boolean;
 
+    // 节点是否可以折叠
+    foldable?: boolean;
+
     // 是否显示导航地图
     minimap?: boolean;
 
@@ -81,7 +87,10 @@ export interface MindmapDataItem {
     link?: string;
     note?: string;
     tag?: string[];
+    mark?: MarkSet;
     children?: MindmapDataItem[];
+    _isFolded?: boolean;
+    _foldedChildren?: MindmapNodeItem[];
 }
 
 export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeConfig {
@@ -109,11 +118,13 @@ export interface NodeStyle {
     outlineRadius?: number;
     outlinePadding?: number;
     bgColor?: string;
+    bgColorHover?: string;
     radius?: number;
     fontSize?: number;
     fontColor?: string;
-    fontWeight?: number;
+    fontWeight?: number|string;
     fontStyle?: ShapeAttrs['fontStyle'];
+    fontFamily?: string;
     borderColor?: string;
     borderWidth?: number;
     borderDash?: number[];
@@ -135,8 +146,21 @@ export interface NodeStyle {
     tagPaddingY?: number;
     tagMarginLeft?: number;
     tagMarginTop?: number;
+    markConPadding?: number;
+    markConMarginRight?: number;
+    markConGroupMarginRight?: number;
+    markConBgColor?: string;
+    markConBgColorHover?: string;
+    markConBorderColor?: string;
+    markConBorderColorHover?: string;
+    markConRadius?: number;
+    markMarginRight?: number;
+    markIconBorder?: number;
     width?: number;
     height?: number;
+    text?: string;
+    textOffsetY?: number;
+    FOLD_BTN_STYLE?: NodeStyle;
 }
 
 export interface MindShapeOptions extends ShapeOptions {}
@@ -149,6 +173,12 @@ export interface InitNodeOptions {
     style: NodeStyle;
 }
 
+export interface InitFoldBtnOptions{
+    shapes: MindNodeShapes;
+    cfg: MindmapNodeItem;
+    style: NodeStyle;
+}
+
 export interface InitNodeAppendsOptions {
     shapes: MindNodeShapes;
     appends: NodeAppendItem[];
@@ -156,6 +186,18 @@ export interface InitNodeAppendsOptions {
 }
 
 export interface InitNodeTagsOptions {
+    shapes: MindNodeShapes;
+    mindmap: MindmapCoreL0Type;
+    cfg: MindmapNodeItem;
+    style: NodeStyle;
+}
+
+export type GenMarkOptions = {
+    markName: MindMarks;
+    markType: keyof MarkSet;
+} & InitNodeTagsOptions;
+
+export interface InitNodeMarksOptions {
     shapes: MindNodeShapes;
     mindmap: MindmapCoreL0Type;
     cfg: MindmapNodeItem;
@@ -351,10 +393,15 @@ export interface GetFeatures {
     getSelectedNodeDetail (): MindmapDataItem;
     getNodeDetail (nodeIds: NodeIds): MindmapDataItem|MindmapDataItem[];
 }
+export interface FoldFeatures {
+    fold (nodeIds: NodeIds, fold: boolean): this;
+    unfold (nodeIds: NodeIds): this;
+}
 export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
     MindmapCoreL0Type
     & GetFeatures
+    & FoldFeatures
     & LinkFeatures
     & NoteFeatures
     & TagFeatures;
@@ -367,3 +414,96 @@ export type MindmapCoreL2Type =
 export type MindmapCoreType = MindmapCoreL2Type;
 
 export type toggleNodeVisibilityCallback = (type: 'show'|'hide', model: MindmapNodeItem) => void;
+
+export enum MindMarksTag {
+    Red = 'red',
+    Yellow = 'yellow',
+    Blue = 'blue',
+    Purple = 'purple',
+    Green = 'green',
+    Cyan = 'cyan',
+    Gray = 'gray',
+}
+export enum MindMarksPriority {
+    P1 = 'p1',
+    P2 = 'p2',
+    P3 = 'p3',
+    P4 = 'p4',
+    P5 = 'p5',
+    P6 = 'p6',
+    P7 = 'p7',
+}
+export enum MindMarksTask {
+    Task0 = 'task0',
+    Task18 = 'task18',
+    Task14 = 'task14',
+    Task38 = 'task38',
+    Task12 = 'task12',
+    Task58 = 'task58',
+    Task34 = 'task34',
+    Task78 = 'task78',
+    Task1 = 'task1',
+}
+export enum MindMarksStar {
+    StarRed = 'starRed',
+    StarYellow = 'starYellow',
+    StarBlue = 'starBlue',
+    StarPurple = 'starPurple',
+    StarGreen = 'starGreen',
+    StarCyan = 'starCyan',
+    StarGray = 'starGray',
+}
+export enum MindMarksFlag {
+    FlagRed = 'flagRed',
+    FlagYellow = 'flagYellow',
+    FlagBlue = 'flagBlue',
+    FlagPurple = 'flagPurple',
+    FlagGreen = 'flagGreen',
+    FlagCyan = 'flagCyan',
+    FlagGray = 'flagGray',
+}
+export enum MindMarksPerson {
+    PersonRed = 'personRed',
+    PersonYellow = 'personYellow',
+    PersonBlue = 'personBlue',
+    PersonPurple = 'personPurple',
+    PersonGreen = 'personGreen',
+    PersonCyan = 'personCyan',
+    PersonGray = 'personGray',
+}
+export const MindMarks = {
+    ...MindMarksTag,
+    ...MindMarksPriority,
+    ...MindMarksTask,
+    ...MindMarksStar,
+    ...MindMarksFlag,
+    ...MindMarksPerson,
+};
+
+export type MindMarks =
+    MindMarksTag
+    | MindMarksPriority
+    | MindMarksTask
+    | MindMarksStar
+    | MindMarksFlag
+    | MindMarksPerson;
+
+export type MarkSet = {
+    tag: MindMarksTag;
+    priority: MindMarksPriority;
+    task: MindMarksTask;
+    star: MindMarksStar;
+    flag: MindMarksFlag;
+    person: MindMarksPerson;
+}
+
+export type MarkBuilder = {
+    [type in keyof MarkSet]: Function;
+}
+
+export type MarkShapeCfg = {
+    con?: ShapeCfg;
+    iconCon?: ShapeCfg;
+    icon?: ShapeCfg;
+    text: ShapeCfg;
+};
