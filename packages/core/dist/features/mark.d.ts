@@ -14,6 +14,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         data: MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
+        screenshotting: boolean;
         editElements: import("../interface").MindNodeElements;
         editNode: Item;
         editContent: string;

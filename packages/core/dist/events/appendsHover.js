@@ -9,6 +9,7 @@ export default {
         }
         if (model.link !== null) {
             if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
+                console.log(123, evt.item, APPENDS_LIST.link.state);
                 options.graph.setItemState(evt.item, APPENDS_LIST.link.state, true);
             }
             else {

@@ -1,13 +1,14 @@
-import { MindmapCoreL2Ctor, MindmapNodeItem, NodeId, DownloadType } from '../interface';
-declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").MindmapCoreL2Type>>(Base: TBase) => {
+import { MindmapCoreL2Ctor, MindmapNodeItem, NodeId, MindmapCoreL2Type, DownloadType } from '../interface';
+declare const _default: <TBase extends MindmapCoreL2Ctor<MindmapCoreL2Type>>(Base: TBase) => {
     new (...args: any[]): {
         exportToObject(nodeId: NodeId): MindmapNodeItem[];
-        downloadFile(nodeId: NodeId | DownloadType, type: DownloadType): void;
+        downloadFile(nodeId: NodeId | DownloadType, type: DownloadType): this;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
+        screenshotting: boolean;
         editElements: import("../interface").MindNodeElements;
         editNode: import("@antv/g6/lib/types").Item;
         editContent: string;
@@ -89,6 +90,7 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         menuItemMarkDelete(): void;
         removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
         insertSubNode(nodeId: string | number, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        readData(data: import("../interface").MindmapDataItem): any;
     };
 } & TBase;
 export default _default;

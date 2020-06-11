@@ -43,8 +43,9 @@ import globalData                               from '../base/globalData';
 export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
 
     const globalId = globalData.id;
+    const id = item.id || String(globalData.id++);
     const nodeItem: MindmapNodeItem = {
-        id : String(globalData.id++),
+        id,
         children : [],
         _foldedChildren : item._foldedChildren || [],
         // eslint-disable-next-line no-magic-numbers
@@ -57,7 +58,7 @@ export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
         note : item.note || null,
         tag : item.tag || null,
         mark : item.mark || null,
-        _isRoot : globalId === 1,
+        _isRoot : id === 1,
         _isNode : true,
         _isDragging : false,
         _isHolder : false,

@@ -13,6 +13,25 @@ var __extends = (this && this.__extends) || (function () {
 })();
 import { DownloadType, } from '../interface';
 import { pluckDataFromModels, nodeItemGetter, } from '../utils/dataGetter';
+var IMAGE_PADDING = 20;
+var exportImage = function (data, mindmap, type) {
+    return new Promise(function (resolve) {
+        var rootNodeId = String(mindmap.getRootNodeId());
+        var rootNodeModel = mindmap.graph.findById(rootNodeId).getModel();
+        // TODO：导出后画布恢复原有的位置
+        // TODO：显示导出遮罩
+        mindmap.readData(data);
+        setTimeout(function () {
+            mindmap.graph.toFullDataURL(function (res) {
+                resolve(res);
+                mindmap.readData(rootNodeModel);
+            }, type, {
+                padding: IMAGE_PADDING,
+                backgroundColor: '#fff',
+            });
+        });
+    });
+};
 var exportProcesser = {
     jsonObj: function (data, mindmap) {
         return pluckDataFromModels(data, nodeItemGetter, mindmap);
@@ -21,9 +40,10 @@ var exportProcesser = {
         var exportData = pluckDataFromModels(data, nodeItemGetter, mindmap);
         return Promise.resolve(JSON.stringify(exportData, null, 4));
     },
-    png: function (data, mindmap) {
-        // TODO
-    },
+    png: function (data, mindmap) { return exportImage(data[0], mindmap, 'image/png'); },
+    webp: function (data, mindmap) { return exportImage(data[0], mindmap, 'image/webp'); },
+    jpeg: function (data, mindmap) { return exportImage(data[0], mindmap, 'image/jpeg'); },
+    bmp: function (data, mindmap) { return exportImage(data[0], mindmap, 'image/bmp'); },
     xmind: function (data, mindmap) {
         // TODO
     },
@@ -61,16 +81,18 @@ export default (function (Base) {
             }
             var data = [this.graph.findById(String(_nodeId)).getModel()];
             Promise
-                .resolve(exportProcesser[type](data, this))
+                .resolve(exportProcesser[_type](data, this))
                 .then(function (dataResult) {
-                console.log(type, dataResult);
-                if (type === 'png') {
-                    downloadFile(dataResult, 'png');
+                if (_type === DownloadType.Png
+                    || _type === DownloadType.Webp
+                    || _type === DownloadType.Jpeg
+                    || _type === DownloadType.Bmp) {
+                    downloadFile(dataResult, _type);
                 }
-                else if (type === 'xmind') {
+                else if (_type === DownloadType.Xmind) {
                     downloadFile(URL.createObjectURL(dataResult), 'xmind');
                 }
-                else if (type === DownloadType.Json) {
+                else if (_type === DownloadType.Json) {
                     downloadFile(URL.createObjectURL(new Blob([dataResult])), 'json');
                 }
             });

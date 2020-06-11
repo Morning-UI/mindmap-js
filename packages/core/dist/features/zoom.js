@@ -26,7 +26,10 @@ export default (function (Base) {
             if (_zoom < this._options.minZoom) {
                 _zoom = this._options.minZoom;
             }
-            this.graph.zoomTo(_zoom);
+            this.graph.zoomTo(_zoom, {
+                x: this.graph.get('width') / 2,
+                y: this.graph.get('height') / 2,
+            });
             this._updateZoomValue();
             return this;
         };

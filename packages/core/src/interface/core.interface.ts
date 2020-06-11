@@ -447,9 +447,12 @@ export interface MarkFeatures {
     mark (nodeIds: NodeIds, mark: MindMarks): this;
     unmark (nodeIds: NodeIds, mark: MindMarks): this;
 }
+export interface ReadDataFeatures {
+    readData (data: MindmapDataItem): this;
+}
 export interface ZoomFeatures {
     // 缩放画布
-    zoom (zoom: number): this;
+    zoom (zoom: number): this
     // 获取画布缩放值
     getZoom (): number;
     // 调整至适合的缩放
@@ -457,7 +460,8 @@ export interface ZoomFeatures {
     _updateZoomValue (): this;
 }
 export interface ExportFeatures {
-
+    exportToObject (nodeId: NodeId): MindmapNodeItem[];
+    downloadFile (nodeId: NodeId | DownloadType, type: DownloadType): this;
 }
 export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
@@ -473,7 +477,8 @@ export type MindmapCoreL1Type =
 export type MindmapCoreL2Type =
     MindmapCoreL1Type
     & ContextMenuFeatures
-    & NodeFeatures;
+    & NodeFeatures
+    & ReadDataFeatures;
 
 export type MindmapCoreL3Type =
     MindmapCoreL2Type
@@ -601,6 +606,9 @@ export type MarkShapeCfg = {
 
 export enum DownloadType {
     Png = 'png',
+    Webp = 'webp',
+    Bmp = 'bmp',
+    Jpeg = 'jpeg',
     Xmind = 'xmind',
     Json = 'json',
 }

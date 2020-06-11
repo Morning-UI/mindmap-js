@@ -14,6 +14,7 @@ import mixinGet from './features/get';
 import mixinFold from './features/fold';
 import mixinZoom from './features/zoom';
 import mixinExport from './features/export';
+import mixinReadData from './features/readData';
 var MindmapCoreBase = /** @class */ (function () {
     function MindmapCoreBase() {
         var args = [];
@@ -22,6 +23,7 @@ var MindmapCoreBase = /** @class */ (function () {
         }
         this.dragging = false;
         this.editting = false;
+        this.screenshotting = false;
         this.isMindmap = true;
         this.eventList = {};
         this.keydownState = {
@@ -175,7 +177,7 @@ export { MindmapCoreBase };
 // L1(base function) includes : link/note/tag.
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
 var MindmapCoreL1 = mixinZoom(mixinTag(mixinMark(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase)))))));
-var MindmapCoreL2 = mixinNode(mixinContextMenu(MindmapCoreL1));
+var MindmapCoreL2 = mixinReadData(mixinNode(mixinContextMenu(MindmapCoreL1)));
 var MindmapCoreL3 = mixinExport(MindmapCoreL2);
 var MindmapCore = mixinConstructor(MindmapCoreL3);
 /* eslint-enable */

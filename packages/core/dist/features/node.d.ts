@@ -8,6 +8,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         data: MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
+        screenshotting: boolean;
         editElements: import("../interface").MindNodeElements;
         editNode: import("@antv/g6/lib/types").Item;
         editContent: string;

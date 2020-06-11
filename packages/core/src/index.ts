@@ -37,6 +37,7 @@ import mixinGet                                 from './features/get';
 import mixinFold                                from './features/fold';
 import mixinZoom                                from './features/zoom';
 import mixinExport                              from './features/export';
+import mixinReadData                            from './features/readData';
 
 export class MindmapCoreBase {
 
@@ -45,6 +46,7 @@ export class MindmapCoreBase {
     data: MindmapNodeItem;
     dragging = false;
     editting = false;
+    screenshotting = false;
     editElements: MindNodeElements;
     editNode: G6Types.Item;
     editContent: string;
@@ -301,11 +303,12 @@ const MindmapCoreL1 =
         MindmapCoreBase
     )))))));
 
-const MindmapCoreL2 = 
+const MindmapCoreL2 =
+    mixinReadData( 
     mixinNode(
     mixinContextMenu(
         MindmapCoreL1
-    ));
+    )));
 
 const MindmapCoreL3 = 
     mixinExport(

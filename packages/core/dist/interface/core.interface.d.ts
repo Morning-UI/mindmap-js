@@ -329,6 +329,9 @@ export interface MarkFeatures {
     mark(nodeIds: NodeIds, mark: MindMarks): this;
     unmark(nodeIds: NodeIds, mark: MindMarks): this;
 }
+export interface ReadDataFeatures {
+    readData(data: MindmapDataItem): this;
+}
 export interface ZoomFeatures {
     zoom(zoom: number): this;
     getZoom(): number;
@@ -336,10 +339,12 @@ export interface ZoomFeatures {
     _updateZoomValue(): this;
 }
 export interface ExportFeatures {
+    exportToObject(nodeId: NodeId): MindmapNodeItem[];
+    downloadFile(nodeId: NodeId | DownloadType, type: DownloadType): this;
 }
 export declare type MindmapCoreL0Type = MindmapCoreBase;
 export declare type MindmapCoreL1Type = MindmapCoreL0Type & ZoomFeatures & GetFeatures & FoldFeatures & LinkFeatures & NoteFeatures & TagFeatures & MarkFeatures;
-export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures;
+export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures & ReadDataFeatures;
 export declare type MindmapCoreL3Type = MindmapCoreL2Type & ExportFeatures;
 export declare type MindmapCoreType = MindmapCoreL3Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;
@@ -476,6 +481,9 @@ export declare type MarkShapeCfg = {
 };
 export declare enum DownloadType {
     Png = "png",
+    Webp = "webp",
+    Bmp = "bmp",
+    Jpeg = "jpeg",
     Xmind = "xmind",
     Json = "json"
 }

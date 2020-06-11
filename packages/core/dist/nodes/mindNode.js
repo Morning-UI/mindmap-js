@@ -301,6 +301,7 @@ var outlineStateChange = function (options) {
 };
 var linkStateChange = function (options) {
     var appendElements = options.elements, cfg = options.cfg, states = options.states, style = options.style;
+    console.log('linkStateChange');
     if (cfg.link) {
         if (states.indexOf('link-hover') !== -1) {
             appendElements.linkCon.attr({
@@ -631,6 +632,7 @@ export var getMindNode = function (mindmap) { return ({
         return shapes.box;
     },
     setState: function (name, value, item) {
+        console.log('setState');
         var cfg = item.getModel();
         var states = item.getStates();
         var box = item.get('keyShape');

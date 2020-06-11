@@ -474,6 +474,8 @@ const linkStateChange = (options: StateChangeOptions): void => {
         style,
     } = options;
 
+    console.log('linkStateChange');
+
     if (cfg.link) {
 
         if (states.indexOf('link-hover') !== -1) {
@@ -955,6 +957,8 @@ export const getMindNode = (mindmap: MindmapCoreL0Type): MindShapeOptions => ({
 
     },
     setState : (name, value, item): void => {
+
+        console.log('setState');
 
         const cfg = item.getModel() as MindmapNodeItem;
         const states = item.getStates();

@@ -23,7 +23,10 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             }
 
-            this.graph.zoomTo(_zoom);
+            this.graph.zoomTo(_zoom, {
+                x : this.graph.get('width') / 2,
+                y : this.graph.get('height') / 2,
+            });
             this._updateZoomValue();
 
             return this;

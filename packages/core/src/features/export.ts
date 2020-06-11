@@ -3,7 +3,7 @@ import {
     ExportFeatures,
     MindmapNodeItem,
     NodeId,
-    MindmapCoreL0Type,
+    MindmapCoreL2Type,
     DownloadType,
 }                                               from '../interface';
 import {
@@ -11,15 +11,46 @@ import {
     nodeItemGetter,
 }                                               from '../utils/dataGetter';
 
+const IMAGE_PADDING = 20;
+
+const exportImage = (
+    data: MindmapNodeItem,
+    mindmap: MindmapCoreL2Type,
+    type:
+        'image/png'
+        | 'image/jpeg'
+        | 'image/webp'
+        | 'image/bmp'
+): Promise<string> =>
+    new Promise((resolve) => {
+
+        const rootNodeId = String(mindmap.getRootNodeId());
+        const rootNodeModel = mindmap.graph.findById(rootNodeId).getModel() as MindmapNodeItem;
+
+        // TODO：导出后画布恢复原有的位置
+        // TODO：显示导出遮罩
+        mindmap.readData(data);
+        setTimeout(() => {
+            mindmap.graph.toFullDataURL((res) => {
+                resolve(res);
+                mindmap.readData(rootNodeModel);
+            }, type, {
+                padding : IMAGE_PADDING,
+                backgroundColor : '#fff',
+            });
+        });
+
+    });
+
 const exportProcesser: {
     [key in DownloadType]?: (
         data: MindmapNodeItem[],
-        mindmap: MindmapCoreL0Type
+        mindmap: MindmapCoreL2Type
     ) => Promise<string>;
 } & {
     jsonObj?: (
         data: MindmapNodeItem[],
-        mindmap: MindmapCoreL0Type
+        mindmap: MindmapCoreL2Type,
     ) => MindmapNodeItem[];
 } = {
 
@@ -34,9 +65,10 @@ const exportProcesser: {
 
     },
 
-    png : (data, mindmap) => {
-        // TODO
-    },
+    png : (data, mindmap) => exportImage(data[0], mindmap, 'image/png'),
+    webp : (data, mindmap) => exportImage(data[0], mindmap, 'image/webp'),
+    jpeg : (data, mindmap) => exportImage(data[0], mindmap, 'image/jpeg'),
+    bmp : (data, mindmap) => exportImage(data[0], mindmap, 'image/bmp'),
 
     xmind : (data, mindmap) => {
         // TODO
@@ -77,7 +109,7 @@ export default <TBase extends MindmapCoreL2Ctor> (Base: TBase) =>
 
         }
 
-        downloadFile (nodeId: NodeId | DownloadType, type: DownloadType): void {
+        downloadFile (nodeId: NodeId | DownloadType, type: DownloadType): this {
 
             let _nodeId: NodeId = nodeId;
             let _type: DownloadType = type;
@@ -92,20 +124,22 @@ export default <TBase extends MindmapCoreL2Ctor> (Base: TBase) =>
             const data = [this.graph.findById(String(_nodeId)).getModel() as MindmapNodeItem];
 
             Promise
-                .resolve(exportProcesser[type](data, this))
+                .resolve(exportProcesser[_type](data, this))
                 .then((dataResult) => {
 
-                    console.log(type, dataResult);
+                    if (
+                        _type === DownloadType.Png
+                        || _type === DownloadType.Webp
+                        || _type === DownloadType.Jpeg
+                        || _type === DownloadType.Bmp) {
 
-                    if (type === 'png') {
+                        downloadFile(dataResult, _type);
 
-                        downloadFile(dataResult, 'png');
-
-                    } else if (type === 'xmind') {
+                    } else if (_type === DownloadType.Xmind) {
 
                         downloadFile(URL.createObjectURL(dataResult), 'xmind');
 
-                    } else if (type === DownloadType.Json) {
+                    } else if (_type === DownloadType.Json) {
 
                         downloadFile(URL.createObjectURL(new Blob([dataResult])), 'json');
 
@@ -116,6 +150,5 @@ export default <TBase extends MindmapCoreL2Ctor> (Base: TBase) =>
             return this;
 
         }
-
 
     };

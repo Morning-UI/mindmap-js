@@ -35,8 +35,9 @@ import globalData from '../base/globalData';
 // shapeStyle : 使用的图形样式（用户设置）；未启用；
 export var traverseOneItem = function (item) {
     var globalId = globalData.id;
+    var id = item.id || String(globalData.id++);
     var nodeItem = {
-        id: String(globalData.id++),
+        id: id,
         children: [],
         _foldedChildren: item._foldedChildren || [],
         // eslint-disable-next-line no-magic-numbers
@@ -49,7 +50,7 @@ export var traverseOneItem = function (item) {
         note: item.note || null,
         tag: item.tag || null,
         mark: item.mark || null,
-        _isRoot: globalId === 1,
+        _isRoot: id === 1,
         _isNode: true,
         _isDragging: false,
         _isHolder: false,

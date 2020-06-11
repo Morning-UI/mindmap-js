@@ -96,6 +96,9 @@ export var MindMarkTypes;
 export var DownloadType;
 (function (DownloadType) {
     DownloadType["Png"] = "png";
+    DownloadType["Webp"] = "webp";
+    DownloadType["Bmp"] = "bmp";
+    DownloadType["Jpeg"] = "jpeg";
     DownloadType["Xmind"] = "xmind";
     DownloadType["Json"] = "json";
 })(DownloadType || (DownloadType = {}));

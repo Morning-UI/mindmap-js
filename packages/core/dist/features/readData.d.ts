@@ -1,10 +1,9 @@
-import * as G6 from '@antv/g6';
-import { MindmapCoreL3Ctor, MindmapDataItem } from '../interface';
-declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").MindmapCoreL3Type>>(Base: TBase) => {
+import { MindmapDataItem, MindmapCoreL1Ctor } from '../interface';
+declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").MindmapCoreL1Type>>(Base: TBase) => {
     new (...args: any[]): {
         readData(data: MindmapDataItem): this;
-        graph: G6.TreeGraph;
-        G6: typeof G6;
+        graph: import("@antv/g6").TreeGraph;
+        G6: typeof import("@antv/g6");
         data: import("../interface").MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
@@ -74,24 +73,6 @@ declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").
         getCurrentEditMarkValue(): import("../interface").MindMarks;
         mark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
         unmark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
-        showContextMenu(options: import("../interface").ShowContextMenuOptions): any;
-        hideContextMenu(): any;
-        hideAllContextMenu(): any;
-        getContextNodeId(): string;
-        getContextType(): import("../interface").ContextMenuTypes;
-        getContextData(): any;
-        menuItemLinkEdit(): void;
-        menuItemLinkDelete(): void;
-        menuItemNoteEdit(): void;
-        menuItemNoteDelete(): void;
-        menuItemTagEdit(): void;
-        menuItemTagDelete(): void;
-        menuItemMarkEdit(evt: MouseEvent): void;
-        menuItemMarkDelete(): void;
-        removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: string | number, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
-        exportToObject(nodeId: string | number): import("../interface").MindmapNodeItem[];
-        downloadFile(nodeId: string | number, type: import("../interface").DownloadType): any;
     };
 } & TBase;
 export default _default;

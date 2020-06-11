@@ -51,6 +51,8 @@ export default <TBase extends MindmapCoreL3Ctor> (Base: TBase) =>
             this.data = traverseData(data);
             this.graph.read(this.data as GraphData);
 
+            console.log(data);
+
             setTimeout(() => {
 
                 this.graph.layout(true);
