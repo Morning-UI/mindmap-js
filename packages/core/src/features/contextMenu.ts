@@ -6,6 +6,7 @@ import {
     MindMarks,
 }                                               from '../interface';
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
     class extends Base implements ContextMenuFeatures {
 
@@ -85,6 +86,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             this.hideEditLink();
             this.hideEditNote();
             this.hideEditTag();
+            this.hideEditMark();
 
             return this;
 
@@ -150,12 +152,22 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         }
 
-        menuItemMarkChoose (evt: MouseEvent): void {
+        menuItemMarkEdit (evt: MouseEvent): void {
 
             const $target = evt.target as HTMLElement;
             const markValue = $target.getAttribute('mark-value') as MindMarks;
 
             this.mark(this.getCurrentEditMarkNodeIds(), markValue);
+
+        }
+
+        menuItemMarkDelete (): void {
+
+            // const $target = evt.target as HTMLElement;
+            // const markValue = $target.getAttribute('mark-value') as MindMarks;
+
+            this.unmark(this.getCurrentEditMarkNodeIds(), this.getCurrentEditMarkValue());
+            this.hideAllContextMenu();
 
         }
 

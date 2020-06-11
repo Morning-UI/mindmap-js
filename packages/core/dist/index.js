@@ -1,8 +1,6 @@
-// import * as G6Graph                             from '@antv/g6/lib/interface/graph';
 import { EventNames, } from './interface';
 import { manualPaint, } from './base/graph';
 import { getNodeElements, } from './base/utils';
-import { traverseData, } from './utils/traverseData';
 import { refreshTextEditorPosition, } from './base/editor';
 import { mindNodeAdjustPosition, NODE_SHAPE_INDEX, } from './nodes/mindNode';
 import mixinConstructor from './features/constructor';
@@ -14,6 +12,8 @@ import mixinContextMenu from './features/contextMenu';
 import mixinNode from './features/node';
 import mixinGet from './features/get';
 import mixinFold from './features/fold';
+import mixinZoom from './features/zoom';
+import mixinExport from './features/export';
 var MindmapCoreBase = /** @class */ (function () {
     function MindmapCoreBase() {
         var args = [];
@@ -30,16 +30,6 @@ var MindmapCoreBase = /** @class */ (function () {
         };
         return this;
     }
-    MindmapCoreBase.prototype.readData = function (data) {
-        var _this = this;
-        this.data = traverseData(data);
-        this.graph.read(this.data);
-        setTimeout(function () {
-            _this.graph.layout(true);
-            // this.$refs['mor-mindmap-zoomslider'].set(vm.getZoom() * 100);
-        });
-        return this;
-    };
     MindmapCoreBase.prototype.clearSelectedNode = function () {
         var selectedState = 'selected';
         var graph = this.graph;
@@ -184,9 +174,10 @@ export { MindmapCoreBase };
 // LO includes : corebase.
 // L1(base function) includes : link/note/tag.
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
-var MindmapCoreL1 = mixinTag(mixinMark(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase))))));
+var MindmapCoreL1 = mixinZoom(mixinTag(mixinMark(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase)))))));
 var MindmapCoreL2 = mixinNode(mixinContextMenu(MindmapCoreL1));
-var MindmapCore = mixinConstructor(MindmapCoreL2);
+var MindmapCoreL3 = mixinExport(MindmapCoreL2);
+var MindmapCore = mixinConstructor(MindmapCoreL3);
 /* eslint-enable */
 export default MindmapCore;
 export * from './utils/testData';

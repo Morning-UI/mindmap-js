@@ -227,40 +227,6 @@ export var toggleNodeVisibility = function (node, type, callback) {
         .getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup)[type]();
     toggleAllChildrenVisibility(node, type, callback);
 };
-export var nodeDataItemGetter = {
-    text: function (model) { return model.text; },
-    link: function (model) { return model.link; },
-    // mark : (model: MindmapNodeItem):  => (model.mark),
-    note: function (model) { return model.note; },
-    tag: function (model) { return model.tag; },
-    children: function (model, callback, getter, mindmap) {
-        var children = model._isFolded ? model._foldedChildren : model.children;
-        if (children) {
-            return callback(children, getter, mindmap);
-        }
-        return undefined;
-    },
-};
-export var pluckDataFromNodes = function (children, getter, mindmap) {
-    if (getter === void 0) { getter = nodeDataItemGetter; }
-    var cleanData = [];
-    var _children = children;
-    if (!Array.isArray(_children)) {
-        _children = [_children];
-    }
-    for (var _i = 0, children_1 = children; _i < children_1.length; _i++) {
-        var model = children_1[_i];
-        var cleanItem = {};
-        for (var key in getter) {
-            var val = getter[key](model, pluckDataFromNodes, getter, mindmap);
-            if (val !== undefined) {
-                cleanItem[key] = val;
-            }
-        }
-        cleanData.push(cleanItem);
-    }
-    return cleanData;
-};
 export var clearSelectedNode = function (mindmap, selectedState) {
     var graph = mindmap.graph;
     var autoPaint = graph.get('autoPaint');

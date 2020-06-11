@@ -1,7 +1,7 @@
 import { IG6GraphEvent, Item } from '@antv/g6/lib/types';
 import { IElement } from '@antv/g-base/lib/interfaces';
 import { INode } from '@antv/g6/lib/interface/item';
-import { MindmapNodeItem, NodeStyle, MindNodeShapes, MindNodeElements, NodeAppendItem, NodeIds, MindmapCoreType, toggleNodeVisibilityCallback, MindmapDataItem, MindmapCoreL0Type, MindmapDataItemGetter, GenMarkOptions } from '../interface';
+import { MindmapNodeItem, NodeStyle, MindNodeShapes, MindNodeElements, NodeAppendItem, NodeIds, MindmapCoreType, toggleNodeVisibilityCallback, MindmapCoreL0Type, GenMarkOptions } from '../interface';
 export declare const genNodeStyles: (styles: NodeStyle, cfg: MindmapNodeItem) => NodeStyle;
 export declare const inNodeShape: (mindmap: MindmapCoreType, evt: IG6GraphEvent, element: IElement) => boolean;
 export declare const getNodeElements: (item: Item) => MindNodeElements;
@@ -12,7 +12,5 @@ export declare const inAnnex: (mindmap: MindmapCoreType, evt: IG6GraphEvent, gro
 export declare const fillNodeIds: (nodeIds: NodeIds) => string[];
 export declare const toggleAllChildrenVisibility: (node: INode, type: 'show' | 'hide', callback: toggleNodeVisibilityCallback) => void;
 export declare const toggleNodeVisibility: (node: INode, type: 'show' | 'hide', callback: toggleNodeVisibilityCallback) => void;
-export declare const nodeDataItemGetter: MindmapDataItemGetter;
-export declare const pluckDataFromNodes: (children: MindmapNodeItem[], getter: MindmapDataItemGetter, mindmap: MindmapCoreL0Type) => MindmapDataItem[];
 export declare const clearSelectedNode: (mindmap: MindmapCoreType, selectedState: 'selected') => void;
 export declare const genMarkShape: (options: GenMarkOptions) => void;

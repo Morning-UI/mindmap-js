@@ -1,10 +1,3 @@
-import difference                               from 'lodash.difference';
-import {
-    TreeGraph,
-}                                               from '@antv/g6';
-import {
-    Item,
-}                                               from '@antv/g6/lib/types';
 import {
     NodeIds,
     MindmapNodeItem,
@@ -16,25 +9,10 @@ import {
 import {
     fillNodeIds,
     pluckDataFromNodes,
-    nodeDataItemGetter,
+    dataItemGetter,
 }                                               from '../base/utils';
 
-const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
-
-    const states = node.getStates();
-
-    for (const state of states) {
-
-        if ((/^tag-hover/u).test(state)) {
-
-            graph.setItemState(node, state, false);
-
-        }
-
-    }
-
-};
-
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
     class extends Base implements GetFeatures {
 
@@ -90,7 +68,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             }
 
-            const details = pluckDataFromNodes(nodeModels, nodeDataItemGetter, this);
+            const details = pluckDataFromNodes(nodeModels, dataItemGetter, this);
 
             if (nodeModels.length <= 1) {
 
@@ -99,6 +77,39 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             }
 
             return details;
+
+        }
+
+        getRootNodeId (): NodeId {
+
+            const nodes = this.getAllNodeIds();
+
+            if (nodes && nodes[0]) {
+
+                return nodes[0];
+
+            }
+
+            return undefined;
+
+        }
+
+        getAllNodeIds (): NodeId[] {
+
+            const nodes = this.graph.getNodes();
+            const nodeIds: string[] = [];
+
+            for (const node of nodes) {
+
+                if (node.getModel()._isNode) {
+
+                    nodeIds.push(node.get('id'));
+
+                }
+
+            }
+
+            return nodeIds;
 
         }
 

@@ -46,7 +46,7 @@ const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 const MindMarkTypeMap: {
     [key in MindMarks]?: MindMarkTypes;
 } = {};
-const genMindMarkTypeMap = (type: MindMarkTypes, marks: MindMarks[]) => {
+const genMindMarkTypeMap = (type: MindMarkTypes, marks: MindMarks[]): void => {
 
     for (const mark of marks) {
 
@@ -56,13 +56,14 @@ const genMindMarkTypeMap = (type: MindMarkTypes, marks: MindMarks[]) => {
 
 };
 
-genMindMarkTypeMap('tag', Object.values(MindMarksTag));
-genMindMarkTypeMap('priority', Object.values(MindMarksPriority));
-genMindMarkTypeMap('task', Object.values(MindMarksTask));
-genMindMarkTypeMap('star', Object.values(MindMarksStar));
-genMindMarkTypeMap('flag', Object.values(MindMarksFlag));
-genMindMarkTypeMap('person', Object.values(MindMarksPerson));
+genMindMarkTypeMap(MindMarkTypes.Tag, Object.values(MindMarksTag));
+genMindMarkTypeMap(MindMarkTypes.Priority, Object.values(MindMarksPriority));
+genMindMarkTypeMap(MindMarkTypes.Task, Object.values(MindMarksTask));
+genMindMarkTypeMap(MindMarkTypes.Star, Object.values(MindMarksStar));
+genMindMarkTypeMap(MindMarkTypes.Flag, Object.values(MindMarksFlag));
+genMindMarkTypeMap(MindMarkTypes.Person, Object.values(MindMarksPerson));
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
     class extends Base implements MarkFeatures {
 
@@ -79,31 +80,36 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             const $boxEditMark = this._options.$boxEditMark;
 
             let $elements = null;
-            
+
             switch (markType) {
-                case MindMarkTypes.Tag :
+
+                case MindMarkTypes.Tag:
                     $elements = markElementBuilder[markType](MindMarksTag);
                     break;
-                case MindMarkTypes.Priority :
+                case MindMarkTypes.Priority:
                     $elements = markElementBuilder[markType](MindMarksPriority);
                     break;
-                case MindMarkTypes.Task :
+                case MindMarkTypes.Task:
                     $elements = markElementBuilder[markType](MindMarksTask);
                     break;
-                case MindMarkTypes.Star :
+                case MindMarkTypes.Star:
                     $elements = markElementBuilder[markType](MindMarksStar);
                     break;
-                case MindMarkTypes.Flag :
+                case MindMarkTypes.Flag:
                     $elements = markElementBuilder[markType](MindMarksFlag);
                     break;
-                case MindMarkTypes.Person :
+                case MindMarkTypes.Person:
                     $elements = markElementBuilder[markType](MindMarksPerson);
                     break;
+                default:
+                    break;
+
             }
 
             let boxEditMarkWidth = 0;
 
             this.currentEditMarkNodeIds = nodeIds;
+            this.currentEditMarkValue = model.mark[markType];
             $boxEditMark.querySelector('ul').append(...$elements);
             $boxEditMark.style.display = 'block';
             boxEditMarkWidth = $boxEditMark.clientWidth;
@@ -119,6 +125,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             const $boxEditMark = this._options.$boxEditMark;
 
             this.currentEditMarkNodeIds = [];
+            this.currentEditMarkValue = null;
             $boxEditMark.querySelector('ul').innerHTML = '';
             $boxEditMark.style.display = 'none';
 
@@ -129,6 +136,12 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
         getCurrentEditMarkNodeIds (): NodeIds {
 
             return this.currentEditMarkNodeIds;
+
+        }
+
+        getCurrentEditMarkValue (): MindMarks {
+
+            return this.currentEditMarkValue;
 
         }
 
@@ -150,24 +163,28 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
                 const markType = MindMarkTypeMap[mark];
 
                 switch (markType) {
-                    case MindMarkTypes.Tag :
+
+                    case MindMarkTypes.Tag:
                         model.mark.tag = mark as MindMarksTag;
                         break;
-                    case MindMarkTypes.Priority :
+                    case MindMarkTypes.Priority:
                         model.mark.priority = mark as MindMarksPriority;
                         break;
-                    case MindMarkTypes.Task :
+                    case MindMarkTypes.Task:
                         model.mark.task = mark as MindMarksTask;
                         break;
-                    case MindMarkTypes.Star :
+                    case MindMarkTypes.Star:
                         model.mark.star = mark as MindMarksStar;
                         break;
-                    case MindMarkTypes.Flag :
+                    case MindMarkTypes.Flag:
                         model.mark.flag = mark as MindMarksFlag;
                         break;
-                    case MindMarkTypes.Person :
+                    case MindMarkTypes.Person:
                         model.mark.person = mark as MindMarksPerson;
                         break;
+                    default:
+                        break;
+
                 }
 
                 // model.mark = arrayUniq(model.mark);
@@ -180,7 +197,33 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             return this;
 
-        },
+        }
+
+        unmark (nodeIds: NodeIds, mark: MindMarks): this {
+
+            const ids = fillNodeIds(nodeIds);
+
+            for (const id of ids) {
+
+                const node = this.graph.findById(id);
+                const model = node.getModel() as MindmapNodeItem;
+                const markType = MindMarkTypeMap[mark];
+                // const index = model.mark.indexOf(mark);
+
+                if (model.mark !== null) {
+
+                    delete model.mark[markType];
+
+                }
+
+                // traverseNodeUpdateMark(model);
+                node.draw();
+
+            }
+
+            this.graph.layout();
+
+        }
 
         // tagAdd (nodeIds: NodeIds, tags: string[]|string): this {
 

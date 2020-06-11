@@ -466,7 +466,7 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         // 并且不需要_removeOldDragPlaceholder，因为展开时会自动删除当前的children
         if (dragHolderParentModel._isFolded) {
             mindmap.graph.layout();
-            mindmap.fold(dragHolderParentModel.id, false);
+            mindmap.unfold(dragHolderParentModel.id);
         }
         else {
             removeOldDragPlaceholder(mindmap);

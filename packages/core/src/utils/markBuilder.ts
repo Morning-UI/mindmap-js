@@ -4,6 +4,7 @@ import {
     MarkElementBuilder,
     MarkShapeCfg,
     MindMarks,
+    MindMarkTypes,
 }                                               from '../interface';
 import {
     MARKS_STYLE,
@@ -148,4 +149,32 @@ export const markElementBuilder: MarkElementBuilder = {
         return $elements;
 
     },
+    star : (marks, type = MindMarkTypes.Star) => {
+
+        const $elements = [];
+
+        for (const mark of Object.values(marks)) {
+
+            const $li = document.createElement('li');
+            const $icon = document.createElement('div');
+            const $iconfont = document.createElement('i');
+            const markKey = `${type}:${mark}`;
+
+            $li.classList.add('mark');
+            $icon.classList.add(`icon-${type}-${mark}`, 'icon', `icon-${type}`);
+            $iconfont.innerHTML = `&#x${MARKS_STYLE[markKey].text}`;
+            $li.setAttribute('mark-value', mark);
+            $icon.setAttribute('mark-value', mark);
+            $iconfont.setAttribute('mark-value', mark);
+            $icon.append($iconfont);
+            $li.append($icon);
+            $elements.push($li);
+
+        }
+
+        return $elements;
+
+    },
+    flag : (marks, type = MindMarkTypes.Flag) => markElementBuilder.star(marks, type),
+    person : (marks, type = MindMarkTypes.Person) => markElementBuilder.star(marks, type),
 };

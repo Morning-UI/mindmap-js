@@ -1,53 +1,21 @@
-import difference                               from 'lodash.difference';
 import {
-    TreeGraph,
-}                                               from '@antv/g6';
-import {
-    Item,
-}                                               from '@antv/g6/lib/types';
+    INode,
+}                                               from '@antv/g6/lib/interface/item';
 import {
     NodeIds,
     MindmapNodeItem,
     MindmapCoreL0Ctor,
     FoldFeatures,
-    NodeId,
-    MindmapDataItem,
     MindmapCoreL0Type,
 }                                               from '../interface';
 import {
     fillNodeIds,
-    pluckDataFromNodes,
-    nodeDataItemGetter,
 }                                               from '../base/utils';
-import { INode } from '@antv/g6/lib/interface/item';
-
-const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
-
-    const states = node.getStates();
-
-    for (const state of states) {
-
-        if ((/^tag-hover/u).test(state)) {
-
-            graph.setItemState(node, state, false);
-
-        }
-
-    }
-
-};
 
 const foldChildren = (mindmap: MindmapCoreL0Type, node: INode, fold: boolean|undefined): void => {
 
     const model = node.getModel() as MindmapNodeItem;
-
-    let _fold = fold;
-
-    if (fold === undefined) {
-
-        _fold = !!fold;
-
-    }
+    const _fold = fold === undefined ? !model._isFolded : fold;
 
     if (model._isFolded === _fold) {
 
@@ -73,10 +41,11 @@ const foldChildren = (mindmap: MindmapCoreL0Type, node: INode, fold: boolean|und
 
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
     class extends Base implements FoldFeatures {
 
-        fold (nodeIds: NodeIds, fold: boolean|undefined): this {
+        foldToggle (nodeIds: NodeIds, fold: boolean|undefined): this {
 
             const ids = fillNodeIds(nodeIds);
 
@@ -96,9 +65,15 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
+        fold (nodeIds: NodeIds): this {
+
+            return this.foldToggle(nodeIds, true);
+
+        }
+
         unfold (nodeIds: NodeIds): this {
 
-            return this.fold(nodeIds, false);
+            return this.foldToggle(nodeIds, false);
 
         }
 

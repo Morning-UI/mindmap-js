@@ -21,6 +21,8 @@ export interface MindmapCreateOptions {
     nodeHGap?: number;
     maxShowTagNum?: number;
     direction?: 'LR';
+    minZoom?: number;
+    maxZoom?: number;
 }
 export interface MindmapInsideOptions extends MindmapCreateOptions {
     $canvas: HTMLElement;
@@ -33,6 +35,7 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $boxEditNote: HTMLElement;
     $boxEditTag: HTMLElement;
     $boxEditMark: HTMLElement;
+    $zoomSlider: HTMLElement;
 }
 export interface MindmapDataItem {
     text?: string;
@@ -42,24 +45,25 @@ export interface MindmapDataItem {
     mark?: MarkSet;
     children?: MindmapDataItem[];
     _isFolded?: boolean;
-    _foldedChildren?: MindmapNodeItem[];
+    _foldedChildren?: MindmapDataItem[];
 }
 export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeConfig {
     children?: MindmapNodeItem[];
+    _foldedChildren?: MindmapNodeItem[];
     _originChildren?: MindmapDataItem[];
     id: string;
-    anchorPoints?: number[][];
+    anchorPoints: number[][];
     style?: ShapeStyle;
-    type?: string;
+    type: string;
     _isRoot: boolean;
     _isNode: boolean;
-    _isDragging: boolean;
-    _isHolder: boolean;
+    _isDragging?: boolean;
+    _isHolder?: boolean;
 }
 export declare type MindmapData = MindmapNodeItem | MindmapDataItem;
 export declare type MindmapDatas = MindmapData[] | MindmapData;
-export declare type MindmapDataItemGetter = {
-    [key in keyof MindmapDataItem]: Function;
+export declare type MindmapItemGetter<T> = {
+    [key in keyof T]: (model: MindmapNodeItem, callback?: Function, getter?: MindmapItemGetter<T>, mindmap?: MindmapCoreL0Type) => Pick<T, key>[key];
 };
 export interface NodeStyle {
     outlineRadius?: number;
@@ -259,6 +263,7 @@ export declare type DragTarget = {
 export declare type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
 export declare type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export declare type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
+export declare type MindmapCoreL3Ctor<T = MindmapCoreL3Type> = new (...args: any[]) => T;
 export interface LinkFeatures {
     showEditLink(nodeIds: NodeIds): this;
     hideEditLink(): this;
@@ -278,7 +283,7 @@ export interface TagFeatures {
     hideEditTag(): this;
     getCurrentEditTagNodeIds(): NodeIds;
     tag(nodeIds: NodeIds, tags: string[] | string): this;
-    tagAdd(nodeIds: NodeIds, tags: string[] | string): this;
+    tagAll(nodeIds: NodeIds, tags: string[] | string): this;
     untag(nodeIds: NodeIds, untags: string[] | string): this;
     untagByIndex(nodeIds: NodeIds, index: number): this;
 }
@@ -295,7 +300,8 @@ export interface ContextMenuFeatures {
     menuItemNoteDelete(): void;
     menuItemTagEdit(): void;
     menuItemTagDelete(): void;
-    menuItemMarkChoose(evt: MouseEvent): void;
+    menuItemMarkEdit(evt: MouseEvent): void;
+    menuItemMarkDelete(): void;
 }
 export interface NodeFeatures {
     removeNode(nodeIds: NodeIds, _refresh: boolean): this;
@@ -307,21 +313,35 @@ export interface GetFeatures {
     getSelectedNodeId(): NodeId;
     getSelectedNodeDetail(): MindmapDataItem;
     getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
+    getRootNodeId(): NodeId;
+    getAllNodeIds(): NodeId[];
 }
 export interface FoldFeatures {
-    fold(nodeIds: NodeIds, fold: boolean): this;
+    foldToggle(nodeIds: NodeIds, fold: boolean): this;
+    fold(nodeIds: NodeIds): this;
     unfold(nodeIds: NodeIds): this;
 }
 export interface MarkFeatures {
     showEditMark(nodeIds: NodeIds, markType: MindMarkTypes): this;
-    mark(nodeIds: NodeIds, mark: MindMarks): this;
-    getCurrentEditMarkNodeIds(): NodeIds;
     hideEditMark(): this;
+    getCurrentEditMarkNodeIds(): NodeIds;
+    getCurrentEditMarkValue(): MindMarks;
+    mark(nodeIds: NodeIds, mark: MindMarks): this;
+    unmark(nodeIds: NodeIds, mark: MindMarks): this;
+}
+export interface ZoomFeatures {
+    zoom(zoom: number): this;
+    getZoom(): number;
+    fitZoom(): this;
+    _updateZoomValue(): this;
+}
+export interface ExportFeatures {
 }
 export declare type MindmapCoreL0Type = MindmapCoreBase;
-export declare type MindmapCoreL1Type = MindmapCoreL0Type & GetFeatures & FoldFeatures & LinkFeatures & NoteFeatures & TagFeatures & MarkFeatures;
+export declare type MindmapCoreL1Type = MindmapCoreL0Type & ZoomFeatures & GetFeatures & FoldFeatures & LinkFeatures & NoteFeatures & TagFeatures & MarkFeatures;
 export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures;
-export declare type MindmapCoreType = MindmapCoreL2Type;
+export declare type MindmapCoreL3Type = MindmapCoreL2Type & ExportFeatures;
+export declare type MindmapCoreType = MindmapCoreL3Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;
 export declare enum MindMarksTag {
     Red = "red",
@@ -446,7 +466,7 @@ export declare type MarkBuilder = {
     [type in MindMarkTypes]: Function;
 };
 export declare type MarkElementBuilder = {
-    [type in MindMarkTypes]: (marks: typeof MindMarksTag | typeof MindMarksPriority | typeof MindMarksTask | typeof MindMarksStar | typeof MindMarksFlag | typeof MindMarksPerson) => Node[];
+    [type in MindMarkTypes]: (marks: typeof MindMarksTag | typeof MindMarksPriority | typeof MindMarksTask | typeof MindMarksStar | typeof MindMarksFlag | typeof MindMarksPerson, type?: MindMarkTypes) => Node[];
 };
 export declare type MarkShapeCfg = {
     con?: ShapeCfg;
@@ -454,3 +474,8 @@ export declare type MarkShapeCfg = {
     icon?: ShapeCfg;
     text: ShapeCfg;
 };
+export declare enum DownloadType {
+    Png = "png",
+    Xmind = "xmind",
+    Json = "json"
+}

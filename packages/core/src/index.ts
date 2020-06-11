@@ -1,8 +1,6 @@
 import * as G6                                  from '@antv/g6';
 import * as G6Types                             from '@antv/g6/lib/types';
-// import * as G6Graph                             from '@antv/g6/lib/interface/graph';
 import {
-    MindmapDataItem,
     MindmapNodeItem,
     MindNodeElements,
     MindmapInsideOptions,
@@ -13,6 +11,7 @@ import {
     EventCallbacks,
     ContextMenuTypes,
     NodeIds,
+    MindMarks,
 }                                               from './interface';
 import {
     manualPaint,
@@ -20,9 +19,6 @@ import {
 import {
     getNodeElements,
 }                                               from './base/utils';
-import {
-    traverseData,
-}                                               from './utils/traverseData';
 import {
     refreshTextEditorPosition,
 }                                               from './base/editor';
@@ -39,6 +35,8 @@ import mixinContextMenu                         from './features/contextMenu';
 import mixinNode                                from './features/node';
 import mixinGet                                 from './features/get';
 import mixinFold                                from './features/fold';
+import mixinZoom                                from './features/zoom';
+import mixinExport                              from './features/export';
 
 export class MindmapCoreBase {
 
@@ -58,6 +56,8 @@ export class MindmapCoreBase {
     currentEditNoteNodeIds: NodeIds;
     currentEditTagNodeIds: NodeIds;
     currentEditMarkNodeIds: NodeIds;
+    currentEditMarkValue: MindMarks;
+    zoomValue: number;
 
     isMindmap = true;
     eventList: EventList = {};
@@ -70,22 +70,6 @@ export class MindmapCoreBase {
     _options: MindmapInsideOptions;
 
     constructor (...args: any[]) {
-
-        return this;
-
-    }
-
-    readData (data: MindmapDataItem): this {
-
-        this.data = traverseData(data);
-        this.graph.read(this.data as G6Types.GraphData);
-
-        setTimeout(() => {
-
-            this.graph.layout(true);
-            // this.$refs['mor-mindmap-zoomslider'].set(vm.getZoom() * 100);
-
-        });
 
         return this;
 
@@ -307,6 +291,7 @@ export class MindmapCoreBase {
 // L1(base function) includes : link/note/tag.
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
 const MindmapCoreL1 = 
+    mixinZoom(
     mixinTag(
     mixinMark(
     mixinNote(
@@ -314,7 +299,7 @@ const MindmapCoreL1 =
     mixinGet(
     mixinFold(
         MindmapCoreBase
-    ))))));
+    )))))));
 
 const MindmapCoreL2 = 
     mixinNode(
@@ -322,9 +307,14 @@ const MindmapCoreL2 =
         MindmapCoreL1
     ));
 
+const MindmapCoreL3 = 
+    mixinExport(
+        MindmapCoreL2
+    );
+
 const MindmapCore =
     mixinConstructor(
-        MindmapCoreL2
+        MindmapCoreL3
     );
 /* eslint-enable */
 

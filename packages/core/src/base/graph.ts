@@ -93,18 +93,6 @@ const _nodeEventShouldEmit = (evt: IG6GraphEvent): boolean => {
 
 };
 
-const hiddenMenus = (mindmap: MindmapCoreType, evt: IG6GraphEvent): void => {
-
-    mindmap.hideEditLink();
-    mindmap.hideEditNote();
-    mindmap.hideEditTag();
-    bindContextMenu.hide(evt, {
-        mindmap,
-        graph : mindmap.graph,
-    });
-
-};
-
 export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions): G6.TreeGraph => {
 
     const _options: MindmapInsideOptions = {
@@ -122,6 +110,8 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
         nodeVGap : 6,
         maxShowTagNum : 4,
         direction : 'LR',
+        minZoom : 0.2,
+        maxZoom : 1.5,
 
         $canvas : options.$con.querySelector('.mindmap-canvas'),
         $editor : options.$con.querySelector('.mindmap-editor'),
@@ -133,6 +123,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
         $boxEditNote : options.$con.querySelector('.mindmap-box-edit-note'),
         $boxEditTag : options.$con.querySelector('.mindmap-box-edit-tag'),
         $boxEditMark : options.$con.querySelector('.mindmap-box-edit-mark'),
+        $zoomSlider : options.$con.querySelector('.mindmap-zoom-slider'),
 
         ...options,
     };
@@ -151,7 +142,10 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
 
     if (_options.scalable) {
 
-        modes.push('zoom-canvas');
+        modes.push({
+            type : 'zoom-canvas',
+            sensitivity : 2,
+        });
 
     }
 
@@ -186,9 +180,9 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
         width : _options.width,
         height : _options.height,
         // eslint-disable-next-line no-magic-numbers
-        minZoom : 0.01,
+        minZoom : _options.minZoom,
         // eslint-disable-next-line no-magic-numbers
-        maxZoom : 1.5,
+        maxZoom : _options.maxZoom,
         animate : false,
         fitView : false,
         modes : {
@@ -296,7 +290,13 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
             graph,
         });
 
-        hiddenMenus(mindmap, evt);
+        mindmap.hideAllContextMenu();
+
+    });
+
+    graph.on('canvas:drag', (): void => {
+
+        mindmap.hideAllContextMenu();
 
     });
 
@@ -396,7 +396,7 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
 
         if (_nodeEventShouldEmit(evt)) {
 
-            hiddenMenus(mindmap, evt);
+            mindmap.hideAllContextMenu();
 
             bindNodeSelect.select(evt, {
                 mindmap,
@@ -476,11 +476,23 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
 
     });
 
-    graph.on('wheelzoom', (evt: IG6GraphEvent): void => {
+    graph.on('wheel', (evt: IG6GraphEvent): void => {
 
         bindNodeEdit.refresh(evt, {
             mindmap,
         });
+
+        mindmap._updateZoomValue();
+
+        // bindAppendsClick.stop(evt, {
+        //     vm,
+        //     graph
+        // });
+
+    });
+
+    graph.on('zoom', (evt: IG6GraphEvent): void => {
+
 
         // bindAppendsClick.stop(evt, {
         //     vm,

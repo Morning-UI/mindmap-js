@@ -195,7 +195,7 @@ export const MARKS_STYLE: {
         ...starCommonStyle,
         fontColor : CYAN,
     },
-    'star:flagGray' : {
+    'star:starGray' : {
         ...starCommonStyle,
         fontColor : GRAY,
     },

@@ -22,6 +22,8 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
         currentEditMarkNodeIds: NodeIds;
+        currentEditMarkValue: import("../interface").MindMarks;
+        zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
@@ -29,7 +31,6 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
             shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
-        readData(data: import("../interface").MindmapDataItem): any;
         clearSelectedNode(): any;
         focusNodeTextEditor(nodeId: string, clean?: boolean): any;
         blurNodeTextEditor(): any;

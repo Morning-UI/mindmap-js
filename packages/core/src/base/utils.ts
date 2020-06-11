@@ -2,6 +2,7 @@ import * as G6                                  from '@antv/g6';
 import {
     IG6GraphEvent,
     Item,
+    ShapeStyle,
 }                                               from '@antv/g6/lib/types';
 import {
     IGroup,
@@ -28,6 +29,7 @@ import {
     MarkSet,
     MarkBuilder,
     MarkShapeCfg,
+    MindmapNodeItemGetter,
 }                                               from '../interface';
 import {
     NODE_SHAPE_INDEX,
@@ -399,72 +401,6 @@ export const toggleNodeVisibility = (
         ]();
 
     toggleAllChildrenVisibility(node, type, callback);
-
-};
-
-export const nodeDataItemGetter: MindmapDataItemGetter = {
-    text : (model: MindmapNodeItem): string => model.text,
-    link : (model: MindmapNodeItem): string => model.link,
-    // mark : (model: MindmapNodeItem):  => (model.mark),
-    note : (model: MindmapNodeItem): string => model.note,
-    tag : (model: MindmapNodeItem): string[] => model.tag,
-    children : (
-        model: MindmapNodeItem,
-        callback: Function,
-        getter: object,
-        mindmap: MindmapCoreL0Type,
-    ): void => {
-
-        const children = model._isFolded ? model._foldedChildren : model.children;
-
-        if (children) {
-
-            return callback(children, getter, mindmap);
-
-        }
-
-        return undefined;
-
-    },
-};
-
-export const pluckDataFromNodes = (
-    children: MindmapNodeItem[],
-    getter: MindmapDataItemGetter = nodeDataItemGetter,
-    mindmap: MindmapCoreL0Type
-): MindmapDataItem[] => {
-
-    const cleanData = [];
-
-    let _children = children;
-
-    if (!Array.isArray(_children)) {
-
-        _children = [_children];
-
-    }
-
-    for (const model of children) {
-
-        const cleanItem: MindmapDataItem = {};
-
-        for (const key in getter) {
-
-            const val = getter[key as keyof MindmapDataItemGetter](model, pluckDataFromNodes, getter, mindmap);
-
-            if (val !== undefined) {
-
-                cleanItem[key as keyof MindmapDataItemGetter] = val;
-
-            }
-
-        }
-
-        cleanData.push(cleanItem);
-
-    }
-
-    return cleanData;
 
 };
 

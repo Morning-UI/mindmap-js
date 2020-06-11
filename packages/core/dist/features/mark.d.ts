@@ -6,7 +6,9 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         showEditMark(nodeIds: NodeIds, markType: MindMarkTypes): this;
         hideEditMark(): this;
         getCurrentEditMarkNodeIds(): NodeIds;
+        getCurrentEditMarkValue(): MindMarks;
         mark(nodeIds: NodeIds, mark: MindMarks): this;
+        unmark(nodeIds: NodeIds, mark: MindMarks): this;
         graph: TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
@@ -23,6 +25,8 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
         currentEditMarkNodeIds: NodeIds;
+        currentEditMarkValue: MindMarks;
+        zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
@@ -30,7 +34,6 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
             shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
-        readData(data: import("../interface").MindmapDataItem): any;
         clearSelectedNode(): any;
         focusNodeTextEditor(nodeId: string, clean?: boolean): any;
         blurNodeTextEditor(): any;

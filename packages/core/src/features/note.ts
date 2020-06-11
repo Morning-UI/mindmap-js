@@ -8,6 +8,7 @@ import {
     fillNodeIds,
 }                                               from '../base/utils';
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
     class extends Base implements NoteFeatures {
 

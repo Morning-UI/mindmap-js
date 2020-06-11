@@ -68,6 +68,10 @@ export interface MindmapCreateOptions {
     // 脑图方向
     direction?: 'LR';
 
+    // 缩放限制
+    minZoom?: number;
+    maxZoom?: number;
+
 }
 
 export interface MindmapInsideOptions extends MindmapCreateOptions {
@@ -81,6 +85,7 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $boxEditNote: HTMLElement;
     $boxEditTag: HTMLElement;
     $boxEditMark: HTMLElement;
+    $zoomSlider: HTMLElement;
 }
 
 export interface MindmapDataItem {
@@ -91,28 +96,34 @@ export interface MindmapDataItem {
     mark?: MarkSet;
     children?: MindmapDataItem[];
     _isFolded?: boolean;
-    _foldedChildren?: MindmapNodeItem[];
+    _foldedChildren?: MindmapDataItem[];
 }
 
 export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeConfig {
     children?: MindmapNodeItem[];
+    _foldedChildren?: MindmapNodeItem[];
     _originChildren?: MindmapDataItem[];
 
     id: string;
-    anchorPoints?: number[][];
+    anchorPoints: number[][];
     style?: ShapeStyle;
-    type?: string;
+    type: string;
     _isRoot: boolean;
     _isNode: boolean;
-    _isDragging: boolean;
-    _isHolder: boolean;
+    _isDragging?: boolean;
+    _isHolder?: boolean;
 }
 
 export type MindmapData = MindmapNodeItem | MindmapDataItem;
 export type MindmapDatas = MindmapData[] | MindmapData;
 
-export type MindmapDataItemGetter = {
-    [key in keyof MindmapDataItem]: Function;
+export type MindmapItemGetter<T> = {
+    [key in keyof T]: (
+        model: MindmapNodeItem,
+        callback?: Function,
+        getter?: MindmapItemGetter<T>,
+        mindmap?: MindmapCoreL0Type,
+    ) => Pick<T, key>[key];
 };
 
 export interface NodeStyle {
@@ -341,6 +352,7 @@ export type DragTarget = {
 export type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
 export type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
+export type MindmapCoreL3Ctor<T = MindmapCoreL3Type> = new (...args: any[]) => T;
 export interface LinkFeatures {
     showEditLink (nodeIds: NodeIds): this;
     hideEditLink (): this;
@@ -356,28 +368,50 @@ export interface NoteFeatures {
     unnote (nodeIds: NodeIds): this;
 }
 export interface TagFeatures {
+    // 显示标签编辑弹窗
     showEditTag (nodeIds: NodeIds): this;
+    // 关闭标签编辑弹窗
     hideEditTag (): this;
+    // 获取当前正在编辑标签的NodeId
     getCurrentEditTagNodeIds (): NodeIds;
+    // 节点增加标签
     tag (nodeIds: NodeIds, tags: string[]|string): this;
-    tagAdd (nodeIds: NodeIds, tags: string[]|string): this;
+    // 节点标签替换为
+    tagAll (nodeIds: NodeIds, tags: string[]|string): this;
+    // 节点删除标签(名称匹配)
     untag (nodeIds: NodeIds, untags: string[]|string): this;
+    // 节点删除标签(位置匹配)
     untagByIndex (nodeIds: NodeIds, index: number): this;
 }
 export interface ContextMenuFeatures {
+    // 显示右键菜单
     showContextMenu (options: ShowContextMenuOptions): this;
+    // 隐藏右键菜单
     hideContextMenu (): this;
+    // 隐藏所有菜单(包含右键和各功能菜单)
     hideAllContextMenu (): this;
+    // 获取当前菜单对应的NodeId
     getContextNodeId (): string;
+    // 获取当前右键菜单的类型
     getContextType (): ContextMenuTypes;
+    // 获取右键菜单附加数据
     getContextData (): any;
+    // 菜单项：修改链接
     menuItemLinkEdit (): void;
+    // 菜单项：删除链接
     menuItemLinkDelete (): void;
+    // 菜单项：修改备注
     menuItemNoteEdit (): void;
+    // 菜单项：删除备注
     menuItemNoteDelete (): void;
+    // 菜单项：修改标签
     menuItemTagEdit (): void;
+    // 菜单项：删除标签
     menuItemTagDelete (): void;
-    menuItemMarkChoose (evt: MouseEvent): void;
+    // 菜单项：选择标记
+    menuItemMarkEdit (evt: MouseEvent): void;
+    // 菜单项：删除标记
+    menuItemMarkDelete (): void;
 }
 export interface NodeFeatures {
     removeNode (nodeIds: NodeIds, _refresh: boolean): this;
@@ -394,20 +428,41 @@ export interface GetFeatures {
     getSelectedNodeId (): NodeId;
     getSelectedNodeDetail (): MindmapDataItem;
     getNodeDetail (nodeIds: NodeIds): MindmapDataItem|MindmapDataItem[];
+    getRootNodeId (): NodeId;
+    getAllNodeIds (): NodeId[];
 }
 export interface FoldFeatures {
-    fold (nodeIds: NodeIds, fold: boolean): this;
+    // 切换节点折叠状态
+    foldToggle (nodeIds: NodeIds, fold: boolean): this;
+    // 折叠节点
+    fold (nodeIds: NodeIds): this;
+    // 展开节点
     unfold (nodeIds: NodeIds): this;
 }
 export interface MarkFeatures {
     showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this;
-    mark (nodeIds: NodeIds, mark: MindMarks): this;
-    getCurrentEditMarkNodeIds (): NodeIds;
     hideEditMark (): this;
+    getCurrentEditMarkNodeIds (): NodeIds;
+    getCurrentEditMarkValue (): MindMarks;
+    mark (nodeIds: NodeIds, mark: MindMarks): this;
+    unmark (nodeIds: NodeIds, mark: MindMarks): this;
+}
+export interface ZoomFeatures {
+    // 缩放画布
+    zoom (zoom: number): this;
+    // 获取画布缩放值
+    getZoom (): number;
+    // 调整至适合的缩放
+    fitZoom (): this;
+    _updateZoomValue (): this;
+}
+export interface ExportFeatures {
+
 }
 export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
     MindmapCoreL0Type
+    & ZoomFeatures
     & GetFeatures
     & FoldFeatures
     & LinkFeatures
@@ -420,7 +475,11 @@ export type MindmapCoreL2Type =
     & ContextMenuFeatures
     & NodeFeatures;
 
-export type MindmapCoreType = MindmapCoreL2Type;
+export type MindmapCoreL3Type =
+    MindmapCoreL2Type
+    & ExportFeatures;
+
+export type MindmapCoreType = MindmapCoreL3Type;
 
 export type toggleNodeVisibilityCallback = (type: 'show'|'hide', model: MindmapNodeItem) => void;
 
@@ -515,31 +574,21 @@ export type MarkSet = {
     [MindMarkTypes.Person]?: MindMarksPerson;
 }
 
-// export enum MindMarkValue {
-//     /* eslint-disable prefer-template*/
-//     Red = 'tag:' + MindMarksTag.Red,
-//     Yellow = 'tag:' + MindMarksTag.Yellow,
-//     Blue = 'tag:' + MindMarksTag.Blue,
-//     Purple = 'tag:' + MindMarksTag.Purple,
-//     Green = 'tag:' + MindMarksTag.Green,
-//     Cyan = 'tag:' + MindMarksTag.Cyan,
-//     Gray = 'tag:' + MindMarksTag.Gray,
-//     /* eslint-enable prefer-template*/
-// }
-
 export type MarkBuilder = {
     [type in MindMarkTypes]: Function;
 }
 
 export type MarkElementBuilder = {
     [type in MindMarkTypes]:
-        (marks:
-            typeof MindMarksTag
-            | typeof MindMarksPriority
-            | typeof MindMarksTask
-            | typeof MindMarksStar
-            | typeof MindMarksFlag
-            | typeof MindMarksPerson
+        (
+            marks:
+                typeof MindMarksTag
+                | typeof MindMarksPriority
+                | typeof MindMarksTask
+                | typeof MindMarksStar
+                | typeof MindMarksFlag
+                | typeof MindMarksPerson,
+            type?: MindMarkTypes,
         ) => Node[];
 }
 
@@ -548,4 +597,10 @@ export type MarkShapeCfg = {
     iconCon?: ShapeCfg;
     icon?: ShapeCfg;
     text: ShapeCfg;
-};
+}
+
+export enum DownloadType {
+    Png = 'png',
+    Xmind = 'xmind',
+    Json = 'json',
+}

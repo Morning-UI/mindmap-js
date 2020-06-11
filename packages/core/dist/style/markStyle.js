@@ -99,7 +99,7 @@ export var MARKS_STYLE = {
     'star:starPurple': __assign(__assign({}, starCommonStyle), { fontColor: PURPLE }),
     'star:starGreen': __assign(__assign({}, starCommonStyle), { fontColor: GREEN }),
     'star:starCyan': __assign(__assign({}, starCommonStyle), { fontColor: CYAN }),
-    'star:flagGray': __assign(__assign({}, starCommonStyle), { fontColor: GRAY }),
+    'star:starGray': __assign(__assign({}, starCommonStyle), { fontColor: GRAY }),
     'flag:flagRed': __assign(__assign({}, flagCommonStyle), { fontColor: RED }),
     'flag:flagYellow': __assign(__assign({}, flagCommonStyle), { fontColor: YELLOW }),
     'flag:flagBlue': __assign(__assign({}, flagCommonStyle), { fontColor: BLUE }),

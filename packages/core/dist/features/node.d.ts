@@ -19,6 +19,8 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
         currentEditMarkNodeIds: NodeIds;
+        currentEditMarkValue: import("../interface").MindMarks;
+        zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
@@ -26,7 +28,6 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
             shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
-        readData(data: import("../interface").MindmapDataItem): any;
         clearSelectedNode(): any;
         focusNodeTextEditor(nodeId: string, clean?: boolean): any;
         blurNodeTextEditor(): any;
@@ -35,12 +36,19 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
+        zoom(zoom: number): any;
+        getZoom(): number;
+        fitZoom(): any;
+        _updateZoomValue(): any;
         getAllSelectedNodeIds(): (string | number)[];
         getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
         getSelectedNodeId(): string | number;
         getSelectedNodeDetail(): import("../interface").MindmapDataItem;
         getNodeDetail(nodeIds: NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
-        fold(nodeIds: NodeIds, fold: boolean): any;
+        getRootNodeId(): string | number;
+        getAllNodeIds(): (string | number)[];
+        foldToggle(nodeIds: NodeIds, fold: boolean): any;
+        fold(nodeIds: NodeIds): any;
         unfold(nodeIds: NodeIds): any;
         showEditLink(nodeIds: NodeIds): any;
         hideEditLink(): any;
@@ -56,13 +64,15 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         hideEditTag(): any;
         getCurrentEditTagNodeIds(): NodeIds;
         tag(nodeIds: NodeIds, tags: string | string[]): any;
-        tagAdd(nodeIds: NodeIds, tags: string | string[]): any;
+        tagAll(nodeIds: NodeIds, tags: string | string[]): any;
         untag(nodeIds: NodeIds, untags: string | string[]): any;
         untagByIndex(nodeIds: NodeIds, index: number): any;
         showEditMark(nodeIds: NodeIds, markType: import("../interface").MindMarkTypes): any;
-        mark(nodeIds: NodeIds, mark: import("../interface").MindMarks): any;
-        getCurrentEditMarkNodeIds(): NodeIds;
         hideEditMark(): any;
+        getCurrentEditMarkNodeIds(): NodeIds;
+        getCurrentEditMarkValue(): import("../interface").MindMarks;
+        mark(nodeIds: NodeIds, mark: import("../interface").MindMarks): any;
+        unmark(nodeIds: NodeIds, mark: import("../interface").MindMarks): any;
     };
 } & TBase;
 export default _default;

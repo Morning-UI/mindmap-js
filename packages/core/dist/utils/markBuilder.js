@@ -1,3 +1,4 @@
+import { MindMarkTypes, } from '../interface';
 import { MARKS_STYLE, } from '../style';
 export var markBuilder = {
     tag: function () {
@@ -110,5 +111,34 @@ export var markElementBuilder = {
             $elements.push($li);
         }
         return $elements;
+    },
+    star: function (marks, type) {
+        if (type === void 0) { type = MindMarkTypes.Star; }
+        var $elements = [];
+        for (var _i = 0, _a = Object.values(marks); _i < _a.length; _i++) {
+            var mark = _a[_i];
+            var $li = document.createElement('li');
+            var $icon = document.createElement('div');
+            var $iconfont = document.createElement('i');
+            var markKey = type + ":" + mark;
+            $li.classList.add('mark');
+            $icon.classList.add("icon-" + type + "-" + mark, 'icon', "icon-" + type);
+            $iconfont.innerHTML = "&#x" + MARKS_STYLE[markKey].text;
+            $li.setAttribute('mark-value', mark);
+            $icon.setAttribute('mark-value', mark);
+            $iconfont.setAttribute('mark-value', mark);
+            $icon.append($iconfont);
+            $li.append($icon);
+            $elements.push($li);
+        }
+        return $elements;
+    },
+    flag: function (marks, type) {
+        if (type === void 0) { type = MindMarkTypes.Flag; }
+        return markElementBuilder.star(marks, type);
+    },
+    person: function (marks, type) {
+        if (type === void 0) { type = MindMarkTypes.Person; }
+        return markElementBuilder.star(marks, type);
     },
 };

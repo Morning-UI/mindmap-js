@@ -12,6 +12,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 import { ContextMenuTypes, } from '../interface';
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
         __extends(class_1, _super);
@@ -71,6 +72,7 @@ export default (function (Base) {
             this.hideEditLink();
             this.hideEditNote();
             this.hideEditTag();
+            this.hideEditMark();
             return this;
         };
         class_1.prototype.getContextNodeId = function () {
@@ -106,10 +108,16 @@ export default (function (Base) {
             this.untagByIndex(this.getContextNodeId(), this.getContextData().tagIndex);
             this.hideContextMenu();
         };
-        class_1.prototype.menuItemMarkChoose = function (evt) {
+        class_1.prototype.menuItemMarkEdit = function (evt) {
             var $target = evt.target;
             var markValue = $target.getAttribute('mark-value');
             this.mark(this.getCurrentEditMarkNodeIds(), markValue);
+        };
+        class_1.prototype.menuItemMarkDelete = function () {
+            // const $target = evt.target as HTMLElement;
+            // const markValue = $target.getAttribute('mark-value') as MindMarks;
+            this.unmark(this.getCurrentEditMarkNodeIds(), this.getCurrentEditMarkValue());
+            this.hideAllContextMenu();
         };
         return class_1;
     }(Base));

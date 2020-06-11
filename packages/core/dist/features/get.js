@@ -11,16 +11,8 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { fillNodeIds, pluckDataFromNodes, nodeDataItemGetter, } from '../base/utils';
-var cleanTagHoverState = function (graph, node) {
-    var states = node.getStates();
-    for (var _i = 0, states_1 = states; _i < states_1.length; _i++) {
-        var state = states_1[_i];
-        if ((/^tag-hover/u).test(state)) {
-            graph.setItemState(node, state, false);
-        }
-    }
-};
+import { fillNodeIds, pluckDataFromNodes, dataItemGetter, } from '../base/utils';
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
         __extends(class_1, _super);
@@ -56,11 +48,29 @@ export default (function (Base) {
                 var id = ids_1[_i];
                 nodeModels.push(this.graph.findById(id).getModel());
             }
-            var details = pluckDataFromNodes(nodeModels, nodeDataItemGetter, this);
+            var details = pluckDataFromNodes(nodeModels, dataItemGetter, this);
             if (nodeModels.length <= 1) {
                 return details[0];
             }
             return details;
+        };
+        class_1.prototype.getRootNodeId = function () {
+            var nodes = this.getAllNodeIds();
+            if (nodes && nodes[0]) {
+                return nodes[0];
+            }
+            return undefined;
+        };
+        class_1.prototype.getAllNodeIds = function () {
+            var nodes = this.graph.getNodes();
+            var nodeIds = [];
+            for (var _i = 0, nodes_2 = nodes; _i < nodes_2.length; _i++) {
+                var node = nodes_2[_i];
+                if (node.getModel()._isNode) {
+                    nodeIds.push(node.get('id'));
+                }
+            }
+            return nodeIds;
         };
         return class_1;
     }(Base));

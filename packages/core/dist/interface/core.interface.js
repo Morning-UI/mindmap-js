@@ -93,3 +93,9 @@ export var MindMarkTypes;
     MindMarkTypes["Person"] = "person";
 })(MindMarkTypes || (MindMarkTypes = {}));
 ;
+export var DownloadType;
+(function (DownloadType) {
+    DownloadType["Png"] = "png";
+    DownloadType["Xmind"] = "xmind";
+    DownloadType["Json"] = "json";
+})(DownloadType || (DownloadType = {}));

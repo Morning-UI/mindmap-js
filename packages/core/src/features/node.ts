@@ -62,6 +62,7 @@ const parseNodeData = (datas: MindmapDatas): MindmapDatas => {
 
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
     class extends Base implements NodeFeatures {
 

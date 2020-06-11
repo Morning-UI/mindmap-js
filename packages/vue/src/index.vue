@@ -39,7 +39,25 @@
         <div class="mindmap-box-edit-mark">
             <i class="arrow"></i>
             <h3>编辑标记</h3>
-            <ul @click="mindmap.menuItemMarkChoose($event)"></ul>
+            <div class="mark-list">
+                <ul @click="mindmap.menuItemMarkEdit($event)"></ul>
+                <i class="line"></i>
+                <a @click="mindmap.menuItemMarkDelete($event)" class="delete-mark"><i class="mindmap-icon">&#xe614;</i></a>
+            </div>
+        </div>
+
+        <div class="mindmap-zoom-slider">
+            <div class="zoom-wrap">
+                <div class="zoom-value">100%</div>
+                <div class="zoom-slider-box">
+                    <div class="zoom-track">
+                        <div class="zoom-line"></div>
+                    </div>
+                    <div
+                        class="zoom-slider"
+                    ></div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -84,7 +102,7 @@ export default {
         });
 
         this.$watch('edittingTag', () => {
-            this.mindmap.tag(this.mindmap.getCurrentEditTagNodeIds(), this.edittingTag.split(','));
+            this.mindmap.tagAll(this.mindmap.getCurrentEditTagNodeIds(), this.edittingTag.split(','));
         });
 
     }

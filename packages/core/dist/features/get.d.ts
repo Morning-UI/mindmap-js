@@ -1,5 +1,3 @@
-import { TreeGraph } from '@antv/g6';
-import { Item } from '@antv/g6/lib/types';
 import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor, NodeId, MindmapDataItem } from '../interface';
 declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
     new (...args: any[]): {
@@ -8,13 +6,15 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         getSelectedNodeId(): NodeId;
         getSelectedNodeDetail(): MindmapDataItem;
         getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
-        graph: TreeGraph;
+        getRootNodeId(): NodeId;
+        getAllNodeIds(): NodeId[];
+        graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
         editElements: import("../interface").MindNodeElements;
-        editNode: Item;
+        editNode: import("@antv/g6/lib/types").Item;
         editContent: string;
         editZoom: number;
         contextNodeId: string;
@@ -24,6 +24,8 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
         currentEditMarkNodeIds: NodeIds;
+        currentEditMarkValue: import("../interface").MindMarks;
+        zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
@@ -31,7 +33,6 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
             shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
-        readData(data: MindmapDataItem): any;
         clearSelectedNode(): any;
         focusNodeTextEditor(nodeId: string, clean?: boolean): any;
         blurNodeTextEditor(): any;

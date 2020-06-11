@@ -1,7 +1,8 @@
 import * as G6 from '@antv/g6';
-import { MindmapCoreL2Ctor } from '../interface';
-declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").MindmapCoreL2Type>>(Base: TBase) => {
+import { MindmapCoreL3Ctor, MindmapDataItem } from '../interface';
+declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").MindmapCoreL3Type>>(Base: TBase) => {
     new (...args: any[]): {
+        readData(data: MindmapDataItem): this;
         graph: G6.TreeGraph;
         G6: typeof G6;
         data: import("../interface").MindmapNodeItem;
@@ -18,6 +19,8 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         currentEditNoteNodeIds: import("../interface").NodeIds;
         currentEditTagNodeIds: import("../interface").NodeIds;
         currentEditMarkNodeIds: import("../interface").NodeIds;
+        currentEditMarkValue: import("../interface").MindMarks;
+        zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {
@@ -25,7 +28,6 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
             shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
-        readData(data: import("../interface").MindmapDataItem): any;
         clearSelectedNode(): any;
         focusNodeTextEditor(nodeId: string, clean?: boolean): any;
         blurNodeTextEditor(): any;
@@ -34,12 +36,19 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
+        zoom(zoom: number): any;
+        getZoom(): number;
+        fitZoom(): any;
+        _updateZoomValue(): any;
         getAllSelectedNodeIds(): (string | number)[];
-        getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
+        getAllSelectedNodeDetails(): MindmapDataItem[];
         getSelectedNodeId(): string | number;
-        getSelectedNodeDetail(): import("../interface").MindmapDataItem;
-        getNodeDetail(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
-        fold(nodeIds: import("../interface").NodeIds, fold: boolean): any;
+        getSelectedNodeDetail(): MindmapDataItem;
+        getNodeDetail(nodeIds: import("../interface").NodeIds): MindmapDataItem | MindmapDataItem[];
+        getRootNodeId(): string | number;
+        getAllNodeIds(): (string | number)[];
+        foldToggle(nodeIds: import("../interface").NodeIds, fold: boolean): any;
+        fold(nodeIds: import("../interface").NodeIds): any;
         unfold(nodeIds: import("../interface").NodeIds): any;
         showEditLink(nodeIds: import("../interface").NodeIds): any;
         hideEditLink(): any;
@@ -55,13 +64,15 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         hideEditTag(): any;
         getCurrentEditTagNodeIds(): import("../interface").NodeIds;
         tag(nodeIds: import("../interface").NodeIds, tags: string | string[]): any;
-        tagAdd(nodeIds: import("../interface").NodeIds, tags: string | string[]): any;
+        tagAll(nodeIds: import("../interface").NodeIds, tags: string | string[]): any;
         untag(nodeIds: import("../interface").NodeIds, untags: string | string[]): any;
         untagByIndex(nodeIds: import("../interface").NodeIds, index: number): any;
         showEditMark(nodeIds: import("../interface").NodeIds, markType: import("../interface").MindMarkTypes): any;
-        mark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
-        getCurrentEditMarkNodeIds(): import("../interface").NodeIds;
         hideEditMark(): any;
+        getCurrentEditMarkNodeIds(): import("../interface").NodeIds;
+        getCurrentEditMarkValue(): import("../interface").MindMarks;
+        mark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
+        unmark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
         showContextMenu(options: import("../interface").ShowContextMenuOptions): any;
         hideContextMenu(): any;
         hideAllContextMenu(): any;
@@ -74,7 +85,8 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         menuItemNoteDelete(): void;
         menuItemTagEdit(): void;
         menuItemTagDelete(): void;
-        menuItemMarkChoose(evt: MouseEvent): void;
+        menuItemMarkEdit(evt: MouseEvent): void;
+        menuItemMarkDelete(): void;
         removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
         insertSubNode(nodeId: string | number, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
     };

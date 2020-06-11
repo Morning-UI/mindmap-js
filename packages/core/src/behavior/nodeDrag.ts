@@ -766,7 +766,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
         if (dragHolderParentModel._isFolded) {
 
             mindmap.graph.layout();
-            mindmap.fold(dragHolderParentModel.id, false);
+            mindmap.unfold(dragHolderParentModel.id);
 
         } else {
 

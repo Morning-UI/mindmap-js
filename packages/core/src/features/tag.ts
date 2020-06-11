@@ -31,6 +31,7 @@ const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
     class extends Base implements TagFeatures {
 
@@ -46,6 +47,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             } = this.graph.getCanvasByPoint(bbox.centerX, bbox.maxY);
             const $boxEditTag = this._options.$boxEditTag;
             const $boxEditTagInput = $boxEditTag.querySelector('textarea');
+            const tag = model.tag || [];
 
             let boxEditTagWidth = 0;
 
@@ -54,7 +56,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             boxEditTagWidth = $boxEditTag.clientWidth;
             $boxEditTag.style.left = `${x - (boxEditTagWidth / 2)}px`;
             $boxEditTag.style.top = `${y}px`;
-            $boxEditTagInput.value = model.tag.join(',');
+            $boxEditTagInput.value = tag.join(',');
 
             return this;
 
@@ -89,7 +91,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
                 const node = this.graph.findById(id);
                 const model = node.getModel() as MindmapNodeItem;
 
-                model.tag = Object.assign([], _tags);
+                model.tag = Object.assign([], model.tag).concat(_tags);
                 node.draw();
 
             }
@@ -99,7 +101,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
-        tagAdd (nodeIds: NodeIds, tags: string[]|string): this {
+        tagAll (nodeIds: NodeIds, tags: string[]|string): this {
 
             const ids = fillNodeIds(nodeIds);
 
@@ -112,7 +114,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
                 const node = this.graph.findById(id);
                 const model = node.getModel() as MindmapNodeItem;
 
-                model.tag = Object.assign([], model.tag).concat(_tags);
+                model.tag = Object.assign([], _tags);
                 node.draw();
 
             }

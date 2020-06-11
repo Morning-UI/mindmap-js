@@ -22,6 +22,7 @@ var cleanTagHoverState = function (graph, node) {
         }
     }
 };
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
         __extends(class_1, _super);
@@ -36,13 +37,14 @@ export default (function (Base) {
             var _a = this.graph.getCanvasByPoint(bbox.centerX, bbox.maxY), x = _a.x, y = _a.y;
             var $boxEditTag = this._options.$boxEditTag;
             var $boxEditTagInput = $boxEditTag.querySelector('textarea');
+            var tag = model.tag || [];
             var boxEditTagWidth = 0;
             this.currentEditTagNodeIds = nodeIds;
             $boxEditTag.style.display = 'block';
             boxEditTagWidth = $boxEditTag.clientWidth;
             $boxEditTag.style.left = x - (boxEditTagWidth / 2) + "px";
             $boxEditTag.style.top = y + "px";
-            $boxEditTagInput.value = model.tag.join(',');
+            $boxEditTagInput.value = tag.join(',');
             return this;
         };
         class_1.prototype.hideEditTag = function () {
@@ -62,13 +64,13 @@ export default (function (Base) {
                 var id = ids_1[_i];
                 var node = this.graph.findById(id);
                 var model = node.getModel();
-                model.tag = Object.assign([], _tags);
+                model.tag = Object.assign([], model.tag).concat(_tags);
                 node.draw();
             }
             this.graph.layout();
             return this;
         };
-        class_1.prototype.tagAdd = function (nodeIds, tags) {
+        class_1.prototype.tagAll = function (nodeIds, tags) {
             var ids = fillNodeIds(nodeIds);
             var _tags = typeof tags === 'string' ? [tags] : tags;
             _tags = difference(_tags, ['']);
@@ -76,7 +78,7 @@ export default (function (Base) {
                 var id = ids_2[_i];
                 var node = this.graph.findById(id);
                 var model = node.getModel();
-                model.tag = Object.assign([], model.tag).concat(_tags);
+                model.tag = Object.assign([], _tags);
                 node.draw();
             }
             this.graph.layout();

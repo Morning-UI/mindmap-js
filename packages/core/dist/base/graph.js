@@ -56,19 +56,10 @@ var _nodeEventShouldEmit = function (evt) {
     }
     return true;
 };
-var hiddenMenus = function (mindmap, evt) {
-    mindmap.hideEditLink();
-    mindmap.hideEditNote();
-    mindmap.hideEditTag();
-    bindContextMenu.hide(evt, {
-        mindmap: mindmap,
-        graph: mindmap.graph,
-    });
-};
 export var create = function (mindmap, options) {
     var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, brushSelectable: true, backgroundGrid: false, foldable: true, minimap: true, 
         // eslint-disable-next-line no-magic-numbers
-        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag'), $boxEditMark: options.$con.querySelector('.mindmap-box-edit-mark') }, options);
+        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', minZoom: 0.2, maxZoom: 1.5, $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag'), $boxEditMark: options.$con.querySelector('.mindmap-box-edit-mark'), $zoomSlider: options.$con.querySelector('.mindmap-zoom-slider') }, options);
     var modes = [];
     var plugins = [];
     _options.width = convertSize('width', _options.width, _options.$con);
@@ -78,7 +69,10 @@ export var create = function (mindmap, options) {
         modes.push('drag-canvas');
     }
     if (_options.scalable) {
-        modes.push('zoom-canvas');
+        modes.push({
+            type: 'zoom-canvas',
+            sensitivity: 2,
+        });
     }
     if (_options.nodeDraggable) {
         modes.push('mind-drag-node');
@@ -99,9 +93,9 @@ export var create = function (mindmap, options) {
         width: _options.width,
         height: _options.height,
         // eslint-disable-next-line no-magic-numbers
-        minZoom: 0.01,
+        minZoom: _options.minZoom,
         // eslint-disable-next-line no-magic-numbers
-        maxZoom: 1.5,
+        maxZoom: _options.maxZoom,
         animate: false,
         fitView: false,
         modes: {
@@ -172,7 +166,10 @@ export var bindEvent = function (mindmap) {
             mindmap: mindmap,
             graph: graph,
         });
-        hiddenMenus(mindmap, evt);
+        mindmap.hideAllContextMenu();
+    });
+    graph.on('canvas:drag', function () {
+        mindmap.hideAllContextMenu();
     });
     graph.on('canvas:mousedown', function (evt) {
         // bindCanvasGrab.mousedown(evt, {
@@ -241,7 +238,7 @@ export var bindEvent = function (mindmap) {
     });
     graph.on('node:click', function (evt) {
         if (_nodeEventShouldEmit(evt)) {
-            hiddenMenus(mindmap, evt);
+            mindmap.hideAllContextMenu();
             bindNodeSelect.select(evt, {
                 mindmap: mindmap,
                 graph: graph,
@@ -293,10 +290,17 @@ export var bindEvent = function (mindmap) {
             });
         }
     });
-    graph.on('wheelzoom', function (evt) {
+    graph.on('wheel', function (evt) {
         bindNodeEdit.refresh(evt, {
             mindmap: mindmap,
         });
+        mindmap._updateZoomValue();
+        // bindAppendsClick.stop(evt, {
+        //     vm,
+        //     graph
+        // });
+    });
+    graph.on('zoom', function (evt) {
         // bindAppendsClick.stop(evt, {
         //     vm,
         //     graph

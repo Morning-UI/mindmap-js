@@ -30,12 +30,13 @@ var genMindMarkTypeMap = function (type, marks) {
         MindMarkTypeMap[mark] = type;
     }
 };
-genMindMarkTypeMap('tag', Object.values(MindMarksTag));
-genMindMarkTypeMap('priority', Object.values(MindMarksPriority));
-genMindMarkTypeMap('task', Object.values(MindMarksTask));
-genMindMarkTypeMap('star', Object.values(MindMarksStar));
-genMindMarkTypeMap('flag', Object.values(MindMarksFlag));
-genMindMarkTypeMap('person', Object.values(MindMarksPerson));
+genMindMarkTypeMap(MindMarkTypes.Tag, Object.values(MindMarksTag));
+genMindMarkTypeMap(MindMarkTypes.Priority, Object.values(MindMarksPriority));
+genMindMarkTypeMap(MindMarkTypes.Task, Object.values(MindMarksTask));
+genMindMarkTypeMap(MindMarkTypes.Star, Object.values(MindMarksStar));
+genMindMarkTypeMap(MindMarkTypes.Flag, Object.values(MindMarksFlag));
+genMindMarkTypeMap(MindMarkTypes.Person, Object.values(MindMarksPerson));
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
         __extends(class_1, _super);
@@ -70,9 +71,12 @@ export default (function (Base) {
                 case MindMarkTypes.Person:
                     $elements = markElementBuilder[markType](MindMarksPerson);
                     break;
+                default:
+                    break;
             }
             var boxEditMarkWidth = 0;
             this.currentEditMarkNodeIds = nodeIds;
+            this.currentEditMarkValue = model.mark[markType];
             (_a = $boxEditMark.querySelector('ul')).append.apply(_a, $elements);
             $boxEditMark.style.display = 'block';
             boxEditMarkWidth = $boxEditMark.clientWidth;
@@ -83,12 +87,16 @@ export default (function (Base) {
         class_1.prototype.hideEditMark = function () {
             var $boxEditMark = this._options.$boxEditMark;
             this.currentEditMarkNodeIds = [];
+            this.currentEditMarkValue = null;
             $boxEditMark.querySelector('ul').innerHTML = '';
             $boxEditMark.style.display = 'none';
             return this;
         };
         class_1.prototype.getCurrentEditMarkNodeIds = function () {
             return this.currentEditMarkNodeIds;
+        };
+        class_1.prototype.getCurrentEditMarkValue = function () {
+            return this.currentEditMarkValue;
         };
         class_1.prototype.mark = function (nodeIds, mark) {
             var ids = fillNodeIds(nodeIds);
@@ -119,6 +127,8 @@ export default (function (Base) {
                     case MindMarkTypes.Person:
                         model.mark.person = mark;
                         break;
+                    default:
+                        break;
                 }
                 // model.mark = arrayUniq(model.mark);
                 // traverseNodeUpdateMark(model);
@@ -126,6 +136,22 @@ export default (function (Base) {
             }
             this.graph.layout();
             return this;
+        };
+        class_1.prototype.unmark = function (nodeIds, mark) {
+            var ids = fillNodeIds(nodeIds);
+            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
+                var id = ids_2[_i];
+                var node = this.graph.findById(id);
+                var model = node.getModel();
+                var markType = MindMarkTypeMap[mark];
+                // const index = model.mark.indexOf(mark);
+                if (model.mark !== null) {
+                    delete model.mark[markType];
+                }
+                // traverseNodeUpdateMark(model);
+                node.draw();
+            }
+            this.graph.layout();
         };
         return class_1;
     }(Base));

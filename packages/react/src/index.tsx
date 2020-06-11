@@ -39,7 +39,7 @@ const MindmapComponent = () => {
     };
 
     const edittingTagChange: ChangeEventHandler<HTMLTextAreaElement> = (evt) => {
-        mindmap.tag(mindmap.getCurrentEditTagNodeIds(), evt.target.value.split(','));
+        mindmap.tagAll(mindmap.getCurrentEditTagNodeIds(), evt.target.value.split(','));
         setEdittingTag(evt.target.value);
     };
 
