@@ -2,14 +2,13 @@ import * as G6                                  from '@antv/g6';
 import {
     IG6GraphEvent,
     Item,
-    ShapeStyle,
 }                                               from '@antv/g6/lib/types';
 import {
     IGroup,
     IElement,
 }                                               from '@antv/g-base/lib/interfaces';
 import {
-    INode,
+    INode, IEdge,
 }                                               from '@antv/g6/lib/interface/item';
 import {
     MindmapNodeItem,
@@ -20,16 +19,9 @@ import {
     NodeIds,
     MindmapCoreType,
     toggleNodeVisibilityCallback,
-    MindmapDataItem,
     MindmapCoreL0Type,
-    MindmapDataItemGetter,
-    MindMarks,
-    InitNodeTagsOptions,
     GenMarkOptions,
-    MarkSet,
-    MarkBuilder,
     MarkShapeCfg,
-    MindmapNodeItemGetter,
 }                                               from '../interface';
 import {
     NODE_SHAPE_INDEX,
@@ -38,10 +30,15 @@ import {
     MIND_NODE_STYLE,
     MARKS_STYLE,
 }                                               from '../style';
-import globalData                               from '../base/globalData';
 import {
     markBuilder,
 }                                               from '../utils/markBuilder';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from 'src/utils/G6Ext';
 
 export const genNodeStyles = (styles: NodeStyle, cfg: MindmapNodeItem): NodeStyle => {
 
@@ -126,22 +123,6 @@ export const getAppends = (cfg: MindmapNodeItem): NodeAppendItem[] => {
 
     }
 
-    // if (model.tag) {
-        
-    //     for (let tag of model.tag) {
-
-    //         appends.push({
-    //             fontFamily : undefined,
-    //             fontSize : style.fontSize,
-    //             fill : tag.background || '#E0E0E0',
-    //             textFill : tag.color || '#000000',
-    //             genText : () => tag.text || tag
-    //         });
-
-    //     }
-
-    // }
-
     return appends;
 
 };
@@ -149,8 +130,6 @@ export const getAppends = (cfg: MindmapNodeItem): NodeAppendItem[] => {
 export const appendConGroupAdjustPosition = (shapes: MindNodeShapes, cfg: MindmapNodeItem): void => {
 
     const style = genNodeStyles(MIND_NODE_STYLE, cfg);
-    // const conPaddingX = style.fontSize * 1.5;
-    // const conPaddingY = style.fontSize * 0.75;
     const appends = getAppends(cfg);
     const textBbox = shapes.text.getBBox();
     const markConGroupBbox = shapes.markConGroup.getBBox();
@@ -332,7 +311,7 @@ export const toggleAllChildrenVisibility = (
     for (const edge of outEdges) {
 
         const child = edge.getTarget();
-        const model = child.getModel() as MindmapNodeItem;
+        const model = getModel(child);
 
         edge[type]();
         child[type]();
@@ -408,12 +387,12 @@ export const clearSelectedNode = (mindmap: MindmapCoreType, selectedState: 'sele
 
     const graph = mindmap.graph;
     const autoPaint = graph.get('autoPaint');
-    const nodes = graph.findAllByState('node', selectedState);
-    const edges = graph.findAllByState('edge', selectedState);
+    const nodes = graph.findAllByState<INode>('node', selectedState);
+    const edges = graph.findAllByState<IEdge>('edge', selectedState);
 
     graph.setAutoPaint(false);
-    nodes.forEach((_node) => graph.setItemState(_node, selectedState, false));
-    edges.forEach((edge) => graph.setItemState(edge, selectedState, false));
+    nodes.forEach((_node) => setItemState(graph, _node.get('id'), selectedState, false));
+    edges.forEach((edge) => setItemState(graph, edge.get('id'), selectedState, false));
     graph.paint();
     graph.setAutoPaint(autoPaint);
 

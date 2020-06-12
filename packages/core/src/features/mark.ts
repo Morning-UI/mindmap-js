@@ -26,6 +26,9 @@ import {
 import {
     markElementBuilder,
 }                                               from '../utils/markBuilder';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
 
 const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
@@ -35,7 +38,7 @@ const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
         if ((/^tag-hover/u).test(state)) {
 
-            graph.setItemState(node, state, false);
+            setItemState(graph, node.get('id'), state, false);
 
         }
 
@@ -222,6 +225,8 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             }
 
             this.graph.layout();
+
+            return this;
 
         }
 

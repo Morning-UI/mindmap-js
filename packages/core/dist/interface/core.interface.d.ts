@@ -3,8 +3,9 @@ import { ShapeOptions } from '@antv/g6/lib/interface/shape';
 import { IShape, IElement, IGroup } from '@antv/g-base/lib/interfaces';
 import { ShapeCfg } from '@antv/g-base/lib/types';
 import GGroup from '@antv/g-canvas/lib/group';
+import { INode } from '@antv/g6/lib/interface/item';
 import { ShapeAttrs } from '@antv/g-base';
-import { ShapeStyle, TreeGraphData, NodeConfig, G6Event, Item, IG6GraphEvent } from '@antv/g6/lib/types';
+import { ShapeStyle, G6Event, Item, IG6GraphEvent } from '@antv/g6/lib/types';
 import { MindmapCoreBase } from '../index';
 export interface MindmapCreateOptions {
     $con: HTMLElement;
@@ -37,28 +38,43 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $boxEditMark: HTMLElement;
     $zoomSlider: HTMLElement;
 }
-export interface MindmapDataItem {
+export declare type TraverseItemOptions = {
+    type?: string;
+    empty?: boolean;
+    holder?: boolean;
+};
+export declare type MindmapDataItem = {
     text?: string;
     link?: string;
     note?: string;
     tag?: string[];
     mark?: MarkSet;
     children?: MindmapDataItem[];
-    _isFolded?: boolean;
-    _foldedChildren?: MindmapDataItem[];
-}
-export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeConfig {
-    children?: MindmapNodeItem[];
-    _foldedChildren?: MindmapNodeItem[];
-    _originChildren?: MindmapDataItem[];
+    folded?: boolean;
+};
+export declare type MindmapNodeItem = MindmapDataItem & {
     id: string;
-    anchorPoints: number[][];
-    style?: ShapeStyle;
     type: string;
-    _isRoot: boolean;
-    _isNode: boolean;
+    anchorPoints: number[][];
+    children?: MindmapNodeItem[];
+    style?: ShapeStyle;
+    _isRoot?: boolean;
+    _isNode?: boolean;
     _isDragging?: boolean;
     _isHolder?: boolean;
+    _foldedChildren?: MindmapNodeItem[];
+    _originChildren?: MindmapDataItem[];
+};
+export interface MindmapXmindItem {
+    title: string;
+    note?: string;
+    href?: string;
+    labels?: string[] | string;
+    branch?: 'folded';
+    marker?: {
+        [key in XmindMarkerMethods]?: string;
+    };
+    children?: MindmapXmindItem[];
 }
 export declare type MindmapData = MindmapNodeItem | MindmapDataItem;
 export declare type MindmapDatas = MindmapData[] | MindmapData;
@@ -73,7 +89,7 @@ export interface NodeStyle {
     radius?: number;
     fontSize?: number;
     fontColor?: string;
-    fontWeight?: number | string;
+    fontWeight?: number | 'normal' | 'bold' | 'bolder' | 'lighter';
     fontStyle?: ShapeAttrs['fontStyle'];
     fontFamily?: string;
     borderColor?: string;
@@ -113,8 +129,7 @@ export interface NodeStyle {
     textOffsetY?: number;
     FOLD_BTN_STYLE?: NodeStyle;
 }
-export interface MindShapeOptions extends ShapeOptions {
-}
+export declare type MindShapeOptions = ShapeOptions;
 export interface InitNodeOptions {
     shapes: MindNodeShapes;
     mindmap: MindmapCoreL0Type;
@@ -140,7 +155,7 @@ export interface InitNodeTagsOptions {
 }
 export declare type GenMarkOptions = {
     markName: MindMarks;
-    markType: keyof MindMarkTypes;
+    markType: MindMarkTypes;
 } & InitNodeTagsOptions;
 export interface InitNodeMarksOptions {
     shapes: MindNodeShapes;
@@ -214,7 +229,7 @@ export interface ShowContextMenuOptions {
     y: number;
     data?: any;
 }
-export declare type NodeId = string | number;
+export declare type NodeId = string;
 export declare type NodeIds = NodeId[] | NodeId;
 export declare type NodeDragBehaviorCfg = {
     dragOptions: DragOptions;
@@ -251,7 +266,7 @@ export declare type OriginPointType = {
     minY: number;
 };
 export declare type DragTarget = {
-    nodes: Item[];
+    nodes: INode[];
     hidden: boolean;
     originNodeStyle: {
         [key: string]: any;
@@ -333,19 +348,31 @@ export interface ReadDataFeatures {
     readData(data: MindmapDataItem): this;
 }
 export interface ZoomFeatures {
+    _updateZoomValue(): this;
     zoom(zoom: number): this;
     getZoom(): number;
     fitZoom(): this;
-    _updateZoomValue(): this;
 }
 export interface ExportFeatures {
+    _screenshotting(shotting: boolean): void;
     exportToObject(nodeId: NodeId): MindmapNodeItem[];
+    downloadPng(nodeId: NodeId): this;
+    downloadWebp(nodeId: NodeId): this;
+    downloadJpeg(nodeId: NodeId): this;
+    downloadBmp(nodeId: NodeId): this;
     downloadFile(nodeId: NodeId | DownloadType, type: DownloadType): this;
+}
+export interface ImportFeatures {
+}
+export interface ClipboardFeatures {
+    copyNodeToClipboard(nodeIds: NodeIds): string;
+    copyNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
+    getClipboard(): string;
 }
 export declare type MindmapCoreL0Type = MindmapCoreBase;
 export declare type MindmapCoreL1Type = MindmapCoreL0Type & ZoomFeatures & GetFeatures & FoldFeatures & LinkFeatures & NoteFeatures & TagFeatures & MarkFeatures;
-export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures & ReadDataFeatures;
-export declare type MindmapCoreL3Type = MindmapCoreL2Type & ExportFeatures;
+export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & ClipboardFeatures & NodeFeatures & ReadDataFeatures;
+export declare type MindmapCoreL3Type = MindmapCoreL2Type & ImportFeatures & ExportFeatures;
 export declare type MindmapCoreType = MindmapCoreL3Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;
 export declare enum MindMarksTag {
@@ -486,4 +513,16 @@ export declare enum DownloadType {
     Jpeg = "jpeg",
     Xmind = "xmind",
     Json = "json"
+}
+export declare type ItemCallbackFn = (item: MindmapXmindItem, cid: string) => void;
+export declare type childrenWalkerFn = (children: MindmapXmindItem[], itemCallback: ItemCallbackFn, childrenWalker: childrenWalkerFn) => void;
+export declare type ExportXmindFn = (items: MindmapXmindItem[], itemCallback: ItemCallbackFn, childrenWalker: childrenWalkerFn, cid?: string) => void;
+export declare type XmindItemWalkerFn = (item: MindmapXmindItem, itemCallback: ItemCallbackFn, cid?: string) => void;
+export declare enum XmindMarkerMethods {
+    Tag = "tag",
+    Priority = "priority",
+    Task = "task",
+    Star = "star",
+    Flag = "flag",
+    Person = "people"
 }

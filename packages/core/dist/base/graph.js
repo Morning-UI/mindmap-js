@@ -17,6 +17,7 @@ import { getMindEdge, } from '../edges/mindEdge';
 import { getMindHolderEdge, } from '../edges/mindHolderEdge';
 import { getNodeDragBehavior, } from '../behavior/nodeDrag';
 import { getNodeBrushSelectBehavior, } from '../behavior/nodeBrushSelect';
+import { getModel, } from '../utils/G6Ext';
 import bindNodeHover from '../events/nodeHover';
 import bindNodeSelect from '../events/nodeSelect';
 import bindNodeEdit from '../events/nodeEdit';
@@ -49,7 +50,7 @@ var _nodeEventShouldEmit = function (evt) {
     if (evt.item && evt.item.destroyed) {
         return true;
     }
-    var model = evt.item.getModel();
+    var model = getModel(evt.item);
     // model.collapse
     if (model._isDragging) {
         return false;
@@ -59,9 +60,13 @@ var _nodeEventShouldEmit = function (evt) {
 export var create = function (mindmap, options) {
     var _options = __assign({ width: '100%', height: '100%', draggable: true, nodeDraggable: true, scalable: true, brushSelectable: true, backgroundGrid: false, foldable: true, minimap: true, 
         // eslint-disable-next-line no-magic-numbers
-        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', minZoom: 0.2, maxZoom: 1.5, $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag'), $boxEditMark: options.$con.querySelector('.mindmap-box-edit-mark'), $zoomSlider: options.$con.querySelector('.mindmap-zoom-slider') }, options);
-    var modes = [];
+        nodeHGap: 30, nodeVGap: 6, maxShowTagNum: 4, direction: 'LR', 
+        // eslint-disable-next-line no-magic-numbers
+        minZoom: 0.2, 
+        // eslint-disable-next-line no-magic-numbers
+        maxZoom: 1.5, $canvas: options.$con.querySelector('.mindmap-canvas'), $editor: options.$con.querySelector('.mindmap-editor'), $editorInput: options.$con.querySelector('textarea'), $contextMenuLink: options.$con.querySelector('.mindmap-menu-link'), $contextMenuNote: options.$con.querySelector('.mindmap-menu-note'), $contextMenuTag: options.$con.querySelector('.mindmap-menu-tag'), $boxEditLink: options.$con.querySelector('.mindmap-box-edit-link'), $boxEditNote: options.$con.querySelector('.mindmap-box-edit-note'), $boxEditTag: options.$con.querySelector('.mindmap-box-edit-tag'), $boxEditMark: options.$con.querySelector('.mindmap-box-edit-mark'), $zoomSlider: options.$con.querySelector('.mindmap-zoom-slider') }, options);
     var plugins = [];
+    var modes = [];
     _options.width = convertSize('width', _options.width, _options.$con);
     _options.height = convertSize('height', _options.height, _options.$con);
     mindmap._options = _options;
@@ -108,7 +113,7 @@ export var create = function (mindmap, options) {
                 var node = mindmap.graph.findById(cfg.id);
                 if (!node
                     || (node && node.destroyed)
-                    || (node && node.getModel()._isDragging)) {
+                    || (node && getModel(node)._isDragging)) {
                     return 0;
                 }
                 return node.getBBox().height;
@@ -117,7 +122,7 @@ export var create = function (mindmap, options) {
                 var node = mindmap.graph.findById(cfg.id);
                 if (!node
                     || (node && node.destroyed)
-                    || (node && node.getModel()._isDragging)) {
+                    || (node && getModel(node)._isDragging)) {
                     return 0;
                 }
                 return node.getBBox().width;
@@ -126,7 +131,7 @@ export var create = function (mindmap, options) {
                 var node = mindmap.graph.findById(cfg.id);
                 if (!node
                     || (node && node.destroyed)
-                    || (node && node.getModel()._isDragging)) {
+                    || (node && getModel(node)._isDragging)) {
                     return 0;
                 }
                 return _options.nodeVGap;
@@ -184,9 +189,6 @@ export var bindEvent = function (mindmap) {
         });
     });
     graph.on('canvas:mousemove', function (evt) {
-        // bindAppendsHover.stop(evt, {
-        //     graph,
-        // });
         bindFoldBtnHover.stop(evt, {
             graph: graph,
             mindmap: mindmap,

@@ -2,6 +2,8 @@ import * as G6 from '@antv/g6';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 import { MIND_NODE_STYLE, MARKS_STYLE, } from '../style';
 import { markBuilder, } from '../utils/markBuilder';
+import { setItemState, } from '../utils/setItemState';
+import { getModel, } from 'src/utils/G6Ext';
 export var genNodeStyles = function (styles, cfg) {
     return G6.Util.deepMix({}, styles, 
     // nodeStyle._shapePresets[model._shapeStyle],
@@ -52,23 +54,10 @@ export var getAppends = function (cfg) {
             genText: function () { return String.fromCharCode(parseInt('e629;', 16)); },
         });
     }
-    // if (model.tag) {
-    //     for (let tag of model.tag) {
-    //         appends.push({
-    //             fontFamily : undefined,
-    //             fontSize : style.fontSize,
-    //             fill : tag.background || '#E0E0E0',
-    //             textFill : tag.color || '#000000',
-    //             genText : () => tag.text || tag
-    //         });
-    //     }
-    // }
     return appends;
 };
 export var appendConGroupAdjustPosition = function (shapes, cfg) {
     var style = genNodeStyles(MIND_NODE_STYLE, cfg);
-    // const conPaddingX = style.fontSize * 1.5;
-    // const conPaddingY = style.fontSize * 0.75;
     var appends = getAppends(cfg);
     var textBbox = shapes.text.getBBox();
     var markConGroupBbox = shapes.markConGroup.getBBox();
@@ -183,7 +172,7 @@ export var toggleAllChildrenVisibility = function (node, type, callback) {
     for (var _i = 0, outEdges_1 = outEdges; _i < outEdges_1.length; _i++) {
         var edge = outEdges_1[_i];
         var child = edge.getTarget();
-        var model = child.getModel();
+        var model = getModel(child);
         edge[type]();
         child[type]();
         if (typeof callback === 'function') {
@@ -233,8 +222,8 @@ export var clearSelectedNode = function (mindmap, selectedState) {
     var nodes = graph.findAllByState('node', selectedState);
     var edges = graph.findAllByState('edge', selectedState);
     graph.setAutoPaint(false);
-    nodes.forEach(function (_node) { return graph.setItemState(_node, selectedState, false); });
-    edges.forEach(function (edge) { return graph.setItemState(edge, selectedState, false); });
+    nodes.forEach(function (_node) { return setItemState(graph, _node.get('id'), selectedState, false); });
+    edges.forEach(function (edge) { return setItemState(graph, edge.get('id'), selectedState, false); });
     graph.paint();
     graph.setAutoPaint(autoPaint);
 };

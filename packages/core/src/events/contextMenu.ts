@@ -4,8 +4,6 @@ import {
 import {
     EventOptions,
     ContextMenuTypes,
-    MindmapNodeItem,
-    // MindmapNodeItem,
 }                                               from '../interface';
 import {
     inAnnex,
@@ -16,6 +14,9 @@ import {
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     show : (evt: IG6GraphEvent, options: EventOptions): void => {
@@ -27,7 +28,7 @@ export default {
 
         if (evt.item) {
 
-            const model = evt.item.getModel() as MindmapNodeItem;
+            const model = getModel(evt.item);
 
             if (!model._isNode) {
 

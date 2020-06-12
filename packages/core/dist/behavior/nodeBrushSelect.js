@@ -1,5 +1,7 @@
 import { BRUSH_SELECT_STYLE, } from '../style';
 import { clearSelectedNode, } from '../base/utils';
+import { setItemState, } from '../utils/setItemState';
+import { getModel, } from '../utils/getModel';
 var selectedNodes = [];
 var brushShape = null;
 var dragging = false;
@@ -57,10 +59,10 @@ var computeSelectedNodes = function (mindmap, evt, shouldUpdate) {
         if (Math.abs(centerX - bbox.centerX) < ((bbox.width + width) / 2)
             && Math.abs(centerY - bbox.centerY) < ((bbox.height + height) / 2)) {
             if (shouldUpdate(node, 'select')) {
-                var model = node.getModel();
+                var model = getModel(node);
                 selectNodes.push(node);
                 selectIds.push(model.id);
-                graph.setItemState(node, selectedState, true);
+                setItemState(graph, node.get('id'), selectedState, true);
             }
         }
     });
@@ -77,14 +79,6 @@ var updateBrush = function (evt) {
 export var getNodeBrushSelectBehavior = function (mindmap) { return ({
     getDefaultCfg: function () {
         return {
-            // brushStyle : {
-            //     fill : '#e0efff',
-            //     fillOpacity : 0.4,
-            //     stroke : '#b2d2ef',
-            //     lineWidth : 1
-            // },
-            // onSelect () {},
-            // onDeselect () {},
             includeEdges: true,
         };
     },

@@ -32,12 +32,15 @@ import {
     InitNodeAppendsOptions,
     InitNodeTagsOptions,
     StateChangeOptions,
-    MindmapCoreType,
     MindmapCoreL0Type,
     InitNodeMarksOptions,
-    MarkSet,
     MindMarkTypes,
+    InitFoldBtnOptions,
+    MarkSet,
 }                                               from '../interface';
+import {
+    getBBox, getModel,
+}                                               from '../utils/G6Ext';
 
 const _NODE_SHAPE_INDEX: {
     [name: string]: number;
@@ -213,14 +216,14 @@ const initFoldBtn = (options: InitFoldBtnOptions): void => {
         cfg,
     } = options;
 
-    shapes['foldBtnGroup.circle'] = shapes.foldBtnGroup.addShape('circle', {
+    shapes['foldBtnGroup.circle'] = (shapes.foldBtnGroup as IGroup).addShape('circle', {
         attrs : {
             r : style.FOLD_BTN_STYLE.width,
             fill : style.FOLD_BTN_STYLE.bgColor,
             stroke : style.FOLD_BTN_STYLE.borderColor,
         },
     });
-    shapes['foldBtnGroup.icon'] = shapes.foldBtnGroup.addShape('text', {
+    shapes['foldBtnGroup.icon'] = (shapes.foldBtnGroup as IGroup).addShape('text', {
         attrs : {
             x : 0,
             y : 0,
@@ -234,7 +237,7 @@ const initFoldBtn = (options: InitFoldBtnOptions): void => {
     });
 
     // 如果没有子节点不显示按钮
-    const children = cfg._isFolded ? cfg._foldedChildren : cfg.children;
+    const children = cfg.folded ? cfg._foldedChildren : cfg.children;
 
     if (!children || children.length === 0) {
 
@@ -317,7 +320,6 @@ const initNodeTags = (options: InitNodeTagsOptions): void => {
         cfg,
         style,
     } = options;
-
     const tags = cfg.tag;
 
     let tagNum = 0;
@@ -367,7 +369,7 @@ const initNodeTags = (options: InitNodeTagsOptions): void => {
 
             }
 
-            const tagTextBbox = tagText.getBBox();
+            const tagTextBbox = getBBox(tagText);
 
             tagCon.attr({
                 width : tagTextBbox.width + (style.tagPaddingX * 2),
@@ -390,19 +392,20 @@ const initNodeMarks = (options: InitNodeMarksOptions): void => {
         cfg,
     } = options;
     const marks = cfg.mark;
+    const marksKeys = Object.keys(marks || {}) as (keyof MarkSet)[];
 
-    if (!marks || Object.keys(marks).length === 0) {
+    if (marksKeys.length === 0) {
 
         return;
 
     }
 
-    for (const index in marks) {
+    for (const index of marksKeys) {
 
-        const markName = marks[index as MindMarkTypes];
+        const markName = marks[index];
         genMarkShape({
             markName,
-            markType : index as MindMarkTypes,
+            markType : index,
             ...options,
         });
 
@@ -473,8 +476,6 @@ const linkStateChange = (options: StateChangeOptions): void => {
         states,
         style,
     } = options;
-
-    console.log('linkStateChange');
 
     if (cfg.link) {
 
@@ -645,7 +646,7 @@ const foldStateChange = (options: StateChangeOptions): void => {
 
     if (
         states.indexOf('children-folded') !== -1
-        || cfg._isFolded
+        || cfg.folded
     ) {
 
         foldBtnGroupStateUpdate(elements, true);
@@ -666,7 +667,7 @@ const markStateChange = (options: StateChangeOptions): void => {
         states,
         style,
     } = options;
-    const markTypes = Object.keys(cfg.mark || {});
+    const markTypes = Object.keys(cfg.mark || {}) as (keyof MarkSet)[];
 
     if (markTypes.length > 0) {
 
@@ -734,7 +735,7 @@ export const mindNodeAdjustPosition = (
     // const conPaddingY = style.fontSize * 0.75;
     const textBBox = elements.text.getBBox();
     const conHeight = textBBox.height + (style.paddingY * 2);
-    const markTypes = Object.keys(cfg.mark || {}) as MindMarkTypes[];
+    const markTypes = Object.keys(cfg.mark || {}) as (keyof MarkSet)[];
 
     let textOffsetX = 0;
     let appendConGroupBbox = elements.appendConGroup.getBBox();
@@ -758,13 +759,15 @@ export const mindNodeAdjustPosition = (
             const markConWidth = markIconBBox.width + (style.markConPadding * 2) + (style.markIconBorder * 2);
 
             markCon.attr({
-                x : ((markConWidth + style.markConMarginRight) * Number(index)) + style.paddingX - style.markConPadding - style.markIconBorder,
+                x : (
+                    (markConWidth + style.markConMarginRight) * Number(index)
+                ) + style.paddingX - style.markConPadding - style.markIconBorder,
                 y : (conHeight / 2) - (markIconBBox.height / 2) - style.markConPadding - style.markIconBorder,
                 width : markConWidth,
                 height : markIconBBox.height + (style.markConPadding * 2) + (style.markIconBorder * 2),
             });
 
-            const markConBBox = markCon.getBBox();
+            const markConBBox = getBBox(markCon);
 
             // markCon.attr({
             //     radius : markConBBox.width / 2,
@@ -786,7 +789,7 @@ export const mindNodeAdjustPosition = (
 
             markIconBBox = markIcon.getBBox();
 
-            const markTextBBox = markIconCon.getBBox();
+            // const markTextBBox = getBBox(markIconCon);
             const markTextOffsetY = markText.attr('textOffsetY') || 0;
 
             markText.attr({
@@ -796,7 +799,7 @@ export const mindNodeAdjustPosition = (
 
         }
 
-        markConGroupBBox = elements.markConGroup.getBBox();
+        markConGroupBBox = getBBox(elements.markConGroup);
         conWidth += markConGroupBBox.width + style.markConGroupMarginRight;
         textOffsetX += markConGroupBBox.width + style.markConGroupMarginRight;
 
@@ -861,7 +864,7 @@ export const mindNodeAdjustPosition = (
         y : (textBBox.height / 2) + style.paddingY,
     });
 
-    const foldBtnBBox = elements['foldBtnGroup.circle'].getBBox();
+    const foldBtnBBox = getBBox(elements['foldBtnGroup.circle']);
 
     elements['foldBtnGroup.icon'].attr({
         x : foldBtnBBox.maxX - (foldBtnBBox.width / 2),
@@ -876,9 +879,9 @@ export const mindNodeAdjustPosition = (
             tagConGroup : elements.tagConGroup as IShape,
         }, cfg, mindmap);
 
-        const tagConGroupBbox = elements.tagConGroup.getBBox();
+        const tagConGroupBbox = getBBox(elements.tagConGroup);
 
-        boxBBox = elements.box.getBBox();
+        boxBBox = getBBox(elements.box);
 
         // box增加tags的高度和宽度
         elements.box.attr({
@@ -887,7 +890,7 @@ export const mindNodeAdjustPosition = (
         });
 
         // 调整锚点至居中
-        boxBBox = elements.box.getBBox();
+        boxBBox = getBBox(elements.box);
         cfg.anchorPoints[0] = [0, (conBBox.height / 2) / boxBBox.height];
         cfg.anchorPoints[1] = [conBBox.width / boxBBox.width, (conBBox.height / 2) / boxBBox.height];
 
@@ -951,19 +954,17 @@ export const getMindNode = (mindmap: MindmapCoreL0Type): MindShapeOptions => ({
         });
 
         mindNodeAdjustPosition(shapes as MindNodeElements, cfg, mindmap);
-        foldBtnGroupStateUpdate(shapes, cfg._isFolded);
+        foldBtnGroupStateUpdate(shapes, cfg.folded);
 
         return shapes.box as IShape;
 
     },
     setState : (name, value, item): void => {
 
-        console.log('setState');
-
-        const cfg = item.getModel() as MindmapNodeItem;
+        const cfg = getModel(item);
         const states = item.getStates();
-        const box: IShapeBase = item.get('keyShape');
-        const group = box.getParent();
+        const box = item.get('keyShape') as IShape;
+        const group = box.getParent() as IGroup;
         const elements: MindNodeElements = {
             outline : group.getChildByIndex(_NODE_SHAPE_INDEX.outline),
             markConGroup : group.getChildByIndex(_NODE_SHAPE_INDEX.markConGroup),

@@ -4,22 +4,23 @@ import {
 import {
     EventOptions,
     MindmapNodeItem,
+    MindMarkTypes,
     MarkSet,
 }                                               from '../interface';
 import {
     inAnnex,
 }                                               from '../base/utils';
 import {
-    APPENDS_LIST,
-}                                               from '../base/const';
-import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     click : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel() as MindmapNodeItem;
+        const model = getModel(evt.item);
 
         if (!model._isNode) {
 

@@ -1,6 +1,7 @@
 import {
     MindmapNodeItem,
     MindmapDataItem,
+    TraverseItemOptions,
 }                                               from '../interface';
 import globalData                               from '../base/globalData';
 
@@ -29,43 +30,48 @@ import globalData                               from '../base/globalData';
 // --------------
 
 // TODO left node props: 
-// ITEM INCLUEDS:
-//      tag : 标签
-//      note : 备注
-//      mark : 标记(用户设置)
 // PRIVATE >>>
 //      _shapeStyle : 计算完的图形样式
 //      _origin : 原始数据
-//      _mark : 标记(经过转换后)
 // for TODO :
 // shapeStyle : 使用的图形样式（用户设置）；未启用；
 
-export const traverseOneItem = (item: MindmapDataItem): MindmapNodeItem => {
+export const traverseOneItem = (item: MindmapDataItem, options: TraverseItemOptions = {}): MindmapNodeItem => {
 
-    const globalId = globalData.id;
-    const id = item.id || String(globalData.id++);
+    // TODO : type diff when node is root
+    // TODO : root 计算不能按照id
+
+    const id = String(globalData.id++);
     const nodeItem: MindmapNodeItem = {
         id,
-        children : [],
-        _foldedChildren : item._foldedChildren || [],
+        type : options.type || 'mind-node',
         // eslint-disable-next-line no-magic-numbers
         anchorPoints : [[0, 0.5], [1, 0.5]],
+
         style : {},
-        // TODO : type diff when node is root
-        type : 'mind-node',
+
         text : item.text || '新的节点',
         link : item.link || null,
         note : item.note || null,
         tag : item.tag || null,
         mark : item.mark || null,
-        _isRoot : id === 1,
+        children : [],
+        folded : item.folded || false,
+
+        _isRoot : id === '1',
         _isNode : true,
         _isDragging : false,
-        _isHolder : false,
-        _isFolded : item._isFolded || false,
+        _isHolder : options.holder || false,
+        _foldedChildren : [],
     };
 
     nodeItem._originChildren = item.children;
+
+    if (options.empty) {
+
+        delete nodeItem.text;
+
+    }
 
     return nodeItem;
 
@@ -86,6 +92,14 @@ export const traverseData = (data: MindmapDataItem): MindmapNodeItem => {
             }
 
             nodeData.children[index] = traverseData(nodeData._originChildren[index]);
+
+        }
+
+        // 如果节点是折叠的
+        if (nodeData.folded) {
+
+            nodeData._foldedChildren = nodeData.children;
+            nodeData.children = [];
 
         }
 

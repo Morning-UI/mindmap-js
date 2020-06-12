@@ -1,4 +1,7 @@
 import {
+    INode,
+}                                               from '@antv/g6/lib/interface/item';
+import {
     NodeIds,
     MindmapNodeItem,
     MindmapCoreL0Ctor,
@@ -8,9 +11,11 @@ import {
 }                                               from '../interface';
 import {
     fillNodeIds,
-    pluckDataFromNodes,
-    dataItemGetter,
 }                                               from '../base/utils';
+import {
+    dataItemGetter,
+    pluckDataFromModels,
+}                                               from '../utils/dataGetter';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
@@ -18,7 +23,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         getAllSelectedNodeIds (): NodeId[] {
 
-            const nodes = this.graph.findAllByState('node', 'selected');
+            const nodes = this.graph.findAllByState<INode>('node', 'selected');
             const nodeIds = [];
 
             for (const node of nodes) {
@@ -28,6 +33,12 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             }
 
             return nodeIds;
+
+        }
+
+        getSelectedNodeId (): NodeId {
+
+            return this.getAllSelectedNodeIds()[0];
 
         }
 
@@ -45,18 +56,13 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
-        getSelectedNodeId (): NodeId {
-
-            return this.getAllSelectedNodeIds()[0];
-
-        }
-
         getSelectedNodeDetail (): MindmapDataItem {
 
             return this.getAllSelectedNodeDetails()[0];
 
         }
 
+        // TODO : detail和data的区别
         getNodeDetail (nodeIds: NodeIds): MindmapDataItem|MindmapDataItem[] {
 
             const ids = fillNodeIds(nodeIds);
@@ -68,7 +74,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             }
 
-            const details = pluckDataFromNodes(nodeModels, dataItemGetter, this);
+            const details = pluckDataFromModels(nodeModels, dataItemGetter, this);
 
             if (nodeModels.length <= 1) {
 

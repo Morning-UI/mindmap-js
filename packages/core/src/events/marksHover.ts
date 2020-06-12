@@ -4,6 +4,7 @@ import {
 import {
     EventOptions,
     MindmapNodeItem,
+    MarkSet,
 }                                               from '../interface';
 import {
     inAnnex,
@@ -14,11 +15,17 @@ import {
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     move : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel() as MindmapNodeItem;
+        const model = getModel(evt.item);
 
         if (!model._isNode) {
 
@@ -26,7 +33,7 @@ export default {
 
         }
 
-        const markTypes = Object.keys(model.mark || {});
+        const markTypes = Object.keys(model.mark || {}) as (keyof MarkSet)[];
 
         if (markTypes.length > 0) {
 
@@ -36,11 +43,11 @@ export default {
 
                 if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.markConGroup, index)) {
 
-                    options.graph.setItemState(evt.item, `mark-hover:${index / 4}`, true);
+                    setItemState(options.graph, evt.item.get('id'), `mark-hover:${index / 4}`, true);
 
                 } else {
 
-                    options.graph.setItemState(evt.item, `mark-hover:${index / 4}`, false);
+                    setItemState(options.graph, evt.item.get('id'), `mark-hover:${index / 4}`, false);
 
                 }
 
@@ -50,5 +57,5 @@ export default {
 
         }
 
-    }
+    },
 };

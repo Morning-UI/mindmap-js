@@ -1,13 +1,13 @@
 import { MindMarkTypes, } from '../interface';
 import { MARKS_STYLE, } from '../style';
 export var markBuilder = {
-    tag: function () {
-        return {
-            text: {
+    tag: function () { return ({
+        text: {
+            attrs: {
                 cursor: 'pointer',
             },
-        };
-    },
+        },
+    }); },
     priority: function (options, markKey) {
         return {
             text: {

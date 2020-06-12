@@ -11,7 +11,8 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { fillNodeIds, pluckDataFromNodes, dataItemGetter, } from '../base/utils';
+import { fillNodeIds, } from '../base/utils';
+import { dataItemGetter, pluckDataFromModels, } from '../utils/dataGetter';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
@@ -28,6 +29,9 @@ export default (function (Base) {
             }
             return nodeIds;
         };
+        class_1.prototype.getSelectedNodeId = function () {
+            return this.getAllSelectedNodeIds()[0];
+        };
         class_1.prototype.getAllSelectedNodeDetails = function () {
             var ids = this.getAllSelectedNodeIds();
             if (ids.length <= 1) {
@@ -35,12 +39,10 @@ export default (function (Base) {
             }
             return this.getNodeDetail(ids);
         };
-        class_1.prototype.getSelectedNodeId = function () {
-            return this.getAllSelectedNodeIds()[0];
-        };
         class_1.prototype.getSelectedNodeDetail = function () {
             return this.getAllSelectedNodeDetails()[0];
         };
+        // TODO : detail和data的区别
         class_1.prototype.getNodeDetail = function (nodeIds) {
             var ids = fillNodeIds(nodeIds);
             var nodeModels = [];
@@ -48,7 +50,7 @@ export default (function (Base) {
                 var id = ids_1[_i];
                 nodeModels.push(this.graph.findById(id).getModel());
             }
-            var details = pluckDataFromNodes(nodeModels, dataItemGetter, this);
+            var details = pluckDataFromModels(nodeModels, dataItemGetter, this);
             if (nodeModels.length <= 1) {
                 return details[0];
             }

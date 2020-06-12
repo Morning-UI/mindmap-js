@@ -3,7 +3,6 @@ import {
 }                                               from '@antv/g6/lib/types';
 import {
     EventOptions,
-    // MindmapNodeItem,
 }                                               from '../interface';
 import {
     inAnnex,
@@ -14,11 +13,14 @@ import {
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     click : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel();
+        const model = getModel(evt.item);
 
         if (!model._isNode) {
 

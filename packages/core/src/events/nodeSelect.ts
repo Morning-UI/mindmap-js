@@ -22,12 +22,18 @@ import {
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     select : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel() as MindmapNodeItem;
-        const children = model._isFolded ? model._foldedChildren : model.children;
+        const model = getModel(evt.item);
+        const children = model.folded ? model._foldedChildren : model.children;
         const group = evt.item.get('group') as IGroup;
 
         if (children && children.length > 0) {
@@ -52,11 +58,11 @@ export default {
 
                 if (evt.item.getStates().indexOf('selected') !== -1) {
 
-                    options.graph.setItemState(evt.item, 'selected', false);
+                    setItemState(options.graph, evt.item.get('id'), 'selected', false);
 
                 } else {
 
-                    options.graph.setItemState(evt.item, 'selected', true);
+                    setItemState(options.graph, evt.item.get('id'), 'selected', true);
 
                 }
 
@@ -68,7 +74,7 @@ export default {
 
             if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
 
-                options.graph.setItemState(evt.item, 'selected', true);
+                setItemState(options.graph, evt.item.get('id'), 'selected', true);
 
             }
 

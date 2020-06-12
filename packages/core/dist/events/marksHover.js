@@ -1,8 +1,10 @@
 import { inAnnex, } from '../base/utils';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
+import { setItemState, } from '../utils/setItemState';
+import { getModel, } from '../utils/G6Ext';
 export default {
     move: function (evt, options) {
-        var model = evt.item.getModel();
+        var model = getModel(evt.item);
         if (!model._isNode) {
             return;
         }
@@ -11,13 +13,13 @@ export default {
             var index = (markTypes.length * 4) - 4;
             while (index >= 0) {
                 if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.markConGroup, index)) {
-                    options.graph.setItemState(evt.item, "mark-hover:" + index / 4, true);
+                    setItemState(options.graph, evt.item.get('id'), "mark-hover:" + index / 4, true);
                 }
                 else {
-                    options.graph.setItemState(evt.item, "mark-hover:" + index / 4, false);
+                    setItemState(options.graph, evt.item.get('id'), "mark-hover:" + index / 4, false);
                 }
                 index -= 4;
             }
         }
-    }
+    },
 };

@@ -11,6 +11,9 @@ import {
 import {
     fillNodeIds,
 }                                               from '../base/utils';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
 
 const foldChildren = (mindmap: MindmapCoreL0Type, node: INode, fold: boolean|undefined): void => {
 
@@ -37,7 +40,7 @@ const foldChildren = (mindmap: MindmapCoreL0Type, node: INode, fold: boolean|und
 
     }
 
-    mindmap.graph.setItemState(node, 'children-fold', _fold);
+    setItemState(mindmap.graph, node.get('id'), 'children-fold', _fold);
 
 };
 

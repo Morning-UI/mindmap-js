@@ -2,11 +2,12 @@ import { ContextMenuTypes, } from '../interface';
 import { inAnnex, } from '../base/utils';
 import { APPENDS_LIST, } from '../base/const';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
+import { getModel, } from '../utils/G6Ext';
 export default {
     show: function (evt, options) {
         var _a = options.graph.getCanvasByPoint(evt.x, evt.y), canvasX = _a.x, canvasY = _a.y;
         if (evt.item) {
-            var model = evt.item.getModel();
+            var model = getModel(evt.item);
             if (!model._isNode) {
                 return;
             }

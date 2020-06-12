@@ -92,7 +92,6 @@ export var MindMarkTypes;
     MindMarkTypes["Flag"] = "flag";
     MindMarkTypes["Person"] = "person";
 })(MindMarkTypes || (MindMarkTypes = {}));
-;
 export var DownloadType;
 (function (DownloadType) {
     DownloadType["Png"] = "png";
@@ -102,3 +101,12 @@ export var DownloadType;
     DownloadType["Xmind"] = "xmind";
     DownloadType["Json"] = "json";
 })(DownloadType || (DownloadType = {}));
+export var XmindMarkerMethods;
+(function (XmindMarkerMethods) {
+    XmindMarkerMethods["Tag"] = "tag";
+    XmindMarkerMethods["Priority"] = "priority";
+    XmindMarkerMethods["Task"] = "task";
+    XmindMarkerMethods["Star"] = "star";
+    XmindMarkerMethods["Flag"] = "flag";
+    XmindMarkerMethods["Person"] = "people";
+})(XmindMarkerMethods || (XmindMarkerMethods = {}));

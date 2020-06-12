@@ -12,6 +12,7 @@ var __assign = (this && this.__assign) || function () {
 import { genNodeStyles, getAppends, appendConGroupAdjustPosition, tagConGroupAdjustPosition, genMarkShape, } from '../base/utils';
 import { APPENDS_LIST, } from '../base/const';
 import { ROOT_MIND_NODE_STYLE, MIND_NODE_STYLE, MARKS_STYLE, } from '../style';
+import { getBBox, getModel, } from '../utils/G6Ext';
 var _NODE_SHAPE_INDEX = {};
 var DEBUG_BOX_SIZING = false;
 var nodeShapeIndex = 0;
@@ -153,7 +154,7 @@ var initFoldBtn = function (options) {
         },
     });
     // 如果没有子节点不显示按钮
-    var children = cfg._isFolded ? cfg._foldedChildren : cfg.children;
+    var children = cfg.folded ? cfg._foldedChildren : cfg.children;
     if (!children || children.length === 0) {
         shapes['foldBtnGroup.circle'].attr({
             fillOpacity: 0,
@@ -248,7 +249,7 @@ var initNodeTags = function (options) {
                     text: "+" + (tags.length - tagNum + 1),
                 });
             }
-            var tagTextBbox = tagText.getBBox();
+            var tagTextBbox = getBBox(tagText);
             tagCon.attr({
                 width: tagTextBbox.width + (style.tagPaddingX * 2),
                 height: tagTextBbox.height + (style.tagPaddingY * 2),
@@ -262,10 +263,12 @@ var initNodeTags = function (options) {
 var initNodeMarks = function (options) {
     var cfg = options.cfg;
     var marks = cfg.mark;
-    if (!marks || Object.keys(marks).length === 0) {
+    var marksKeys = Object.keys(marks || {});
+    if (marksKeys.length === 0) {
         return;
     }
-    for (var index in marks) {
+    for (var _i = 0, marksKeys_1 = marksKeys; _i < marksKeys_1.length; _i++) {
+        var index = marksKeys_1[_i];
         var markName = marks[index];
         genMarkShape(__assign({ markName: markName, markType: index }, options));
     }
@@ -301,7 +304,6 @@ var outlineStateChange = function (options) {
 };
 var linkStateChange = function (options) {
     var appendElements = options.elements, cfg = options.cfg, states = options.states, style = options.style;
-    console.log('linkStateChange');
     if (cfg.link) {
         if (states.indexOf('link-hover') !== -1) {
             appendElements.linkCon.attr({
@@ -409,7 +411,7 @@ var foldStateChange = function (options) {
         });
     }
     if (states.indexOf('children-folded') !== -1
-        || cfg._isFolded) {
+        || cfg.folded) {
         foldBtnGroupStateUpdate(elements, true);
     }
     else {
@@ -482,7 +484,7 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
                 width: markConWidth,
                 height: markIconBBox.height + (style.markConPadding * 2) + (style.markIconBorder * 2),
             });
-            var markConBBox = markCon.getBBox();
+            var markConBBox = getBBox(markCon);
             // markCon.attr({
             //     radius : markConBBox.width / 2,
             // });
@@ -499,14 +501,14 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
                 y: markIconConBBox.y + (MARKS_STYLE[markKey].borderWidth / 2) + style.markIconBorder,
             });
             markIconBBox = markIcon.getBBox();
-            var markTextBBox = markIconCon.getBBox();
+            // const markTextBBox = getBBox(markIconCon);
             var markTextOffsetY = markText.attr('textOffsetY') || 0;
             markText.attr({
                 x: markIconBBox.x + (markIconBBox.width / 2),
                 y: markIconBBox.y + (markIconBBox.height / 2) + markTextOffsetY,
             });
         }
-        markConGroupBBox = elements.markConGroup.getBBox();
+        markConGroupBBox = getBBox(elements.markConGroup);
         conWidth += markConGroupBBox.width + style.markConGroupMarginRight;
         textOffsetX += markConGroupBBox.width + style.markConGroupMarginRight;
     }
@@ -557,7 +559,7 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
         x: boxBBox.maxX,
         y: (textBBox.height / 2) + style.paddingY,
     });
-    var foldBtnBBox = elements['foldBtnGroup.circle'].getBBox();
+    var foldBtnBBox = getBBox(elements['foldBtnGroup.circle']);
     elements['foldBtnGroup.icon'].attr({
         x: foldBtnBBox.maxX - (foldBtnBBox.width / 2),
         y: foldBtnBBox.maxY - (foldBtnBBox.height / 2),
@@ -568,15 +570,15 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
             con: elements.con,
             tagConGroup: elements.tagConGroup,
         }, cfg, mindmap);
-        var tagConGroupBbox = elements.tagConGroup.getBBox();
-        boxBBox = elements.box.getBBox();
+        var tagConGroupBbox = getBBox(elements.tagConGroup);
+        boxBBox = getBBox(elements.box);
         // box增加tags的高度和宽度
         elements.box.attr({
             height: boxBBox.height + tagConGroupBbox.height + style.tagMarginTop,
             width: Math.max(boxBBox.width, tagConGroupBbox.width),
         });
         // 调整锚点至居中
-        boxBBox = elements.box.getBBox();
+        boxBBox = getBBox(elements.box);
         cfg.anchorPoints[0] = [0, (conBBox.height / 2) / boxBBox.height];
         cfg.anchorPoints[1] = [conBBox.width / boxBBox.width, (conBBox.height / 2) / boxBBox.height];
     }
@@ -628,12 +630,11 @@ export var getMindNode = function (mindmap) { return ({
             style: style,
         });
         mindNodeAdjustPosition(shapes, cfg, mindmap);
-        foldBtnGroupStateUpdate(shapes, cfg._isFolded);
+        foldBtnGroupStateUpdate(shapes, cfg.folded);
         return shapes.box;
     },
     setState: function (name, value, item) {
-        console.log('setState');
-        var cfg = item.getModel();
+        var cfg = getModel(item);
         var states = item.getStates();
         var box = item.get('keyShape');
         var group = box.getParent();

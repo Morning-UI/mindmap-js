@@ -11,21 +11,27 @@ import {
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     move : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel() as MindmapNodeItem;
+        const model = getModel(evt.item);
 
         if (model._isNode) {
 
             if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
 
-                options.graph.setItemState(evt.item, 'hover', true);
+                setItemState(options.graph, evt.item.get('id'), 'hover', true);
 
             } else {
 
-                options.graph.setItemState(evt.item, 'hover', false);
+                setItemState(options.graph, evt.item.get('id'), 'hover', false);
 
             }
 

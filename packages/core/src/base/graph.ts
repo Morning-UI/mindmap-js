@@ -2,6 +2,8 @@ import * as G6                                  from '@antv/g6';
 import * as G6Graph                             from '@antv/g6/lib/interface/graph';
 import {
     IG6GraphEvent,
+    GraphOptions,
+    ModeType,
 }                                               from '@antv/g6/lib/types';
 import {
     INode,
@@ -32,6 +34,9 @@ import {
 import {
     getNodeBrushSelectBehavior,
 }                                               from '../behavior/nodeBrushSelect';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 import bindNodeHover                            from '../events/nodeHover';
 import bindNodeSelect                           from '../events/nodeSelect';
 import bindNodeEdit                             from '../events/nodeEdit';
@@ -80,7 +85,7 @@ const _nodeEventShouldEmit = (evt: IG6GraphEvent): boolean => {
 
     }
 
-    const model = evt.item.getModel() as MindmapNodeItem;
+    const model = getModel(evt.item);
 
     // model.collapse
     if (model._isDragging) {
@@ -110,7 +115,9 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
         nodeVGap : 6,
         maxShowTagNum : 4,
         direction : 'LR',
+        // eslint-disable-next-line no-magic-numbers
         minZoom : 0.2,
+        // eslint-disable-next-line no-magic-numbers
         maxZoom : 1.5,
 
         $canvas : options.$con.querySelector('.mindmap-canvas'),
@@ -127,8 +134,8 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
 
         ...options,
     };
-    const modes: string[] = [];
     const plugins = [];
+    const modes: ModeType[] = [];
 
     _options.width = convertSize('width', _options.width, _options.$con);
     _options.height = convertSize('height', _options.height, _options.$con);
@@ -175,7 +182,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
 
     }
 
-    const graphOptions: G6Graph.GraphOptions = {
+    const graphOptions: GraphOptions = {
         container : _options.$canvas,
         width : _options.width,
         height : _options.height,
@@ -198,7 +205,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
                 if (
                     !node
                     || (node && node.destroyed)
-                    || (node && (node.getModel() as MindmapNodeItem)._isDragging)
+                    || (node && getModel(node)._isDragging)
                 ) {
 
                     return 0;
@@ -215,7 +222,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
                 if (
                     !node
                     || (node && node.destroyed)
-                    || (node && node.getModel()._isDragging)
+                    || (node && getModel(node)._isDragging)
                 ) {
 
                     return 0;
@@ -232,7 +239,7 @@ export const create = (mindmap: MindmapCoreType, options: MindmapCreateOptions):
                 if (
                     !node
                     || (node && node.destroyed)
-                    || (node && (node.getModel() as MindmapNodeItem)._isDragging)
+                    || (node && getModel(node)._isDragging)
                 ) {
 
                     return 0;
@@ -316,10 +323,6 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
     });
 
     graph.on('canvas:mousemove', (evt: IG6GraphEvent): void => {
-
-        // bindAppendsHover.stop(evt, {
-        //     graph,
-        // });
 
         bindFoldBtnHover.stop(evt, {
             graph,
@@ -492,7 +495,6 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
     });
 
     graph.on('zoom', (evt: IG6GraphEvent): void => {
-
 
         // bindAppendsClick.stop(evt, {
         //     vm,

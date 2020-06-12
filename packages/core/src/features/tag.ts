@@ -14,6 +14,9 @@ import {
 import {
     fillNodeIds,
 }                                               from '../base/utils';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
 
 const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
@@ -23,7 +26,7 @@ const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
         if ((/^tag-hover/u).test(state)) {
 
-            graph.setItemState(node, state, false);
+            setItemState(graph, node.get('id'), state, false);
 
         }
 

@@ -1,14 +1,18 @@
-import { MindmapCoreL2Ctor, MindmapNodeItem, NodeId, MindmapCoreL2Type, DownloadType } from '../interface';
-declare const _default: <TBase extends MindmapCoreL2Ctor<MindmapCoreL2Type>>(Base: TBase) => {
+import { MindmapCoreL2Ctor, MindmapNodeItem, NodeId, DownloadType, MindMarkTypes } from '../interface';
+declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").MindmapCoreL2Type>>(Base: TBase) => {
     new (...args: any[]): {
+        _screenshotting(shotting: boolean): void;
         exportToObject(nodeId: NodeId): MindmapNodeItem[];
+        downloadPng(nodeId?: NodeId): this;
+        downloadWebp(nodeId?: NodeId): this;
+        downloadJpeg(nodeId?: NodeId): this;
+        downloadBmp(nodeId?: NodeId): this;
         downloadFile(nodeId: NodeId | DownloadType, type: DownloadType): this;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
-        screenshotting: boolean;
         editElements: import("../interface").MindNodeElements;
         editNode: import("@antv/g6/lib/types").Item;
         editContent: string;
@@ -37,17 +41,17 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<MindmapCoreL2Type>>(Bas
         emit(eventName: import("../interface").EventNames): any;
         showLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
+        _updateZoomValue(): any;
         zoom(zoom: number): any;
         getZoom(): number;
         fitZoom(): any;
-        _updateZoomValue(): any;
-        getAllSelectedNodeIds(): (string | number)[];
+        getAllSelectedNodeIds(): string[];
         getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
-        getSelectedNodeId(): string | number;
+        getSelectedNodeId(): string;
         getSelectedNodeDetail(): import("../interface").MindmapDataItem;
         getNodeDetail(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
-        getRootNodeId(): string | number;
-        getAllNodeIds(): (string | number)[];
+        getRootNodeId(): string;
+        getAllNodeIds(): string[];
         foldToggle(nodeIds: import("../interface").NodeIds, fold: boolean): any;
         fold(nodeIds: import("../interface").NodeIds): any;
         unfold(nodeIds: import("../interface").NodeIds): any;
@@ -68,7 +72,7 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<MindmapCoreL2Type>>(Bas
         tagAll(nodeIds: import("../interface").NodeIds, tags: string | string[]): any;
         untag(nodeIds: import("../interface").NodeIds, untags: string | string[]): any;
         untagByIndex(nodeIds: import("../interface").NodeIds, index: number): any;
-        showEditMark(nodeIds: import("../interface").NodeIds, markType: import("../interface").MindMarkTypes): any;
+        showEditMark(nodeIds: import("../interface").NodeIds, markType: MindMarkTypes): any;
         hideEditMark(): any;
         getCurrentEditMarkNodeIds(): import("../interface").NodeIds;
         getCurrentEditMarkValue(): import("../interface").MindMarks;
@@ -88,8 +92,11 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<MindmapCoreL2Type>>(Bas
         menuItemTagDelete(): void;
         menuItemMarkEdit(evt: MouseEvent): void;
         menuItemMarkDelete(): void;
+        copyNodeToClipboard(nodeIds: import("../interface").NodeIds): string;
+        copyNode(nodeIds: import("../interface").NodeIds): MindmapNodeItem | MindmapNodeItem[];
+        getClipboard(): string;
         removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: string | number, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        insertSubNode(nodeId: string, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
         readData(data: import("../interface").MindmapDataItem): any;
     };
 } & TBase;

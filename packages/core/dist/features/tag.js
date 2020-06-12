@@ -13,12 +13,13 @@ var __extends = (this && this.__extends) || (function () {
 })();
 import difference from 'lodash.difference';
 import { fillNodeIds, } from '../base/utils';
+import { setItemState, } from '../utils/setItemState';
 var cleanTagHoverState = function (graph, node) {
     var states = node.getStates();
     for (var _i = 0, states_1 = states; _i < states_1.length; _i++) {
         var state = states_1[_i];
         if ((/^tag-hover/u).test(state)) {
-            graph.setItemState(node, state, false);
+            setItemState(graph, node.get('id'), state, false);
         }
     }
 };

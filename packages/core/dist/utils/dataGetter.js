@@ -9,6 +9,7 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+import { XMIND_MARKER_MAP, } from '../base/const';
 export var dataItemGetter = {
     text: function (model) { return model.text; },
     link: function (model) { return model.link; },
@@ -21,25 +22,41 @@ export var dataItemGetter = {
         }
         return undefined;
     },
-    _isFolded: function (model) { return model._isFolded; },
-    _foldedChildren: function (model, callback, getter, mindmap) {
-        if (model._foldedChildren) {
-            return callback(model._foldedChildren, getter, mindmap);
-        }
-        return undefined;
-    },
+    folded: function (model) { return model.folded; },
 };
-export var nodeItemGetter = __assign(__assign({}, dataItemGetter), { id: function (model) { return model.id; }, anchorPoints: function (model) { return model.anchorPoints; }, style: function (model) { return model.style; }, type: function (model) { return model.type; }, children: function (model, callback, getter, mindmap) {
+export var nodeItemGetter = __assign(__assign({}, dataItemGetter), { id: function (model) { return model.id; }, type: function (model) { return model.type; }, anchorPoints: function (model) { return model.anchorPoints; }, children: function (model, callback, getter, mindmap) {
         if (model.children) {
             return callback(model.children, getter, mindmap);
         }
         return undefined;
-    }, _foldedChildren: function (model, callback, getter, mindmap) {
-        if (model._foldedChildren) {
-            return callback(model._foldedChildren, getter, mindmap);
+    }, style: function (model) { return model.style; } });
+export var xmindItemGetter = {
+    title: function (model) { return model.text; },
+    note: function (model) { return model.note; },
+    href: function (model) { return model.link; },
+    labels: function (model) { return model.tag; },
+    branch: function (model) { return (model.folded ? 'folded' : undefined); },
+    marker: function (model) {
+        var markTypes = Object.keys(model.mark || {});
+        if (markTypes.length === 0) {
+            return {};
+        }
+        var marker = {};
+        for (var _i = 0, markTypes_1 = markTypes; _i < markTypes_1.length; _i++) {
+            var mark = markTypes_1[_i];
+            var item = XMIND_MARKER_MAP[mark][model.mark[mark]];
+            marker[item.method] = item.name;
+        }
+        return marker;
+    },
+    children: function (model, callback, getter, mindmap) {
+        var children = model.folded ? model._foldedChildren : model.children;
+        if (children) {
+            return callback(children, getter, mindmap);
         }
         return undefined;
-    }, _isRoot: function (model) { return model._isRoot; }, _isNode: function (model) { return model._isNode; } });
+    },
+};
 export var pluckDataFromModels = function (models, getter, mindmap) {
     var targetData = [];
     var _models = models;

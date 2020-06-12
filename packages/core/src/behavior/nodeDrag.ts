@@ -3,7 +3,6 @@ import {
     BehaviorOption,
     IG6GraphEvent,
     IBBox,
-    Item,
 }                                               from '@antv/g6/lib/types';
 import {
     INode,
@@ -31,6 +30,14 @@ import {
     toggleNodeVisibility,
 }                                               from '../base/utils';
 import globalData                               from '../base/globalData';
+import {
+    getModel,
+    getBBox,
+    findNodeById,
+}                                               from '../utils/G6Ext';
+import {
+    traverseOneItem,
+}                                               from '../utils/traverseData';
 
 let dragTarget: DragTarget = null;
 let dragHolderParentModel: MindmapNodeItem = null;
@@ -52,7 +59,7 @@ const udpateOneDragTarget = (
         dragTarget.originNodeStyle[index] = {
             height : node.getBBox().height,
         };
-        dragTarget.saveModel[index] = node.getModel() as MindmapNodeItem;
+        dragTarget.saveModel[index] = getModel(node);
         node.setState('dragging', true);
         node.update({
             _isDragging : true,
@@ -61,7 +68,7 @@ const udpateOneDragTarget = (
             }, node.getModel().style),
         });
 
-        toggleNodeVisibility(node as INode, 'hide', (type, model) => {
+        toggleNodeVisibility(node, 'hide', (type, model) => {
 
             if (type === 'hide') {
 
@@ -87,7 +94,7 @@ const udpateOneDragTarget = (
             }, nodeModel.style),
         });
 
-        toggleNodeVisibility(node as INode, 'show', (type, model) => {
+        toggleNodeVisibility(node, 'show', (type, model) => {
 
             if (type === 'hide') {
 
@@ -104,7 +111,7 @@ const udpateOneDragTarget = (
         let appendIndexOfParent = _dragHolderIndexOfParent;
 
         // 如果父节点处于折叠状态，则默认追加到最后
-        if (dragHolderParentModel._isFolded) {
+        if (dragHolderParentModel.folded) {
 
             appendIndexOfParent = -1;
 
@@ -129,13 +136,13 @@ const updateDragTarget = (mindmap: MindmapCoreType, dragging = false): void => {
 
     if (!dragging && dragTarget.hidden) {
 
-        const dragNodes = mindmap.graph.findAllByState('node', 'dragging') as INode[];
+        const dragNodes = mindmap.graph.findAllByState<INode>('node', 'dragging');
 
         for (const node of dragNodes) {
 
-            const parentNodeModel = node.getInEdges()[0].getSource().getModel();
+            const parentNodeModel = getModel(node.getInEdges()[0].getSource());
             const parentNodeDataChildren = parentNodeModel.children;
-            const model = node.getModel() as MindmapNodeItem;
+            const model = getModel(node);
             const index = parentNodeDataChildren.indexOf(model);
 
             if (
@@ -180,7 +187,7 @@ const updateDragTarget = (mindmap: MindmapCoreType, dragging = false): void => {
         dragHolderIndexOfParent += targetNodes.length;
 
         // 如果父节点处于折叠状态，永远都是0
-        if (dragHolderParentModel._isFolded) {
+        if (dragHolderParentModel.folded) {
 
             dragHolderIndexOfParent = 0;
 
@@ -196,7 +203,7 @@ const updateDragTarget = (mindmap: MindmapCoreType, dragging = false): void => {
 
 const fillChildBBox = (mindmap: MindmapCoreType, bbox: IBBox, node: INode): IBBox => {
 
-    const model = node.getModel() as MindmapNodeItem;
+    const model = getModel(node);
 
     bbox.conMaxX = bbox.maxX;
     bbox.conMinX = bbox.minX;
@@ -271,7 +278,7 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
     // }
 
     const nodes = mindmap.graph.getNodes();
-    const delegateBbox = delegateShape.getBBox() as IBBox;
+    const delegateBbox = getBBox(delegateShape);
     const matchOptions: {
         node?: INode;
         mode?: 'childN';
@@ -303,7 +310,7 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
     // Child[n] : 作为子元素，centerX > Parent.centerX
     for (const node of distanceNodes) {
 
-        const model = node.getModel() as MindmapNodeItem;
+        const model = getModel(node);
 
         if (node === targetNode
             || model._isHolder
@@ -340,7 +347,7 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
 
             for (const index in children) {
 
-                const childData = children[index] as MindmapNodeItem;
+                const childData = children[index];
                 const childBbox = mindmap.graph.findById(childData.id).getBBox();
 
                 if (!childData._isHolder && delegateBbox.centerY > childBbox.centerY) {
@@ -377,7 +384,7 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
     if (matchOptions.node) {
 
         // 创建新的placeholder
-        const model = matchOptions.node.getModel() as MindmapNodeItem;
+        const model = getModel(matchOptions.node);
 
         // 仅寻找可见的子元素(不考虑折叠的子元素)
         if (model.children === undefined) {
@@ -387,23 +394,21 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
         }
 
         dragHolderIndexOfParent = matchOptions.index;
-        model.children.splice(matchOptions.index, 0, {
-            id : String(globalData.id++),
+
+        // TODO 和tag的兼容性
+        const childItem: MindmapNodeItem = traverseOneItem({}, {
             type : 'mind-holder-node',
-            // eslint-disable-next-line no-magic-numbers
-            // TODO 和tag的兼容性
-            anchorPoints : [[0, 0.5], [1, 0.5]],
-            _isRoot : false,
-            _isNode : true,
-            _isDragging : false,
-            _isHolder : true,
+            empty : true,
+            holder : true,
         });
+
+        model.children.splice(matchOptions.index, 0, childItem);
         dragHolderParentModel = model;
         mindmap.graph.paint();
         mindmap.graph.changeData();
         mindmap.graph.layout();
 
-        const node = mindmap.graph.findById(String(globalData.id - 1)) as INode;
+        const node = findNodeById(mindmap.graph, String(globalData.id - 1));
 
         node.getInEdges()[0].update({
             type : 'mind-holder-edge',
@@ -416,7 +421,7 @@ const refreshDragHolder = throttle((mindmap: MindmapCoreType, delegateShape: ISh
 const calculationGroupPosition = (mindmap: MindmapCoreType): OriginPointType => {
 
     const graph = mindmap.graph;
-    const nodes = graph.findAllByState('node', 'selected');
+    const nodes = graph.findAllByState<INode>('node', 'selected');
 
     let minx = Infinity;
     let maxx = -Infinity;
@@ -426,7 +431,7 @@ const calculationGroupPosition = (mindmap: MindmapCoreType): OriginPointType => 
     // 获取已节点的所有最大最小x y值
     for (const node of nodes) {
 
-        const item = (typeof node === 'string') ? graph.findById(node) : node;
+        const item = typeof node === 'string' ? findNodeById(graph, node) : node;
         const bbox = item.getBBox();
         const {
             minX,
@@ -488,7 +493,7 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
     // 如果还没创建代理元素
     if (dragOptions.delegateShape === null) {
 
-        const parentGroup: IGroup = mindmap.graph.get('group');
+        const parentGroup = mindmap.graph.get('group') as IGroup;
         const delegateShapeAttr = {
             fill : DRAG_NODE_STYLE.bgColor,
             stroke : DRAG_NODE_STYLE.borderColor,
@@ -518,7 +523,7 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
         } else if (dragOptions.type === 'unselect-single') {
 
             const keyShape = dragOptions.targets[0].get('keyShape') as IShape;
-            const bbox = keyShape.getBBox();
+            const bbox = getBBox(keyShape);
             const x = evt.x - dragOptions.originX + dragOptions.point.x;
             const y = evt.y - dragOptions.originY + dragOptions.point.y;
 
@@ -547,7 +552,7 @@ const updateDelegate = (options: UpdateDelegateOptions): void => {
 
     } else if (dragOptions.type === 'unselect-single') {
 
-        const bbox = evt.item.get('keyShape').getBBox() as IBBox;
+        const bbox = getBBox(evt.item.get('keyShape'));
         const x = evt.x - dragOptions.originX + dragOptions.point.x;
         const y = evt.y - dragOptions.originY + dragOptions.point.y;
 
@@ -578,7 +583,7 @@ const getTopSelectedNodeModel = (node: INode): MindmapNodeItem => {
 
     const parentNode = node.getInEdges()[0].getSource();
 
-    let model = node.getModel() as MindmapNodeItem;
+    let model = getModel(node);
 
     if (parentNode.getStates().indexOf('selected') !== -1) {
 
@@ -616,7 +621,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
 
         }
 
-        const model = evt.item.getModel() as MindmapNodeItem;
+        const model = getModel(evt.item);
 
         // root节点不能被拖拽
         if (model._isRoot) {
@@ -665,7 +670,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
             // 拖动多个节点
             nodeIds.forEach((id) => {
 
-                const node = mindmap.graph.findById(id) as INode;
+                const node = findNodeById(mindmap.graph, id);
                 const nodeModel = getTopSelectedNodeModel(node);
 
                 // 仅计算top节点
@@ -693,7 +698,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
 
         }
 
-        const model = evt.item.getModel();
+        const model = getModel(evt.item);
         const dragOptions: DragOptions = this.dragOptions;
 
         if (!this.get('shouldUpdate').call(this, evt) || model._isRoot) {
@@ -731,7 +736,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
 
         }
 
-        const model = evt.item.getModel() as MindmapNodeItem;
+        const model = getModel(evt.item);
 
         // root节点不能被拖拽
         if (model._isRoot) {
@@ -750,7 +755,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
         }
 
         // 终止时需要判断此时是否在监听画布外的 mouseup 事件，若有则解绑
-        const fn: (this: HTMLElement, evt: MouseEvent) => any = this.fn;
+        const fn: (this: HTMLElement, evt: MouseEvent) => void = this.fn;
 
         if (typeof fn === 'function') {
 
@@ -763,7 +768,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
 
         // 若目标父节点处于折叠状态，则打开
         // 并且不需要_removeOldDragPlaceholder，因为展开时会自动删除当前的children
-        if (dragHolderParentModel._isFolded) {
+        if (dragHolderParentModel.folded) {
 
             mindmap.graph.layout();
             mindmap.unfold(dragHolderParentModel.id);

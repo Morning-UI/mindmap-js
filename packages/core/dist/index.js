@@ -1,6 +1,7 @@
 import { EventNames, } from './interface';
 import { manualPaint, } from './base/graph';
 import { getNodeElements, } from './base/utils';
+import { setItemState, } from './utils/setItemState';
 import { refreshTextEditorPosition, } from './base/editor';
 import { mindNodeAdjustPosition, NODE_SHAPE_INDEX, } from './nodes/mindNode';
 import mixinConstructor from './features/constructor';
@@ -15,6 +16,7 @@ import mixinFold from './features/fold';
 import mixinZoom from './features/zoom';
 import mixinExport from './features/export';
 import mixinReadData from './features/readData';
+import mixinClipboard from './features/clipboard';
 var MindmapCoreBase = /** @class */ (function () {
     function MindmapCoreBase() {
         var args = [];
@@ -23,7 +25,6 @@ var MindmapCoreBase = /** @class */ (function () {
         }
         this.dragging = false;
         this.editting = false;
-        this.screenshotting = false;
         this.isMindmap = true;
         this.eventList = {};
         this.keydownState = {
@@ -39,8 +40,8 @@ var MindmapCoreBase = /** @class */ (function () {
         var nodeItems = graph.findAllByState('node', selectedState);
         var edgeItems = graph.findAllByState('edge', selectedState);
         graph.setAutoPaint(false);
-        nodeItems.forEach(function (node) { return graph.setItemState(node, selectedState, false); });
-        edgeItems.forEach(function (edge) { return graph.setItemState(edge, selectedState, false); });
+        nodeItems.forEach(function (node) { return setItemState(graph, node.get('id'), selectedState, false); });
+        edgeItems.forEach(function (edge) { return setItemState(graph, edge.get('id'), selectedState, false); });
         graph.paint();
         graph.setAutoPaint(autoPaint);
         return this;
@@ -177,7 +178,7 @@ export { MindmapCoreBase };
 // L1(base function) includes : link/note/tag.
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
 var MindmapCoreL1 = mixinZoom(mixinTag(mixinMark(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase)))))));
-var MindmapCoreL2 = mixinReadData(mixinNode(mixinContextMenu(MindmapCoreL1)));
+var MindmapCoreL2 = mixinClipboard(mixinReadData(mixinNode(mixinContextMenu(MindmapCoreL1))));
 var MindmapCoreL3 = mixinExport(MindmapCoreL2);
 var MindmapCore = mixinConstructor(MindmapCoreL3);
 /* eslint-enable */

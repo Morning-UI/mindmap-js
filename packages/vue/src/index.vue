@@ -1,6 +1,9 @@
 <template>
     <div class="mindmap">
         <div class="mindmap-canvas"></div>
+        <div class="mindmap-screenshotting-mask">
+            <span>图片导出中...</span>
+        </div>
         <div class="mindmap-editor">
             <textarea
                 v-model="editContent"

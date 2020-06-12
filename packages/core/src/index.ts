@@ -1,6 +1,10 @@
 import * as G6                                  from '@antv/g6';
 import * as G6Types                             from '@antv/g6/lib/types';
 import {
+    INode,
+    IEdge,
+}                                               from '@antv/g6/lib/interface/item';
+import {
     MindmapNodeItem,
     MindNodeElements,
     MindmapInsideOptions,
@@ -20,6 +24,9 @@ import {
     getNodeElements,
 }                                               from './base/utils';
 import {
+    setItemState,
+}                                               from './utils/setItemState';
+import {
     refreshTextEditorPosition,
 }                                               from './base/editor';
 import {
@@ -38,6 +45,7 @@ import mixinFold                                from './features/fold';
 import mixinZoom                                from './features/zoom';
 import mixinExport                              from './features/export';
 import mixinReadData                            from './features/readData';
+import mixinClipboard                           from './features/clipboard';
 
 export class MindmapCoreBase {
 
@@ -46,7 +54,6 @@ export class MindmapCoreBase {
     data: MindmapNodeItem;
     dragging = false;
     editting = false;
-    screenshotting = false;
     editElements: MindNodeElements;
     editNode: G6Types.Item;
     editContent: string;
@@ -82,12 +89,12 @@ export class MindmapCoreBase {
         const selectedState = 'selected';
         const graph = this.graph;
         const autoPaint: boolean = graph.get('autoPaint');
-        const nodeItems = graph.findAllByState('node', selectedState);
-        const edgeItems = graph.findAllByState('edge', selectedState);
+        const nodeItems = graph.findAllByState<INode>('node', selectedState);
+        const edgeItems = graph.findAllByState<IEdge>('edge', selectedState);
 
         graph.setAutoPaint(false);
-        nodeItems.forEach((node) => graph.setItemState(node, selectedState, false));
-        edgeItems.forEach((edge) => graph.setItemState(edge, selectedState, false));
+        nodeItems.forEach((node) => setItemState(graph, node.get('id'), selectedState, false));
+        edgeItems.forEach((edge) => setItemState(graph, edge.get('id'), selectedState, false));
         graph.paint();
         graph.setAutoPaint(autoPaint);
 
@@ -304,11 +311,12 @@ const MindmapCoreL1 =
     )))))));
 
 const MindmapCoreL2 =
+    mixinClipboard(
     mixinReadData( 
     mixinNode(
     mixinContextMenu(
         MindmapCoreL1
-    )));
+    ))));
 
 const MindmapCoreL3 = 
     mixinExport(

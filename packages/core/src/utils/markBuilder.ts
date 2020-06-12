@@ -3,7 +3,6 @@ import {
     MarkBuilder,
     MarkElementBuilder,
     MarkShapeCfg,
-    MindMarks,
     MindMarkTypes,
 }                                               from '../interface';
 import {
@@ -11,15 +10,13 @@ import {
 }                                               from '../style';
 
 export const markBuilder: MarkBuilder = {
-    tag : (): MarkShapeCfg => {
-
-        return {
-            text : {
+    tag : (): MarkShapeCfg => ({
+        text : {
+            attrs : {
                 cursor : 'pointer',
             },
-        };
-
-    },
+        },
+    }),
     priority : (options: GenMarkOptions, markKey: string): MarkShapeCfg => {
 
         return {

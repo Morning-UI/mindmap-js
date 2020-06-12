@@ -1,8 +1,9 @@
 import { inAnnex, } from '../base/utils';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
+import { getModel, } from '../utils/G6Ext';
 export default {
     click: function (evt, options) {
-        var model = evt.item.getModel();
+        var model = getModel(evt.item);
         if (!model._isNode) {
             return;
         }

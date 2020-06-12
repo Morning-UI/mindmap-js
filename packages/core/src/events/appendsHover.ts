@@ -3,7 +3,6 @@ import {
 }                                               from '@antv/g6/lib/types';
 import {
     EventOptions,
-    // MindmapNodeItem,
 }                                               from '../interface';
 import {
     inAnnex,
@@ -14,11 +13,17 @@ import {
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     move : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel();
+        const model = getModel(evt.item);
 
         if (!model._isNode) {
 
@@ -30,12 +35,11 @@ export default {
 
             if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
 
-                console.log(123, evt.item, APPENDS_LIST.link.state);
-                options.graph.setItemState(evt.item, APPENDS_LIST.link.state, true);
+                setItemState(options.graph, evt.item.get('id'), APPENDS_LIST.link.state, true);
 
             } else {
 
-                options.graph.setItemState(evt.item, APPENDS_LIST.link.state, false);
+                setItemState(options.graph, evt.item.get('id'), APPENDS_LIST.link.state, false);
 
             }
 
@@ -49,42 +53,15 @@ export default {
 
             if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, index)) {
 
-                options.graph.setItemState(evt.item, APPENDS_LIST.note.state, true);
+                setItemState(options.graph, evt.item.get('id'), APPENDS_LIST.note.state, true);
 
             } else {
 
-                options.graph.setItemState(evt.item, APPENDS_LIST.note.state, false);
+                setItemState(options.graph, evt.item.get('id'), APPENDS_LIST.note.state, false);
 
             }
 
         }
-
-    },
-    stop : (evt: IG6GraphEvent, options: EventOptions): void => {
-
-        // const hoverLinks = options.graph.findAllByState('node', 'link-hover');
-
-        // if (hoverLinks && hoverLinks.length > 0) {
-
-        //     for (const link of hoverLinks) {
-
-        //         options.graph.setItemState(link, APPENDS_LIST.link.state, false);
-
-        //     }
-
-        // }
-
-        // const hoverNotes = options.graph.findAllByState('node', 'note-hover');
-
-        // if (hoverNotes && hoverNotes.length > 0) {
-
-        //     for (const note of hoverNotes) {
-
-        //         options.graph.setItemState(note, APPENDS_LIST.note.state, false);
-
-        //     }
-
-        // }
 
     },
 };

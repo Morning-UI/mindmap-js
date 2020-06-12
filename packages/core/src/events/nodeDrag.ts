@@ -4,17 +4,23 @@ import {
 import {
     EventOptions,
 }                                               from '../interface';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     start : (evt: IG6GraphEvent, options: EventOptions): void => {
 
         if (
             !evt.item.destroyed
-            && !evt.item.getModel()._isRoot
-            && evt.item.getModel()._isNode
+            && !getModel(evt.item)._isRoot
+            && getModel(evt.item)._isNode
         ) {
 
-            options.graph.setItemState(evt.item, 'drag', true);
+            setItemState(options.graph, evt.item.get('id'), 'drag', true);
 
         }
 
@@ -23,10 +29,11 @@ export default {
 
         if (
             !evt.item.destroyed
-            && !evt.item.getModel()._isRoot
-            && evt.item.getModel()._isNode) {
+            && !getModel(evt.item)._isRoot
+            && getModel(evt.item)._isNode
+        ) {
 
-            options.graph.setItemState(evt.item, 'drag', false);
+            setItemState(options.graph, evt.item.get('id'), 'drag', false);
 
         }
 

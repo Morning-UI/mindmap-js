@@ -1,28 +1,18 @@
-import G6                                       from '@antv/g6';
 import {
     BehaviorOption,
     IG6GraphEvent,
-    IBBox,
 }                                               from '@antv/g6/lib/types';
 import {
-    INode, IItemBase,
+    INode,
 }                                               from '@antv/g6/lib/interface/item';
 import {
-    IGroup,
     IShape,
 }                                               from '@antv/g-base/lib/interfaces';
-import throttle                                 from 'lodash.throttle';
-import sortBy                                   from 'lodash.sortby';
 import {
-    NodeDragBehaviorCfg,
     BehaviorEvents,
-    DragOptions,
-    UpdateDelegateOptions,
-    DragTarget,
     MindmapNodeItem,
     MindmapCoreType,
     BrushSelectBehaviorCfg,
-    NodeIds,
     NodeId,
 }                                               from '../interface';
 import {
@@ -31,7 +21,12 @@ import {
 import {
     clearSelectedNode,
 }                                               from '../base/utils';
-import globalData                               from '../base/globalData';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/getModel';
 
 type OriginPointType = {
     x: number;
@@ -94,7 +89,7 @@ const clearStates = (mindmap: MindmapCoreType): void => {
 const computeSelectedNodes = (
     mindmap: MindmapCoreType,
     evt: IG6GraphEvent,
-    shouldUpdate: Function,
+    shouldUpdate: (node: INode, state: string) => boolean,
 ): void => {
 
     const graph = mindmap.graph;
@@ -124,11 +119,11 @@ const computeSelectedNodes = (
 
             if (shouldUpdate(node, 'select')) {
 
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 selectNodes.push(node);
                 selectIds.push(model.id);
-                graph.setItemState(node, selectedState, true);
+                setItemState(graph, node.get('id'), selectedState, true);
 
             }
 
@@ -155,16 +150,7 @@ export const getNodeBrushSelectBehavior = (mindmap: MindmapCoreType): BehaviorOp
     getDefaultCfg (): BrushSelectBehaviorCfg {
 
         return {
-            // brushStyle : {
-            //     fill : '#e0efff',
-            //     fillOpacity : 0.4,
-            //     stroke : '#b2d2ef',
-            //     lineWidth : 1
-            // },
-            // onSelect () {},
-            // onDeselect () {},
             includeEdges : true,
-            // selectedEdges : [],
         };
 
     },

@@ -3,7 +3,13 @@ import {
     MindmapDataItem,
     MindmapCoreL0Type,
     MindmapItemGetter,
+    MindmapXmindItem,
+    MindMarkTypes,
+    XmindMarkerMethods,
 }                                               from '../interface';
+import {
+    XMIND_MARKER_MAP,
+}                                               from '../base/const';
 
 export const dataItemGetter: MindmapItemGetter<MindmapDataItem> = {
     text : (model) => model.text,
@@ -22,26 +28,14 @@ export const dataItemGetter: MindmapItemGetter<MindmapDataItem> = {
         return undefined;
 
     },
-    _isFolded : (model) => model._isFolded,
-    _foldedChildren : (model, callback, getter, mindmap) => {
-
-        if (model._foldedChildren) {
-
-            return callback(model._foldedChildren, getter, mindmap);
-
-        }
-
-        return undefined;
-
-    },
+    folded : (model) => model.folded,
 };
 
 export const nodeItemGetter: MindmapItemGetter<MindmapNodeItem> = {
     ...dataItemGetter,
     id : (model) => model.id,
-    anchorPoints : (model) => model.anchorPoints,
-    style : (model) => model.style,
     type : (model) => model.type,
+    anchorPoints : (model) => model.anchorPoints,
     children : (model, callback, getter, mindmap) => {
 
         if (model.children) {
@@ -53,19 +47,53 @@ export const nodeItemGetter: MindmapItemGetter<MindmapNodeItem> = {
         return undefined;
 
     },
-    _foldedChildren : (model, callback, getter, mindmap) => {
+    style : (model) => model.style,
+};
 
-        if (model._foldedChildren) {
+export const xmindItemGetter: MindmapItemGetter<MindmapXmindItem> = {
+    title : (model) => model.text,
+    note : (model) => model.note,
+    href : (model) => model.link,
+    labels : (model) => model.tag,
+    branch : (model) => (model.folded ? 'folded' : undefined),
+    marker : (model) => {
 
-            return callback(model._foldedChildren, getter, mindmap);
+        const markTypes = Object.keys(model.mark || {}) as MindMarkTypes[];
+
+        if (markTypes.length === 0) {
+
+            return {};
+
+        }
+
+        const marker: {
+            [key in XmindMarkerMethods]?: string;
+        } = {};
+
+        for (const mark of markTypes) {
+
+            const item = XMIND_MARKER_MAP[mark][model.mark[mark]];
+
+            marker[item.method] = item.name;
+
+        }
+
+        return marker;
+
+    },
+    children : (model, callback, getter, mindmap) => {
+
+        const children = model.folded ? model._foldedChildren : model.children;
+
+        if (children) {
+
+            return callback(children, getter, mindmap);
 
         }
 
         return undefined;
 
     },
-    _isRoot : (model) => model._isRoot,
-    _isNode : (model) => model._isNode,
 };
 
 export const pluckDataFromModels = <T>(

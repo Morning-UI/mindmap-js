@@ -6,23 +6,22 @@ import {
 }                                               from '@antv/g-base/lib/interfaces';
 import {
     EventOptions,
-    MindmapNodeItem,
 }                                               from '../interface';
 import {
     inNodeShape,
 }                                               from '../base/utils';
 import {
-    APPENDS_LIST,
-}                                               from '../base/const';
-import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     click : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel() as MindmapNodeItem;
-        const children = model._isFolded ? model._foldedChildren : model.children;
+        const model = getModel(evt.item);
+        const children = model.folded ? model._foldedChildren : model.children;
         const group = evt.item.get('group') as IGroup;
 
         if (!model._isNode) {
@@ -41,7 +40,7 @@ export default {
                 )
             ) {
 
-                options.mindmap.fold(model.id, !model._isFolded);
+                options.mindmap.foldToggle(model.id, !model.folded);
 
             }
 

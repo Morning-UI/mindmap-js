@@ -9,17 +9,22 @@ import {
     inAnnex,
 }                                               from '../base/utils';
 import {
-    APPENDS_LIST,
     TAG,
 }                                               from '../base/const';
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
+import {
+    setItemState,
+}                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 export default {
     move : (evt: IG6GraphEvent, options: EventOptions): void => {
 
-        const model = evt.item.getModel() as MindmapNodeItem;
+        const model = getModel(evt.item);
 
         if (!model._isNode) {
 
@@ -35,11 +40,11 @@ export default {
 
                 if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.tagConGroup, index)) {
 
-                    options.graph.setItemState(evt.item, `${TAG.state}:${index / 2}`, true);
+                    setItemState(options.graph, evt.item.get('id'), `${TAG.state}:${index / 2}`, true);
 
                 } else {
 
-                    options.graph.setItemState(evt.item, `${TAG.state}:${index / 2}`, false);
+                    setItemState(options.graph, evt.item.get('id'), `${TAG.state}:${index / 2}`, false);
 
                 }
 
@@ -50,31 +55,4 @@ export default {
         }
 
     },
-    // stop : (evt: IG6GraphEvent, options: EventOptions): void => {
-
-    //     const hoverLinks = options.graph.findAllByState('node', 'link-hover');
-
-    //     if (hoverLinks && hoverLinks.length > 0) {
-
-    //         for (const link of hoverLinks) {
-
-    //             options.graph.setItemState(link, APPENDS_LIST.link.state, false);
-
-    //         }
-
-    //     }
-
-    //     const hoverNotes = options.graph.findAllByState('node', 'note-hover');
-
-    //     if (hoverNotes && hoverNotes.length > 0) {
-
-    //         for (const note of hoverNotes) {
-
-    //             options.graph.setItemState(note, APPENDS_LIST.note.state, false);
-
-    //         }
-
-    //     }
-
-    // },
 };

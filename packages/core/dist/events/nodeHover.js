@@ -1,14 +1,16 @@
 import { inAnnex, } from '../base/utils';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
+import { setItemState, } from '../utils/setItemState';
+import { getModel, } from '../utils/G6Ext';
 export default {
     move: function (evt, options) {
-        var model = evt.item.getModel();
+        var model = getModel(evt.item);
         if (model._isNode) {
             if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
-                options.graph.setItemState(evt.item, 'hover', true);
+                setItemState(options.graph, evt.item.get('id'), 'hover', true);
             }
             else {
-                options.graph.setItemState(evt.item, 'hover', false);
+                setItemState(options.graph, evt.item.get('id'), 'hover', false);
             }
         }
     },

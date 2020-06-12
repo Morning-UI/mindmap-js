@@ -15,6 +15,8 @@ import sortBy from 'lodash.sortby';
 import { DRAG_NODE_STYLE, } from '../style';
 import { toggleNodeVisibility, } from '../base/utils';
 import globalData from '../base/globalData';
+import { getModel, getBBox, findNodeById, } from '../utils/G6Ext';
+import { traverseOneItem, } from '../utils/traverseData';
 var dragTarget = null;
 var dragHolderParentModel = null;
 var dragHolderIndexOfParent = null;
@@ -25,7 +27,7 @@ var udpateOneDragTarget = function (mindmap, index, dragging, _dragHolderIndexOf
         dragTarget.originNodeStyle[index] = {
             height: node.getBBox().height,
         };
-        dragTarget.saveModel[index] = node.getModel();
+        dragTarget.saveModel[index] = getModel(node);
         node.setState('dragging', true);
         node.update({
             _isDragging: true,
@@ -61,7 +63,7 @@ var udpateOneDragTarget = function (mindmap, index, dragging, _dragHolderIndexOf
         });
         var appendIndexOfParent = _dragHolderIndexOfParent;
         // 如果父节点处于折叠状态，则默认追加到最后
-        if (dragHolderParentModel._isFolded) {
+        if (dragHolderParentModel.folded) {
             appendIndexOfParent = -1;
         }
         mindmap.insertSubNode(dragHolderParentModel.id, nodeModel, appendIndexOfParent, false);
@@ -75,9 +77,9 @@ var updateDragTarget = function (mindmap, dragging) {
         var dragNodes = mindmap.graph.findAllByState('node', 'dragging');
         for (var _i = 0, dragNodes_1 = dragNodes; _i < dragNodes_1.length; _i++) {
             var node = dragNodes_1[_i];
-            var parentNodeModel = node.getInEdges()[0].getSource().getModel();
+            var parentNodeModel = getModel(node.getInEdges()[0].getSource());
             var parentNodeDataChildren = parentNodeModel.children;
-            var model = node.getModel();
+            var model = getModel(node);
             var index = parentNodeDataChildren.indexOf(model);
             if (parentNodeModel === dragHolderParentModel
                 && index < dragHolderIndexOfParent) {
@@ -103,7 +105,7 @@ var updateDragTarget = function (mindmap, dragging) {
         dragTarget.hidden = false;
         dragHolderIndexOfParent += targetNodes.length;
         // 如果父节点处于折叠状态，永远都是0
-        if (dragHolderParentModel._isFolded) {
+        if (dragHolderParentModel.folded) {
             dragHolderIndexOfParent = 0;
         }
         mindmap.graph.paint();
@@ -112,7 +114,7 @@ var updateDragTarget = function (mindmap, dragging) {
     }
 };
 var fillChildBBox = function (mindmap, bbox, node) {
-    var model = node.getModel();
+    var model = getModel(node);
     bbox.conMaxX = bbox.maxX;
     bbox.conMinX = bbox.minX;
     bbox.conMaxY = bbox.maxY;
@@ -154,7 +156,7 @@ var refreshDragHolder = throttle(function (mindmap, delegateShape, targetNode) {
     //     return;
     // }
     var nodes = mindmap.graph.getNodes();
-    var delegateBbox = delegateShape.getBBox();
+    var delegateBbox = getBBox(delegateShape);
     var matchOptions = {};
     var distance;
     var distanceNodes = [];
@@ -171,7 +173,7 @@ var refreshDragHolder = throttle(function (mindmap, delegateShape, targetNode) {
     // Child[n] : 作为子元素，centerX > Parent.centerX
     for (var _i = 0, distanceNodes_1 = distanceNodes; _i < distanceNodes_1.length; _i++) {
         var node = distanceNodes_1[_i];
-        var model = node.getModel();
+        var model = getModel(node);
         if (node === targetNode
             || model._isHolder
             || model._isDragging) {
@@ -213,28 +215,24 @@ var refreshDragHolder = throttle(function (mindmap, delegateShape, targetNode) {
     }
     if (matchOptions.node) {
         // 创建新的placeholder
-        var model = matchOptions.node.getModel();
+        var model = getModel(matchOptions.node);
         // 仅寻找可见的子元素(不考虑折叠的子元素)
         if (model.children === undefined) {
             model.children = [];
         }
         dragHolderIndexOfParent = matchOptions.index;
-        model.children.splice(matchOptions.index, 0, {
-            id: String(globalData.id++),
+        // TODO 和tag的兼容性
+        var childItem = traverseOneItem({}, {
             type: 'mind-holder-node',
-            // eslint-disable-next-line no-magic-numbers
-            // TODO 和tag的兼容性
-            anchorPoints: [[0, 0.5], [1, 0.5]],
-            _isRoot: false,
-            _isNode: true,
-            _isDragging: false,
-            _isHolder: true,
+            empty: true,
+            holder: true,
         });
+        model.children.splice(matchOptions.index, 0, childItem);
         dragHolderParentModel = model;
         mindmap.graph.paint();
         mindmap.graph.changeData();
         mindmap.graph.layout();
-        var node = mindmap.graph.findById(String(globalData.id - 1));
+        var node = findNodeById(mindmap.graph, String(globalData.id - 1));
         node.getInEdges()[0].update({
             type: 'mind-holder-edge',
         });
@@ -250,7 +248,7 @@ var calculationGroupPosition = function (mindmap) {
     // 获取已节点的所有最大最小x y值
     for (var _i = 0, nodes_1 = nodes; _i < nodes_1.length; _i++) {
         var node = nodes_1[_i];
-        var item = (typeof node === 'string') ? graph.findById(node) : node;
+        var item = typeof node === 'string' ? findNodeById(graph, node) : node;
         var bbox = item.getBBox();
         var minX = bbox.minX, minY = bbox.minY, maxX = bbox.maxX, maxY = bbox.maxY;
         if (minX < minx) {
@@ -304,7 +302,7 @@ var updateDelegate = function (options) {
         }
         else if (dragOptions.type === 'unselect-single') {
             var keyShape = dragOptions.targets[0].get('keyShape');
-            var bbox = keyShape.getBBox();
+            var bbox = getBBox(keyShape);
             var x = evt.x - dragOptions.originX + dragOptions.point.x;
             var y = evt.y - dragOptions.originY + dragOptions.point.y;
             dragOptions.delegateShape = parentGroup.addShape('rect', {
@@ -323,7 +321,7 @@ var updateDelegate = function (options) {
         // this.dragOptions.delegateShape.set('capture', false);
     }
     else if (dragOptions.type === 'unselect-single') {
-        var bbox = evt.item.get('keyShape').getBBox();
+        var bbox = getBBox(evt.item.get('keyShape'));
         var x = evt.x - dragOptions.originX + dragOptions.point.x;
         var y = evt.y - dragOptions.originY + dragOptions.point.y;
         dragOptions.delegateShape.attr({
@@ -345,7 +343,7 @@ var updateDelegate = function (options) {
 };
 var getTopSelectedNodeModel = function (node) {
     var parentNode = node.getInEdges()[0].getSource();
-    var model = node.getModel();
+    var model = getModel(node);
     if (parentNode.getStates().indexOf('selected') !== -1) {
         model = getTopSelectedNodeModel(parentNode);
     }
@@ -368,7 +366,7 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         if (!evt.item) {
             return;
         }
-        var model = evt.item.getModel();
+        var model = getModel(evt.item);
         // root节点不能被拖拽
         if (model._isRoot) {
             return;
@@ -404,7 +402,7 @@ export var getNodeDragBehavior = function (mindmap) { return ({
             var models_1 = [];
             // 拖动多个节点
             nodeIds.forEach(function (id) {
-                var node = mindmap.graph.findById(id);
+                var node = findNodeById(mindmap.graph, id);
                 var nodeModel = getTopSelectedNodeModel(node);
                 // 仅计算top节点
                 if (models_1.indexOf(nodeModel) === -1) {
@@ -420,7 +418,7 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         if (!evt.item) {
             return;
         }
-        var model = evt.item.getModel();
+        var model = getModel(evt.item);
         var dragOptions = this.dragOptions;
         if (!this.get('shouldUpdate').call(this, evt) || model._isRoot) {
             return;
@@ -445,7 +443,7 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         if (!this.get('shouldEnd').call(this, evt)) {
             return;
         }
-        var model = evt.item.getModel();
+        var model = getModel(evt.item);
         // root节点不能被拖拽
         if (model._isRoot) {
             return;
@@ -464,7 +462,7 @@ export var getNodeDragBehavior = function (mindmap) { return ({
         updateDragTarget(mindmap, false);
         // 若目标父节点处于折叠状态，则打开
         // 并且不需要_removeOldDragPlaceholder，因为展开时会自动删除当前的children
-        if (dragHolderParentModel._isFolded) {
+        if (dragHolderParentModel.folded) {
             mindmap.graph.layout();
             mindmap.unfold(dragHolderParentModel.id);
         }

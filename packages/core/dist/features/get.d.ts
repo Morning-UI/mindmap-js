@@ -2,8 +2,8 @@ import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor, NodeId, MindmapDataItem } 
 declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
     new (...args: any[]): {
         getAllSelectedNodeIds(): NodeId[];
-        getAllSelectedNodeDetails(): MindmapDataItem[];
         getSelectedNodeId(): NodeId;
+        getAllSelectedNodeDetails(): MindmapDataItem[];
         getSelectedNodeDetail(): MindmapDataItem;
         getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
         getRootNodeId(): NodeId;
@@ -13,7 +13,6 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         data: MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
-        screenshotting: boolean;
         editElements: import("../interface").MindNodeElements;
         editNode: import("@antv/g6/lib/types").Item;
         editContent: string;

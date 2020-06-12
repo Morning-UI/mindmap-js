@@ -12,6 +12,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 import { fillNodeIds, } from '../base/utils';
+import { setItemState, } from '../utils/setItemState';
 var foldChildren = function (mindmap, node, fold) {
     var model = node.getModel();
     var _fold = fold === undefined ? !model._isFolded : fold;
@@ -27,7 +28,7 @@ var foldChildren = function (mindmap, node, fold) {
         model.children = model._foldedChildren;
         model._foldedChildren = [];
     }
-    mindmap.graph.setItemState(node, 'children-fold', _fold);
+    setItemState(mindmap.graph, node.get('id'), 'children-fold', _fold);
 };
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {

@@ -9,7 +9,6 @@ export default {
             return;
         }
         group.toFront();
-        console.log(123555);
         options.mindmap.focusNodeTextEditor(evt.item.getModel().id);
     },
     refresh: function (evt, options) {
