@@ -18,13 +18,16 @@ import {
     ExportXmindFn,
     XmindItemWalkerFn,
     XmindMarkerMethods,
-    MindMarkTypes,
+    MindmapNodeItems,
 }                                               from '../interface';
 import {
     pluckDataFromModels,
     nodeItemGetter,
     xmindItemGetter,
 }                                               from '../utils/dataGetter';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 const IMAGE_PADDING = 20;
 const IMAGE_BACKGROUND = '#FFF';
@@ -48,7 +51,7 @@ const exportImage = (
     new Promise((resolve) => {
 
         const rootNodeId = String(mindmap.getRootNodeId());
-        const rootNodeModel = mindmap.graph.findById(rootNodeId).getModel() as MindmapNodeItem;
+        const rootNodeModel = getModel(mindmap.graph.findById(rootNodeId));
         const originBBox = (mindmap.graph.get('group') as IGroup).getCanvasBBox();
         const originZoom = mindmap.getZoom();
 
@@ -101,14 +104,14 @@ const exportXmind: ExportXmindFn = (items, itemCallback, childrenWalker, cid) =>
 
 const exportProcesser: {
     [key in DownloadType]?: (
-        data: MindmapNodeItem[],
+        data: MindmapNodeItems,
         mindmap: MindmapCoreL3Type
     ) => Promise<Blob>;
 } & {
     jsonObj?: (
-        data: MindmapNodeItem[],
+        data: MindmapNodeItems,
         mindmap: MindmapCoreL3Type,
-    ) => MindmapNodeItem[];
+    ) => MindmapNodeItems;
 } = {
 
     jsonObj : (data, mindmap) =>
@@ -262,7 +265,7 @@ export default <TBase extends MindmapCoreL2Ctor> (Base: TBase) =>
 
         }
 
-        exportToObject (nodeId: NodeId): MindmapNodeItem[] {
+        exportToObject (nodeId: NodeId): MindmapNodeItems {
 
             let _nodeId = nodeId;
 

@@ -10,6 +10,9 @@ import {
     NodeId,
     MindmapDatas,
     MindmapData,
+    MindmapNodeItems,
+    MindmapDataItems,
+    MindmapDataItem,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -17,50 +20,54 @@ import {
 import {
     traverseData,
 }                                               from '../utils/traverseData';
+import {
+    findNodeById,
+    getModel,
+}                                               from '../utils/G6Ext';
 
-const parseNodeDataOnce = (data: MindmapData): MindmapData => {
+// const parseNodeDataOnce = (data: MindmapData): MindmapData => {
 
-    let _data = data;
+//     let _data = data;
 
-    if (typeof _data === 'string') {
+//     if (typeof _data === 'string') {
 
-        try {
+//         try {
 
-            _data = JSON.parse(_data);
+//             _data = JSON.parse(_data);
 
-        // eslint-disable-next-line no-empty
-        } catch (e) {}
+//         // eslint-disable-next-line no-empty
+//         } catch (e) {}
 
-    }
+//     }
 
-    _data = {
-        text : '新的节点',
-        ..._data,
-    };
+//     _data = {
+//         text : '新的节点',
+//         ..._data,
+//     };
 
-    return _data;
+//     return _data;
 
-};
+// };
 
-const parseNodeData = (datas: MindmapDatas): MindmapDatas => {
+// const parseNodeData = (datas: MindmapDataItems|MindmapDataItem): MindmapDatas => {
 
-    const _datas = datas;
+//     const _datas = datas;
 
-    if (Array.isArray(_datas)) {
+//     if (Array.isArray(_datas)) {
 
-        for (const key in _datas) {
+//         for (const key in _datas) {
 
-            _datas[key] = parseNodeDataOnce(_datas[Number(key)]);
+//             _datas[key] = parseNodeDataOnce(_datas[Number(key)]);
 
-        }
+//         }
 
-        return _datas;
+//         return _datas;
 
-    }
+//     }
 
-    return [parseNodeDataOnce(_datas as MindmapData)];
+//     return [parseNodeDataOnce(_datas as MindmapData)];
 
-};
+// };
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
@@ -72,7 +79,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             for (const id of ids) {
 
-                const node = this.graph.findById(id) as INode;
+                const node = findNodeById(this.graph, id);
 
                 if (!node) {
 
@@ -80,10 +87,10 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
                 }
 
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
                 const parent = node.getInEdges()[0].getSource();
-                const parentModel = parent.getModel() as MindmapNodeItem;
-                const parentChildren = parentModel._isFolded ? parentModel._foldedChildren : parentModel.children;
+                const parentModel = getModel(parent);
+                const parentChildren = parentModel.folded ? parentModel._foldedChildren : parentModel.children;
                 const indexOfParent = parentChildren.indexOf(model);
 
                 parentChildren.splice(indexOfParent, 1);
@@ -103,22 +110,22 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         insertSubNode (
             nodeId: NodeId,
-            datas: MindmapDatas,
+            datas: MindmapDataItems|MindmapDataItem,
             index = -1,
             _refresh = true,
         ): string | string[] {
 
-            const node = this.graph.findById(String(nodeId)) as INode;
-            const model = node.getModel() as MindmapNodeItem;
+            const node = findNodeById(this.graph, nodeId);
+            const model = getModel(node);
             // let parent = node.getInEdges()[0].getSource();
-            let children = model._isFolded ? model._foldedChildren : model.children;
+            let children = model.folded ? model._foldedChildren : model.children;
             const isSingle = !Array.isArray(datas);
 
-            let _datas = parseNodeData(datas);
+            let _datas = datas;
 
             if (children === undefined) {
 
-                if (model._isFolded) {
+                if (model.folded) {
 
                     model._foldedChildren = [];
                     children = model._foldedChildren;
@@ -138,7 +145,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             }
 
-            const _nodeItems: MindmapNodeItem[] = [];
+            const _nodeItems: MindmapNodeItems = [];
 
             for (const _index in _datas) {
 

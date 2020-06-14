@@ -1,3 +1,4 @@
+import { FoldFeatures, } from '../interface';
 import { inNodeShape, } from '../base/utils';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 import { getModel, } from '../utils/G6Ext';
@@ -11,7 +12,13 @@ export default {
         }
         if (children && children.length > 0) {
             if (inNodeShape(options.mindmap, evt, group.getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup))) {
-                options.mindmap.foldToggle(model.id, !model.folded);
+                options.mindmap.commander.addExec({
+                    cmd: FoldFeatures.Commands.FoldToggle,
+                    opts: {
+                        nodeIds: model.id,
+                        fold: !model.folded,
+                    },
+                });
             }
         }
     },

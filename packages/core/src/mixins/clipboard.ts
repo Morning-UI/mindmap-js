@@ -4,6 +4,7 @@ import {
     MindmapCoreL1Ctor,
     MindmapNodeItem,
     NodeIds,
+    MindmapNodeItems,
 }                                               from '../interface';
 import {
     pluckDataFromModels,
@@ -12,6 +13,9 @@ import {
 import {
     fillNodeIds,
 }                                               from '../base/utils';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
@@ -30,7 +34,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         }
 
-        copyNode (nodeIds: NodeIds): MindmapNodeItem|MindmapNodeItem[] {
+        copyNode (nodeIds: NodeIds): MindmapNodeItems {
 
             const ids = fillNodeIds(nodeIds);
             const isSingle = (typeof nodeIds === 'string' || nodeIds.length === 1);
@@ -39,7 +43,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel();
+                const model = getModel(node);
                 const data = pluckDataFromModels([model], nodeItemGetter, this);
 
                 nodes.push(data[0]);

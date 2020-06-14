@@ -38,7 +38,7 @@ import {
 }                                               from '../utils/setItemState';
 import {
     getModel,
-}                                               from 'src/utils/G6Ext';
+}                                               from '../utils/G6Ext';
 
 export const genNodeStyles = (styles: NodeStyle, cfg: MindmapNodeItem): NodeStyle => {
 

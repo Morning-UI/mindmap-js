@@ -19,6 +19,7 @@ import {
     XmindItemWalkerFn,
     XmindMarkerMethods,
     MindMarkTypes,
+    MindmapNodeItems,
 }                                               from '../interface';
 import {
     pluckDataFromModels,
@@ -30,7 +31,7 @@ import {
 export default <TBase extends MindmapCoreL2Ctor> (Base: TBase) =>
     class extends Base implements ExportFeatures {
 
-        importFromObject (data: MindmapNodeItem[]): this {
+        importFromObject (data: MindmapNodeItems): this {
             return this;
         }
 

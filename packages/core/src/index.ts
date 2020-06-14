@@ -33,19 +33,22 @@ import {
     mindNodeAdjustPosition,
     NODE_SHAPE_INDEX,
 }                                               from './nodes/mindNode';
-import mixinConstructor                         from './features/constructor';
-import mixinLink                                from './features/link';
-import mixinNote                                from './features/note';
-import mixinTag                                 from './features/tag';
-import mixinMark                                from './features/mark';
-import mixinContextMenu                         from './features/contextMenu';
-import mixinNode                                from './features/node';
-import mixinGet                                 from './features/get';
-import mixinFold                                from './features/fold';
-import mixinZoom                                from './features/zoom';
-import mixinExport                              from './features/export';
-import mixinReadData                            from './features/readData';
-import mixinClipboard                           from './features/clipboard';
+import mixinConstructor                         from './mixins/constructor';
+import mixinLink                                from './mixins/link';
+import mixinNote                                from './mixins/note';
+import mixinTag                                 from './mixins/tag';
+import mixinMark                                from './mixins/mark';
+import mixinContextMenu                         from './mixins/contextMenu';
+import mixinNode                                from './mixins/node';
+import mixinGet                                 from './mixins/get';
+import mixinFold                                from './mixins/fold';
+import mixinZoom                                from './mixins/zoom';
+import mixinExport                              from './mixins/export';
+import mixinReadData                            from './mixins/readData';
+import mixinClipboard                           from './mixins/clipboard';
+import {
+    Commander,
+}                                               from './commander';
 
 export class MindmapCoreBase {
 
@@ -77,6 +80,7 @@ export class MindmapCoreBase {
     };
 
     _options: MindmapInsideOptions;
+    commander: Commander;
 
     constructor (...args: any[]) {
 

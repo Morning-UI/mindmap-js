@@ -1,6 +1,7 @@
 import * as G6 from '@antv/g6';
 import * as G6Types from '@antv/g6/lib/types';
 import { MindmapNodeItem, MindNodeElements, MindmapInsideOptions, EventNames, EventList, EventCallbacks, ContextMenuTypes, NodeIds, MindMarks } from './interface';
+import { Commander } from './commander';
 export declare class MindmapCoreBase {
     graph: G6.TreeGraph;
     G6: typeof G6;
@@ -27,6 +28,7 @@ export declare class MindmapCoreBase {
         shift: boolean;
     };
     _options: MindmapInsideOptions;
+    commander: Commander;
     constructor(...args: any[]);
     clearSelectedNode(): this;
     focusNodeTextEditor(nodeId: string, clean?: boolean): this;
@@ -39,6 +41,8 @@ export declare class MindmapCoreBase {
 }
 declare const MindmapCore: {
     new (...args: any[]): {
+        redo(): any;
+        undo(): any;
         graph: G6.TreeGraph;
         G6: typeof G6;
         data: MindmapNodeItem;
@@ -64,6 +68,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -124,13 +129,13 @@ declare const MindmapCore: {
         menuItemMarkEdit(evt: MouseEvent): void;
         menuItemMarkDelete(): void;
         copyNodeToClipboard(nodeIds: NodeIds): string;
-        copyNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
+        copyNode(nodeIds: NodeIds): MindmapNodeItem | import("./interface").MindmapNodeItems;
         getClipboard(): string;
         removeNode(nodeIds: NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: string, datas: import("./interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        insertSubNode(nodeId: string, datas: any, index: number, _refresh: boolean): string | string[];
         readData(data: import("./interface").MindmapDataItem): any;
         _screenshotting(shotting: boolean): void;
-        exportToObject(nodeId: string): MindmapNodeItem[];
+        exportToObject(nodeId: string): import("./interface").MindmapNodeItems;
         downloadPng(nodeId: string): any;
         downloadWebp(nodeId: string): any;
         downloadJpeg(nodeId: string): any;
@@ -140,7 +145,7 @@ declare const MindmapCore: {
 } & {
     new (...args: any[]): {
         _screenshotting(shotting: boolean): void;
-        exportToObject(nodeId: string): MindmapNodeItem[];
+        exportToObject(nodeId: string): import("./interface").MindmapNodeItems;
         downloadPng(nodeId?: string): any;
         downloadWebp(nodeId?: string): any;
         downloadJpeg(nodeId?: string): any;
@@ -171,6 +176,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -231,16 +237,16 @@ declare const MindmapCore: {
         menuItemMarkEdit(evt: MouseEvent): void;
         menuItemMarkDelete(): void;
         copyNodeToClipboard(nodeIds: NodeIds): string;
-        copyNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
+        copyNode(nodeIds: NodeIds): MindmapNodeItem | import("./interface").MindmapNodeItems;
         getClipboard(): string;
         removeNode(nodeIds: NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: string, datas: import("./interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        insertSubNode(nodeId: string, datas: any, index: number, _refresh: boolean): string | string[];
         readData(data: import("./interface").MindmapDataItem): any;
     };
 } & {
     new (...args: any[]): {
         copyNodeToClipboard(nodeIds: NodeIds): string;
-        copyNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
+        copyNode(nodeIds: NodeIds): import("./interface").MindmapNodeItems;
         getClipboard(): string;
         graph: G6.TreeGraph;
         G6: typeof G6;
@@ -267,6 +273,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -341,6 +348,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -390,7 +398,7 @@ declare const MindmapCore: {
 } & {
     new (...args: any[]): {
         removeNode(nodeIds: NodeIds, _refresh?: boolean): any;
-        insertSubNode(nodeId: string, datas: import("./interface").MindmapDatas, index?: number, _refresh?: boolean): string | string[];
+        insertSubNode(nodeId: string, datas: import("./interface").MindmapDataItem | import("./interface").MindmapDataItems, index?: number, _refresh?: boolean): string | string[];
         graph: G6.TreeGraph;
         G6: typeof G6;
         data: MindmapNodeItem;
@@ -416,6 +424,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -503,6 +512,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -580,6 +590,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -623,6 +634,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -665,6 +677,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -706,6 +719,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -747,6 +761,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -762,7 +777,7 @@ declare const MindmapCore: {
         getSelectedNodeId(): string;
         getAllSelectedNodeDetails(): import("./interface").MindmapDataItem[];
         getSelectedNodeDetail(): import("./interface").MindmapDataItem;
-        getNodeDetail(nodeIds: NodeIds): import("./interface").MindmapDataItem | import("./interface").MindmapDataItem[];
+        getNodeDetail(nodeIds: NodeIds): import("./interface").MindmapDataItem | import("./interface").MindmapDataItems;
         getRootNodeId(): string;
         getAllNodeIds(): string[];
         graph: G6.TreeGraph;
@@ -790,6 +805,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;
@@ -829,6 +845,7 @@ declare const MindmapCore: {
             shift: boolean;
         };
         _options: MindmapInsideOptions;
+        commander: Commander;
         clearSelectedNode(): this;
         focusNodeTextEditor(nodeId: string, clean?: boolean): this;
         blurNodeTextEditor(): this;

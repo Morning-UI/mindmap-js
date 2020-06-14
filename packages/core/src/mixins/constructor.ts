@@ -8,6 +8,9 @@ import {
     register,
     bindEvent,
 }                                               from '../base/graph';
+import {
+    Commander,
+}                                               from '../commander/index'
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL3Ctor> (Base: TBase) =>
@@ -21,6 +24,10 @@ export default <TBase extends MindmapCoreL3Ctor> (Base: TBase) =>
 
             register(this);
             this.graph = create(this, options);
+            this.commander = new Commander({
+                maxRecordNums : 100,
+                mindmap : this,
+            });
             this.G6 = G6;
             bindEvent(this);
             // this._options.$editorInput = this._options.$editor.querySelector('textarea');
@@ -31,6 +38,22 @@ export default <TBase extends MindmapCoreL3Ctor> (Base: TBase) =>
 
             // TODO : remove test
             window.test = this;
+
+            return this;
+
+        }
+
+        redo (): this {
+
+            this.commander.redo();
+
+            return this;
+
+        }
+
+        undo (): this {
+
+            this.commander.undo();
 
             return this;
 

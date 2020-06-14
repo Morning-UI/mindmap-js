@@ -3,96 +3,82 @@ import {
     NodeIds,
     MindmapCoreL0Ctor,
     LinkFeatures,
+    Command,
 }                                               from '../interface';
 import {
     fillNodeIds,
 }                                               from '../base/utils';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
-    class extends Base implements LinkFeatures {
+export const link : LinkFeatures.Link = (options) => {
 
-        showEditLink (nodeIds: NodeIds): this {
+    const {
+        mindmap,
+        nodeIds,
+        link,
+    } = options;
+    const ids = fillNodeIds(nodeIds);
 
-            const ids = fillNodeIds(nodeIds);
-            const node = this.graph.findById(ids[0]);
-            const model = node.getModel() as MindmapNodeItem;
-            const bbox = node.getBBox();
-            const {
-                x,
-                y,
-            } = this.graph.getCanvasByPoint(bbox.centerX, bbox.maxY);
-            const $boxEditLink = this._options.$boxEditLink;
-            const $boxEditLinkInput = $boxEditLink.querySelector('textarea');
+    for (const id of ids) {
 
-            let boxEditLinkWidth = 0;
+        const node = mindmap.graph.findById(id);
+        const model = getModel(node);
 
-            this.currentEditLinkNodeIds = nodeIds;
-            $boxEditLink.style.display = 'block';
-            boxEditLinkWidth = $boxEditLink.clientWidth;
-            $boxEditLink.style.left = `${x - (boxEditLinkWidth / 2)}px`;
-            $boxEditLink.style.top = `${y}px`;
-            $boxEditLinkInput.value = model.link;
-            // this.data.currentEditLinkValue = model.link;
-            // this.data.$editLinkDialog.toggle(true);
-            // this.data.mouseOnCanvas = false;
-            return this;
+        model.link = link;
+        // TODO: 启用draw后编辑链接后，appends宽度会改变
+        node.draw();
 
-        }
+    }
 
-        hideEditLink (): this {
+    mindmap.graph.layout();
 
-            const $boxEditLink = this._options.$boxEditLink;
-
-            this.currentEditLinkNodeIds = [];
-            $boxEditLink.style.display = 'none';
-            return this;
-
-        }
-
-        getCurrentEditLinkNodeIds (): NodeIds {
-
-            return this.currentEditLinkNodeIds;
-
-        }
-
-        link (nodeIds: NodeIds, link: string): this {
-
-            const ids = fillNodeIds(nodeIds);
-
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
-
-                model.link = link;
-                // TODO: 启用draw后编辑链接后，appends宽度会改变
-                // node.draw();
-
+    return {
+        note : '添加链接',
+        undoCmd : {
+            cmd : LinkFeatures.Commands.Unlink,
+            opts : {
+                nodeIds,
             }
-
-            this.graph.layout();
-            return this;
-
-        }
-
-        unlink (nodeIds: NodeIds): this {
-
-            const ids = fillNodeIds(nodeIds);
-
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
-
-                model.link = null;
-                node.draw();
-
-            }
-
-            this.graph.layout();
-            return this;
-
-        }
-
+        } as Command<LinkFeatures.Commands.Unlink>,
     };
+
+};
+
+export const unlink: LinkFeatures.Unlink = (options) => {
+
+    const {
+        mindmap,
+        nodeIds,
+    } = options;
+    const ids = fillNodeIds(nodeIds);
+    const undoCmds: Command<LinkFeatures.Commands.Link>[] = [];
+
+    for (const id of ids) {
+
+        const node = mindmap.graph.findById(id);
+        const model = getModel(node);
+
+        if (model.link !== null) {
+            undoCmds.push({
+                cmd : LinkFeatures.Commands.Link,
+                opts : {
+                    nodeIds : id,
+                    link : model.link,
+                }
+            });
+        }
+        model.link = null;
+        node.draw();
+
+    }
+
+    mindmap.graph.layout();
+
+    return {
+        note : '取消链接',
+        undoCmd : undoCmds,
+    };
+
+};

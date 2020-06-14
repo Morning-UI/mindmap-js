@@ -7,6 +7,9 @@ import {
 import {
     fillNodeIds,
 }                                               from '../base/utils';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
@@ -16,7 +19,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             const ids = fillNodeIds(nodeIds);
             const node = this.graph.findById(ids[0]);
-            const model = node.getModel() as MindmapNodeItem;
+            const model = getModel(node);
             const bbox = node.getBBox();
             const {
                 x,
@@ -63,7 +66,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 model.note = note;
                 // TODO: 启用draw后编辑链接后，appends宽度会改变
@@ -83,7 +86,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 model.note = null;
                 node.draw();

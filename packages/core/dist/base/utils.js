@@ -3,7 +3,7 @@ import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 import { MIND_NODE_STYLE, MARKS_STYLE, } from '../style';
 import { markBuilder, } from '../utils/markBuilder';
 import { setItemState, } from '../utils/setItemState';
-import { getModel, } from 'src/utils/G6Ext';
+import { getModel, } from '../utils/G6Ext';
 export var genNodeStyles = function (styles, cfg) {
     return G6.Util.deepMix({}, styles, 
     // nodeStyle._shapePresets[model._shapeStyle],

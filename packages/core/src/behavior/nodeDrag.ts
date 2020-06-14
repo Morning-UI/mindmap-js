@@ -22,6 +22,7 @@ import {
     MindmapNodeItem,
     MindmapCoreType,
     OriginPointType,
+    MindmapNodeItems,
 }                                               from '../interface';
 import {
     DRAG_NODE_STYLE,
@@ -38,6 +39,10 @@ import {
 import {
     traverseOneItem,
 }                                               from '../utils/traverseData';
+import {
+    dataItemGetter,
+    pluckDataFromModels,
+}                                               from '../utils/dataGetter';
 
 let dragTarget: DragTarget = null;
 let dragHolderParentModel: MindmapNodeItem = null;
@@ -117,9 +122,11 @@ const udpateOneDragTarget = (
 
         }
 
+        const nodeData = pluckDataFromModels([nodeModel], dataItemGetter, mindmap);
+
         mindmap.insertSubNode(
             dragHolderParentModel.id,
-            nodeModel,
+            nodeData,
             appendIndexOfParent,
             false
         );
@@ -665,7 +672,7 @@ export const getNodeDragBehavior = (mindmap: MindmapCoreType): BehaviorOption =>
 
         } else {
 
-            const models: MindmapNodeItem[] = [];
+            const models: MindmapNodeItems = [];
 
             // 拖动多个节点
             nodeIds.forEach((id) => {

@@ -6,6 +6,7 @@ import {
     MindmapXmindItem,
     MindMarkTypes,
     XmindMarkerMethods,
+    MindmapNodeItems,
 }                                               from '../interface';
 import {
     XMIND_MARKER_MAP,
@@ -97,7 +98,7 @@ export const xmindItemGetter: MindmapItemGetter<MindmapXmindItem> = {
 };
 
 export const pluckDataFromModels = <T>(
-    models: MindmapNodeItem[],
+    models: MindmapNodeItems,
     getter: MindmapItemGetter<T>,
     mindmap: MindmapCoreL0Type,
 ): T[] => {

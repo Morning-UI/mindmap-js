@@ -23,9 +23,10 @@ import {
     Item,
     IG6GraphEvent,
 }                                               from '@antv/g6/lib/types';
-import {
+import MindmapCore, {
     MindmapCoreBase,
 }                                               from '../index';
+import { foldToggle } from 'src/features/fold';
 
 export interface MindmapCreateOptions {
     // 主容器
@@ -86,6 +87,11 @@ export interface MindmapInsideOptions extends MindmapCreateOptions {
     $zoomSlider: HTMLElement;
 }
 
+export interface CommanderOptions {
+    mindmap: MindmapCoreType;
+    maxRecordNums?: number;
+}
+
 export type TraverseItemOptions = {
     type?: string;
     empty?: boolean;
@@ -102,48 +108,26 @@ export type MindmapDataItem = {
     folded?: boolean;
 }
 
-// export interface MindmapDataItem {
-//     text?: string;
-//     link?: string;
-//     note?: string;
-//     tag?: string[];
-//     mark?: MarkSet;
-//     children?: MindmapDataItem[];
-//     _isFolded?: boolean;
-//     _foldedChildren?: MindmapDataItem[];
-// }
+export type MindmapDataItems = MindmapDataItem[];
 
 export type MindmapNodeItem = MindmapDataItem & {
     id: string;
     type: string;
     anchorPoints: number[][];
 
-    children?: MindmapNodeItem[];
+    children?: MindmapNodeItems;
     style?: ShapeStyle;
 
     _isRoot?: boolean;
     _isNode?: boolean;
     _isDragging?: boolean;
     _isHolder?: boolean;
-    _foldedChildren?: MindmapNodeItem[];
+    _foldedChildren?: MindmapNodeItems;
 
-    _originChildren?: MindmapDataItem[];
+    _originChildren?: MindmapDataItems;
 };
 
-// export interface MindmapNodeItem extends MindmapDataItem, TreeGraphData, NodeConfig {
-//     children?: MindmapNodeItem[];
-//     _foldedChildren?: MindmapNodeItem[];
-//     _originChildren?: MindmapDataItem[];
-
-//     id: string;
-//     anchorPoints: number[][];
-//     style?: ShapeStyle;
-//     type: string;
-//     _isRoot: boolean;
-//     _isNode: boolean;
-//     _isDragging?: boolean;
-//     _isHolder?: boolean;
-// }
+export type MindmapNodeItems = MindmapNodeItem[];
 
 export interface MindmapXmindItem {
     title: string;
@@ -156,9 +140,6 @@ export interface MindmapXmindItem {
     };
     children?: MindmapXmindItem[];
 }
-
-export type MindmapData = MindmapNodeItem | MindmapDataItem;
-export type MindmapDatas = MindmapData[] | MindmapData;
 
 export type MindmapItemGetter<T> = {
     [key in keyof T]: (
@@ -396,13 +377,6 @@ export type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
 export type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
 export type MindmapCoreL3Ctor<T = MindmapCoreL3Type> = new (...args: any[]) => T;
-export interface LinkFeatures {
-    showEditLink (nodeIds: NodeIds): this;
-    hideEditLink (): this;
-    getCurrentEditLinkNodeIds (): NodeIds;
-    link (nodeIds: NodeIds, link: string): this;
-    unlink (nodeIds: NodeIds): this;
-}
 export interface NoteFeatures {
     showEditNote (nodeIds: NodeIds): this;
     hideEditNote (): this;
@@ -474,14 +448,102 @@ export interface GetFeatures {
     getRootNodeId (): NodeId;
     getAllNodeIds (): NodeId[];
 }
-export interface FoldFeatures {
-    // 切换节点折叠状态
-    foldToggle (nodeIds: NodeIds, fold: boolean): this;
-    // 折叠节点
-    fold (nodeIds: NodeIds): this;
-    // 展开节点
-    unfold (nodeIds: NodeIds): this;
+
+
+// Commander
+export type FeatureOptions<FO> = {
+    [key in keyof FO]: FO[key];
+} & {
+    mindmap: MindmapCoreType;
+};
+export type FeatureFn<FO> = (options: FO) => {
+    [key in Exclude<keyof CommandExecRes, 'redoCmd' | 'time'>]: CommandExecRes[key];
+};
+export type CommandExecRes = {
+    note: string;
+    time: number;
+    undoCmd: Command<AllCommands> | Command<AllCommands>[];
+    redoCmd: Command<AllCommands> | Command<AllCommands>[];
 }
+export type Command<CMD extends AllCommands> = {
+    cmd: CMD;
+    opts?: CommandOptions<CMD>;
+}
+export type CommandOptions<CMD extends AllCommands> = {
+    [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
+}
+
+export type CommandHistory = CommandExecRes;
+
+export type AllCommands
+    = FoldFeatures.Commands
+    | LinkFeatures.Commands;
+
+export type AllCommandFOMap = {
+    [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
+    [LinkFeatures.Commands.Link]: LinkFeatures.FO.Link;
+    [LinkFeatures.Commands.Unlink]: LinkFeatures.FO.Unlink;
+};
+
+// Fold Features
+export namespace FoldFeatures {
+
+    export namespace FO {
+        export type FoldToggle = FeatureOptions<{
+            nodeIds: NodeIds;
+            fold?: boolean;
+        }>;
+    }
+
+    export type FoldToggle = FeatureFn<FO.FoldToggle>;
+
+    export enum Commands {
+        FoldToggle = 'foldToggle',
+    }
+
+    export interface Mixins {
+        // 切换节点折叠状态
+        foldToggle (nodeIds: NodeIds, fold: boolean): this;
+        // 折叠节点
+        fold (nodeIds: NodeIds): this;
+        // 展开节点
+        unfold (nodeIds: NodeIds): this;
+    }
+
+}
+
+// Link Features
+export namespace LinkFeatures {
+
+    export namespace FO {
+        export type Link = FeatureOptions<{
+            nodeIds: NodeIds;
+            link: string;
+        }>;
+
+        export type Unlink = FeatureOptions<{
+            nodeIds: NodeIds;
+        }>;
+    }
+
+    export type Link = FeatureFn<FO.Link>;
+    export type Unlink = FeatureFn<FO.Unlink>;
+
+    export enum Commands {
+        Link = 'link',
+        Unlink = 'unlink',
+    }
+
+    export interface Mixins {
+        showEditLink (nodeIds: NodeIds): this;
+        hideEditLink (): this;
+        getCurrentEditLinkNodeIds (): NodeIds;
+        link (nodeIds: NodeIds, link: string): this;
+        unlink (nodeIds: NodeIds): this;
+    }
+
+}
+
 export interface MarkFeatures {
     showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this;
     hideEditMark (): this;
@@ -504,7 +566,7 @@ export interface ZoomFeatures {
 }
 export interface ExportFeatures {
     _screenshotting (shotting: boolean): void;
-    exportToObject (nodeId: NodeId): MindmapNodeItem[];
+    exportToObject (nodeId: NodeId): MindmapNodeItems;
     downloadPng (nodeId: NodeId): this;
     downloadWebp (nodeId: NodeId): this;
     downloadJpeg (nodeId: NodeId): this;
@@ -516,7 +578,7 @@ export interface ImportFeatures {
 }
 export interface ClipboardFeatures {
     copyNodeToClipboard (nodeIds: NodeIds): string;
-    copyNode (nodeIds: NodeIds): MindmapNodeItem|MindmapNodeItem[];
+    copyNode (nodeIds: NodeIds): MindmapNodeItem|MindmapNodeItems;
     getClipboard (): string;
 }
 export type MindmapCoreL0Type = MindmapCoreBase;
@@ -524,8 +586,8 @@ export type MindmapCoreL1Type =
     MindmapCoreL0Type
     & ZoomFeatures
     & GetFeatures
-    & FoldFeatures
-    & LinkFeatures
+    & FoldFeatures.Mixins
+    & LinkFeatures.Mixins
     & NoteFeatures
     & TagFeatures
     & MarkFeatures;
@@ -703,3 +765,14 @@ export enum XmindMarkerMethods {
     Flag = 'flag',
     Person = 'people',
 }
+
+
+// export type CommandList = {
+//     [key in keyof FoldMixins]: Function;
+// }
+
+// // export type CommandUndoMap = {
+//     // foldToggle : 
+// // }
+
+// export type FeatureFn = (options: CommandOptions) => void;

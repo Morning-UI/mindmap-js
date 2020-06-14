@@ -52,19 +52,21 @@ export declare type MindmapDataItem = {
     children?: MindmapDataItem[];
     folded?: boolean;
 };
+export declare type MindmapDataItems = MindmapDataItem[];
 export declare type MindmapNodeItem = MindmapDataItem & {
     id: string;
     type: string;
     anchorPoints: number[][];
-    children?: MindmapNodeItem[];
+    children?: MindmapNodeItems;
     style?: ShapeStyle;
     _isRoot?: boolean;
     _isNode?: boolean;
     _isDragging?: boolean;
     _isHolder?: boolean;
-    _foldedChildren?: MindmapNodeItem[];
-    _originChildren?: MindmapDataItem[];
+    _foldedChildren?: MindmapNodeItems;
+    _originChildren?: MindmapDataItems;
 };
+export declare type MindmapNodeItems = MindmapNodeItem[];
 export interface MindmapXmindItem {
     title: string;
     note?: string;
@@ -355,7 +357,7 @@ export interface ZoomFeatures {
 }
 export interface ExportFeatures {
     _screenshotting(shotting: boolean): void;
-    exportToObject(nodeId: NodeId): MindmapNodeItem[];
+    exportToObject(nodeId: NodeId): MindmapNodeItems;
     downloadPng(nodeId: NodeId): this;
     downloadWebp(nodeId: NodeId): this;
     downloadJpeg(nodeId: NodeId): this;
@@ -366,7 +368,7 @@ export interface ImportFeatures {
 }
 export interface ClipboardFeatures {
     copyNodeToClipboard(nodeIds: NodeIds): string;
-    copyNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
+    copyNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItems;
     getClipboard(): string;
 }
 export declare type MindmapCoreL0Type = MindmapCoreBase;

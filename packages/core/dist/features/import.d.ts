@@ -1,7 +1,7 @@
-import { MindmapCoreL2Ctor, MindmapNodeItem, MindMarkTypes } from '../interface';
+import { MindmapCoreL2Ctor, MindmapNodeItem, MindMarkTypes, MindmapNodeItems } from '../interface';
 declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").MindmapCoreL2Type>>(Base: TBase) => {
     new (...args: any[]): {
-        importFromObject(data: MindmapNodeItem[]): this;
+        importFromObject(data: MindmapNodeItems): this;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
@@ -27,6 +27,7 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
             shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
+        commander: import("../commander").Commander;
         clearSelectedNode(): any;
         focusNodeTextEditor(nodeId: string, clean?: boolean): any;
         blurNodeTextEditor(): any;
@@ -87,10 +88,10 @@ declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").
         menuItemMarkEdit(evt: MouseEvent): void;
         menuItemMarkDelete(): void;
         copyNodeToClipboard(nodeIds: import("../interface").NodeIds): string;
-        copyNode(nodeIds: import("../interface").NodeIds): MindmapNodeItem | MindmapNodeItem[];
+        copyNode(nodeIds: import("../interface").NodeIds): MindmapNodeItems | MindmapNodeItem;
         getClipboard(): string;
         removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
-        insertSubNode(nodeId: string, datas: import("../interface").MindmapDatas, index: number, _refresh: boolean): string | string[];
+        insertSubNode(nodeId: string, datas: any, index: number, _refresh: boolean): string | string[];
         readData(data: import("../interface").MindmapDataItem): any;
     };
 } & TBase;

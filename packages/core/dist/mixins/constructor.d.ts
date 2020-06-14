@@ -1,9 +1,12 @@
-import { MindmapDataItem, MindmapCoreL1Ctor } from '../interface';
-declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").MindmapCoreL1Type>>(Base: TBase) => {
+import * as G6 from '@antv/g6';
+import { MindmapCoreL3Ctor } from '../interface';
+import { Commander } from '../commander/index';
+declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").MindmapCoreL3Type>>(Base: TBase) => {
     new (...args: any[]): {
-        readData(data: MindmapDataItem): this;
-        graph: import("@antv/g6").TreeGraph;
-        G6: typeof import("@antv/g6");
+        redo(): this;
+        undo(): this;
+        graph: G6.TreeGraph;
+        G6: typeof G6;
         data: import("../interface").MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
@@ -27,7 +30,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
             shift: boolean;
         };
         _options: import("../interface").MindmapInsideOptions;
-        commander: import("../commander").Commander;
+        commander: Commander;
         clearSelectedNode(): any;
         focusNodeTextEditor(nodeId: string, clean?: boolean): any;
         blurNodeTextEditor(): any;
@@ -41,10 +44,10 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getZoom(): number;
         fitZoom(): any;
         getAllSelectedNodeIds(): string[];
-        getAllSelectedNodeDetails(): MindmapDataItem[];
+        getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
         getSelectedNodeId(): string;
-        getSelectedNodeDetail(): MindmapDataItem;
-        getNodeDetail(nodeIds: import("../interface").NodeIds): MindmapDataItem | MindmapDataItem[];
+        getSelectedNodeDetail(): import("../interface").MindmapDataItem;
+        getNodeDetail(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
         getRootNodeId(): string;
         getAllNodeIds(): string[];
         foldToggle(nodeIds: import("../interface").NodeIds, fold: boolean): any;
@@ -73,6 +76,33 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getCurrentEditMarkValue(): import("../interface").MindMarks;
         mark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
         unmark(nodeIds: import("../interface").NodeIds, mark: import("../interface").MindMarks): any;
+        showContextMenu(options: import("../interface").ShowContextMenuOptions): any;
+        hideContextMenu(): any;
+        hideAllContextMenu(): any;
+        getContextNodeId(): string;
+        getContextType(): import("../interface").ContextMenuTypes;
+        getContextData(): any;
+        menuItemLinkEdit(): void;
+        menuItemLinkDelete(): void;
+        menuItemNoteEdit(): void;
+        menuItemNoteDelete(): void;
+        menuItemTagEdit(): void;
+        menuItemTagDelete(): void;
+        menuItemMarkEdit(evt: MouseEvent): void;
+        menuItemMarkDelete(): void;
+        copyNodeToClipboard(nodeIds: import("../interface").NodeIds): string;
+        copyNode(nodeIds: import("../interface").NodeIds): import("../interface").MindmapNodeItem | import("../interface").MindmapNodeItems;
+        getClipboard(): string;
+        removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
+        insertSubNode(nodeId: string, datas: any, index: number, _refresh: boolean): string | string[];
+        readData(data: import("../interface").MindmapDataItem): any;
+        _screenshotting(shotting: boolean): void;
+        exportToObject(nodeId: string): import("../interface").MindmapNodeItems;
+        downloadPng(nodeId: string): any;
+        downloadWebp(nodeId: string): any;
+        downloadJpeg(nodeId: string): any;
+        downloadBmp(nodeId: string): any;
+        downloadFile(nodeId: string, type: import("../interface").DownloadType): any;
     };
 } & TBase;
 export default _default;

@@ -1,78 +1,51 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+import { LinkFeatures, } from '../interface';
 import { fillNodeIds, } from '../base/utils';
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export default (function (Base) {
-    return /** @class */ (function (_super) {
-        __extends(class_1, _super);
-        function class_1() {
-            return _super !== null && _super.apply(this, arguments) || this;
+import { getModel, } from '../utils/G6Ext';
+export var link = function (options) {
+    var mindmap = options.mindmap, nodeIds = options.nodeIds, link = options.link;
+    var ids = fillNodeIds(nodeIds);
+    for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
+        var id = ids_1[_i];
+        var node = mindmap.graph.findById(id);
+        var model = getModel(node);
+        model.link = link;
+        // TODO: 启用draw后编辑链接后，appends宽度会改变
+        node.draw();
+    }
+    mindmap.graph.layout();
+    return {
+        note: '添加链接',
+        undoCmd: {
+            cmd: LinkFeatures.Commands.Unlink,
+            opts: {
+                nodeIds: nodeIds,
+            }
+        },
+    };
+};
+export var unlink = function (options) {
+    var mindmap = options.mindmap, nodeIds = options.nodeIds;
+    var ids = fillNodeIds(nodeIds);
+    var undoCmds = [];
+    for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
+        var id = ids_2[_i];
+        var node = mindmap.graph.findById(id);
+        var model = getModel(node);
+        if (model.link !== null) {
+            undoCmds.push({
+                cmd: LinkFeatures.Commands.Link,
+                opts: {
+                    nodeIds: id,
+                    link: model.link,
+                }
+            });
         }
-        class_1.prototype.showEditLink = function (nodeIds) {
-            var ids = fillNodeIds(nodeIds);
-            var node = this.graph.findById(ids[0]);
-            var model = node.getModel();
-            var bbox = node.getBBox();
-            var _a = this.graph.getCanvasByPoint(bbox.centerX, bbox.maxY), x = _a.x, y = _a.y;
-            var $boxEditLink = this._options.$boxEditLink;
-            var $boxEditLinkInput = $boxEditLink.querySelector('textarea');
-            var boxEditLinkWidth = 0;
-            this.currentEditLinkNodeIds = nodeIds;
-            $boxEditLink.style.display = 'block';
-            boxEditLinkWidth = $boxEditLink.clientWidth;
-            $boxEditLink.style.left = x - (boxEditLinkWidth / 2) + "px";
-            $boxEditLink.style.top = y + "px";
-            $boxEditLinkInput.value = model.link;
-            // this.data.currentEditLinkValue = model.link;
-            // this.data.$editLinkDialog.toggle(true);
-            // this.data.mouseOnCanvas = false;
-            return this;
-        };
-        class_1.prototype.hideEditLink = function () {
-            var $boxEditLink = this._options.$boxEditLink;
-            this.currentEditLinkNodeIds = [];
-            $boxEditLink.style.display = 'none';
-            return this;
-        };
-        class_1.prototype.getCurrentEditLinkNodeIds = function () {
-            return this.currentEditLinkNodeIds;
-        };
-        class_1.prototype.link = function (nodeIds, link) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                var node = this.graph.findById(id);
-                var model = node.getModel();
-                model.link = link;
-                // TODO: 启用draw后编辑链接后，appends宽度会改变
-                // node.draw();
-            }
-            this.graph.layout();
-            return this;
-        };
-        class_1.prototype.unlink = function (nodeIds) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
-                var id = ids_2[_i];
-                var node = this.graph.findById(id);
-                var model = node.getModel();
-                model.link = null;
-                node.draw();
-            }
-            this.graph.layout();
-            return this;
-        };
-        return class_1;
-    }(Base));
-});
+        model.link = null;
+        node.draw();
+    }
+    mindmap.graph.layout();
+    return {
+        note: '取消链接',
+        undoCmd: undoCmds,
+    };
+};

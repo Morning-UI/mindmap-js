@@ -29,6 +29,9 @@ import {
 import {
     setItemState,
 }                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
@@ -74,7 +77,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             const ids = fillNodeIds(nodeIds);
             const node = this.graph.findById(ids[0]);
-            const model = node.getModel() as MindmapNodeItem;
+            const model = getModel(node);
             const bbox = node.getBBox();
             const {
                 x,
@@ -155,7 +158,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 if (model.mark === null) {
 
@@ -209,7 +212,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
                 const markType = MindMarkTypeMap[mark];
                 // const index = model.mark.indexOf(mark);
 

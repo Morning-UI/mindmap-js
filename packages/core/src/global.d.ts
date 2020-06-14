@@ -17,3 +17,5 @@ declare global {
         __MINDMAP_CLIPBOARD: string;
     }
 }
+
+declare module 'clipboard-copy';

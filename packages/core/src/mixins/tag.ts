@@ -17,6 +17,9 @@ import {
 import {
     setItemState,
 }                                               from '../utils/setItemState';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
@@ -42,7 +45,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             const ids = fillNodeIds(nodeIds);
             const node = this.graph.findById(ids[0]);
-            const model = node.getModel() as MindmapNodeItem;
+            const model = getModel(node);
             const bbox = node.getBBox();
             const {
                 x,
@@ -92,7 +95,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 model.tag = Object.assign([], model.tag).concat(_tags);
                 node.draw();
@@ -115,7 +118,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 model.tag = Object.assign([], _tags);
                 node.draw();
@@ -138,7 +141,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 model.tag = difference(model.tag, _untags);
                 cleanTagHoverState(this.graph, node);
@@ -158,7 +161,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             for (const id of ids) {
 
                 const node = this.graph.findById(id);
-                const model = node.getModel() as MindmapNodeItem;
+                const model = getModel(node);
 
                 model.tag.splice(index, 1);
                 cleanTagHoverState(this.graph, node);

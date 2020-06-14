@@ -8,6 +8,8 @@ import {
     GetFeatures,
     NodeId,
     MindmapDataItem,
+    MindmapDataItems,
+    MindmapNodeItems,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -16,6 +18,9 @@ import {
     dataItemGetter,
     pluckDataFromModels,
 }                                               from '../utils/dataGetter';
+import {
+    getModel,
+}                                               from '../utils/G6Ext';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
@@ -52,7 +57,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             }
 
-            return this.getNodeDetail(ids) as MindmapDataItem[];
+            return this.getNodeDetail(ids) as MindmapDataItems;
 
         }
 
@@ -63,14 +68,14 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
         }
 
         // TODO : detail和data的区别
-        getNodeDetail (nodeIds: NodeIds): MindmapDataItem|MindmapDataItem[] {
+        getNodeDetail (nodeIds: NodeIds): MindmapDataItems|MindmapDataItem {
 
             const ids = fillNodeIds(nodeIds);
-            const nodeModels: MindmapNodeItem[] = [];
+            const nodeModels: MindmapNodeItems = [];
 
             for (const id of ids) {
 
-                nodeModels.push(this.graph.findById(id).getModel() as MindmapNodeItem);
+                nodeModels.push(getModel(this.graph.findById(id)));
 
             }
 

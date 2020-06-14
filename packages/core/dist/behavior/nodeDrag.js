@@ -17,6 +17,7 @@ import { toggleNodeVisibility, } from '../base/utils';
 import globalData from '../base/globalData';
 import { getModel, getBBox, findNodeById, } from '../utils/G6Ext';
 import { traverseOneItem, } from '../utils/traverseData';
+import { dataItemGetter, pluckDataFromModels, } from '../utils/dataGetter';
 var dragTarget = null;
 var dragHolderParentModel = null;
 var dragHolderIndexOfParent = null;
@@ -66,7 +67,8 @@ var udpateOneDragTarget = function (mindmap, index, dragging, _dragHolderIndexOf
         if (dragHolderParentModel.folded) {
             appendIndexOfParent = -1;
         }
-        mindmap.insertSubNode(dragHolderParentModel.id, nodeModel, appendIndexOfParent, false);
+        var nodeData = pluckDataFromModels([nodeModel], dataItemGetter, mindmap);
+        mindmap.insertSubNode(dragHolderParentModel.id, nodeData, appendIndexOfParent, false);
     }
 };
 var updateDragTarget = function (mindmap, dragging) {

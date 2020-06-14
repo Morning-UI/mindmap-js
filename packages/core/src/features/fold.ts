@@ -7,6 +7,9 @@ import {
     MindmapCoreL0Ctor,
     FoldFeatures,
     MindmapCoreL0Type,
+    MindmapCoreType,
+    CommandOptions,
+    Command,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -14,19 +17,23 @@ import {
 import {
     setItemState,
 }                                               from '../utils/setItemState';
+import {
+    getModel,
+    findNodeById,
+}                                               from '../utils/G6Ext';
 
 const foldChildren = (mindmap: MindmapCoreL0Type, node: INode, fold: boolean|undefined): void => {
 
-    const model = node.getModel() as MindmapNodeItem;
-    const _fold = fold === undefined ? !model._isFolded : fold;
+    const model = getModel(node);
+    const _fold = fold === undefined ? !model.folded : fold;
 
-    if (model._isFolded === _fold) {
+    if (model.folded === _fold) {
 
         return;
 
     }
 
-    model._isFolded = _fold;
+    model.folded = _fold;
 
     if (_fold) {
 
@@ -44,40 +51,37 @@ const foldChildren = (mindmap: MindmapCoreL0Type, node: INode, fold: boolean|und
 
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
-    class extends Base implements FoldFeatures {
+// mindmap: MindmapCoreType, nodeIds: NodeIds, fold: boolean|undefined
+export const foldToggle: FoldFeatures.FoldToggle = (options) => {
 
-        foldToggle (nodeIds: NodeIds, fold: boolean|undefined): this {
+    const {
+        mindmap,
+        nodeIds,
+        fold,
+    } = options;
+    const ids = fillNodeIds(nodeIds);
 
-            const ids = fillNodeIds(nodeIds);
+    for (const id of ids) {
 
-            for (const id of ids) {
+        const node = findNodeById(mindmap.graph, id);
 
-                const node = this.graph.findById(id) as INode;
+        foldChildren(mindmap, node, fold);
+        node.draw();
 
-                foldChildren(this, node, fold);
-                node.draw();
+    }
 
+    mindmap.graph.changeData();
+    mindmap.graph.refreshLayout();
+
+    return {
+        note : fold ? '节点折叠' : '节点展开',
+        undoCmd : {
+            cmd : FoldFeatures.Commands.FoldToggle,
+            opts : {
+                nodeIds : nodeIds,
+                fold : !fold,
             }
-
-            this.graph.changeData();
-            this.graph.refreshLayout();
-
-            return this;
-
-        }
-
-        fold (nodeIds: NodeIds): this {
-
-            return this.foldToggle(nodeIds, true);
-
-        }
-
-        unfold (nodeIds: NodeIds): this {
-
-            return this.foldToggle(nodeIds, false);
-
-        }
-
+        } as Command<FoldFeatures.Commands.FoldToggle>
     };
+
+};

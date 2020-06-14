@@ -20,6 +20,23 @@ export var ContextMenuTypes;
     ContextMenuTypes[ContextMenuTypes["Note"] = 1] = "Note";
     ContextMenuTypes[ContextMenuTypes["Tag"] = 2] = "Tag";
 })(ContextMenuTypes || (ContextMenuTypes = {}));
+// Fold Features
+export var FoldFeatures;
+(function (FoldFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["FoldToggle"] = "foldToggle";
+    })(Commands = FoldFeatures.Commands || (FoldFeatures.Commands = {}));
+})(FoldFeatures || (FoldFeatures = {}));
+// Link Features
+export var LinkFeatures;
+(function (LinkFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["Link"] = "link";
+        Commands["Unlink"] = "unlink";
+    })(Commands = LinkFeatures.Commands || (LinkFeatures.Commands = {}));
+})(LinkFeatures || (LinkFeatures = {}));
 export var MindMarksTag;
 (function (MindMarksTag) {
     MindMarksTag["Red"] = "red";
@@ -110,3 +127,10 @@ export var XmindMarkerMethods;
     XmindMarkerMethods["Flag"] = "flag";
     XmindMarkerMethods["Person"] = "people";
 })(XmindMarkerMethods || (XmindMarkerMethods = {}));
+// export type CommandList = {
+//     [key in keyof FoldMixins]: Function;
+// }
+// // export type CommandUndoMap = {
+//     // foldToggle : 
+// // }
+// export type FeatureFn = (options: CommandOptions) => void;

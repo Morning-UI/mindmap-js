@@ -41,6 +41,14 @@ export default (function (Base) {
             window.test = _this;
             return _this;
         }
+        class_1.prototype.redo = function () {
+            this.commander.redo();
+            return this;
+        };
+        class_1.prototype.undo = function () {
+            this.commander.undo();
+            return this;
+        };
         return class_1;
     }(Base));
 });

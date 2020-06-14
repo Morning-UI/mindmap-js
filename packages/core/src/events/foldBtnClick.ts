@@ -6,6 +6,9 @@ import {
 }                                               from '@antv/g-base/lib/interfaces';
 import {
     EventOptions,
+    Command,
+    FoldFeatures,
+    CommandOptions,
 }                                               from '../interface';
 import {
     inNodeShape,
@@ -40,7 +43,13 @@ export default {
                 )
             ) {
 
-                options.mindmap.foldToggle(model.id, !model.folded);
+                options.mindmap.commander.addExec({
+                    cmd: FoldFeatures.Commands.FoldToggle,
+                    opts : {
+                        nodeIds : model.id,
+                        fold : !model.folded,
+                    },
+                } as Command<FoldFeatures.Commands.FoldToggle>);
 
             }
 
