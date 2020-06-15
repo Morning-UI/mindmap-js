@@ -21,6 +21,7 @@
                 "@typescript-eslint/no-unused-vars": [
                     "error"
                 ],
+                "@typescript-eslint/no-namespace": "off",
                 "sort-keys": "off",
                 "no-underscore-dangle": "off",
                 "max-len": [

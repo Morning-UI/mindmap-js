@@ -12,13 +12,19 @@ import {
     AllCommandFOMap,
     LinkFeatures,
     CommandOptions,
+    MarkFeatures,
+    NoteFeatures,
 }                                               from '../interface';
 import * as foldFeatures                        from '../features/fold';
 import * as linkFeatures                        from '../features/link';
+import * as markFeatures                        from '../features/mark';
+import * as noteFeatures                        from '../features/note';
 
 const Commands = {
     ...foldFeatures,
     ...linkFeatures,
+    ...markFeatures,
+    ...noteFeatures,
 };
 
 export class Commander {
@@ -60,35 +66,63 @@ export class Commander {
 
                 case FoldFeatures.Commands.FoldToggle:
                     execRes = Commands[cmdName]({
-                        mindmap : mindmap,
+                        mindmap,
                         ...(command.opts as CommandOptions<FoldFeatures.Commands.FoldToggle>),
                     });
                     break;
 
                 case LinkFeatures.Commands.Link:
                     execRes = Commands[cmdName]({
-                        mindmap : mindmap,
+                        mindmap,
                         ...(command.opts as CommandOptions<LinkFeatures.Commands.Link>),
                     });
                     break;
 
-                    case LinkFeatures.Commands.Unlink:
-                        execRes = Commands[cmdName]({
-                            mindmap : mindmap,
-                            ...(command.opts as CommandOptions<LinkFeatures.Commands.Unlink>),
-                        });
-                        break;
-            
+                case LinkFeatures.Commands.Unlink:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<LinkFeatures.Commands.Unlink>),
+                    });
+                    break;
+
+                case MarkFeatures.Commands.Mark:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<MarkFeatures.Commands.Mark>),
+                    });
+                    break;
+
+                case MarkFeatures.Commands.Unmark:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<MarkFeatures.Commands.Unmark>),
+                    });
+                    break;
+
+                case NoteFeatures.Commands.Note:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<NoteFeatures.Commands.Note>),
+                    });
+                    break;
+
+                case NoteFeatures.Commands.Unnote:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<NoteFeatures.Commands.Unnote>),
+                    });
+                    break;
+
                 default:
                     break;
 
             }
-    
+
         }
 
         return {
-            redoCmd: commands,
-            time: Date.now(),
+            redoCmd : commands,
+            time : Date.now(),
             ...execRes,
         };
 

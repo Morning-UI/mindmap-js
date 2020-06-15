@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+import { NoteFeatures, } from '../interface';
 import { fillNodeIds, } from '../base/utils';
 import { getModel, } from '../utils/G6Ext';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -50,28 +51,22 @@ export default (function (Base) {
             return this.currentEditNoteNodeIds;
         };
         class_1.prototype.note = function (nodeIds, note) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                model.note = note;
-                // TODO: 启用draw后编辑链接后，appends宽度会改变
-                // node.draw();
-            }
-            this.graph.layout();
+            this.commander.addExec({
+                cmd: NoteFeatures.Commands.Note,
+                opts: {
+                    nodeIds: nodeIds,
+                    note: note,
+                },
+            });
             return this;
         };
         class_1.prototype.unnote = function (nodeIds) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
-                var id = ids_2[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                model.note = null;
-                node.draw();
-            }
-            this.graph.layout();
+            this.commander.addExec({
+                cmd: NoteFeatures.Commands.Unnote,
+                opts: {
+                    nodeIds: nodeIds,
+                },
+            });
             return this;
         };
         return class_1;

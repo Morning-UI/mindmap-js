@@ -1,8 +1,8 @@
 import {
     NodeIds,
-    MindmapNodeItem,
     MindmapCoreL0Ctor,
     NoteFeatures,
+    Command,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -13,7 +13,7 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
-    class extends Base implements NoteFeatures {
+    class extends Base implements NoteFeatures.Mixins {
 
         showEditNote (nodeIds: NodeIds): this {
 
@@ -61,39 +61,27 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         note (nodeIds: NodeIds, note: string): this {
 
-            const ids = fillNodeIds(nodeIds);
+            this.commander.addExec({
+                cmd : NoteFeatures.Commands.Note,
+                opts : {
+                    nodeIds,
+                    note,
+                },
+            } as Command<NoteFeatures.Commands.Note>);
 
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-
-                model.note = note;
-                // TODO: 启用draw后编辑链接后，appends宽度会改变
-                // node.draw();
-
-            }
-
-            this.graph.layout();
             return this;
 
         }
 
         unnote (nodeIds: NodeIds): this {
 
-            const ids = fillNodeIds(nodeIds);
+            this.commander.addExec({
+                cmd : NoteFeatures.Commands.Unnote,
+                opts : {
+                    nodeIds,
+                },
+            } as Command<NoteFeatures.Commands.Unnote>);
 
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-
-                model.note = null;
-                node.draw();
-
-            }
-
-            this.graph.layout();
             return this;
 
         }

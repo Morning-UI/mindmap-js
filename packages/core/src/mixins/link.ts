@@ -1,5 +1,4 @@
 import {
-    MindmapNodeItem,
     NodeIds,
     MindmapCoreL0Ctor,
     LinkFeatures,
@@ -63,7 +62,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
         link (nodeIds: NodeIds, link: string): this {
 
             this.commander.addExec({
-                cmd: LinkFeatures.Commands.Link,
+                cmd : LinkFeatures.Commands.Link,
                 opts : {
                     nodeIds,
                     link,
@@ -77,7 +76,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
         unlink (nodeIds: NodeIds): this {
 
             this.commander.addExec({
-                cmd: LinkFeatures.Commands.Unlink,
+                cmd : LinkFeatures.Commands.Unlink,
                 opts : {
                     nodeIds,
                 },

@@ -24,7 +24,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
         currentEditMarkNodeIds: NodeIds;
-        currentEditMarkValue: import("../interface").MindMarks;
+        currentEditMarkValue: import("../interface").MindMark;
         zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;

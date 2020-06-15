@@ -18,4 +18,4 @@ declare global {
     }
 }
 
-declare module 'clipboard-copy';
+declare module 'clipboard-copy'

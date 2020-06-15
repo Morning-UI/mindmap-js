@@ -1,4 +1,3 @@
-import difference                               from 'lodash.difference';
 import {
     TreeGraph,
 }                                               from '@antv/g6';
@@ -7,18 +6,17 @@ import {
 }                                               from '@antv/g6/lib/types';
 import {
     NodeIds,
-    MindmapNodeItem,
     MindmapCoreL0Ctor,
     MarkFeatures,
-    MarkSet,
     MindMarksTag,
     MindMarksTask,
     MindMarksStar,
     MindMarksFlag,
     MindMarksPerson,
-    MindMarks,
+    MindMark,
     MindMarksPriority,
     MindMarkTypes,
+    Command,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -27,32 +25,13 @@ import {
     markElementBuilder,
 }                                               from '../utils/markBuilder';
 import {
-    setItemState,
-}                                               from '../utils/setItemState';
-import {
     getModel,
 }                                               from '../utils/G6Ext';
 
-const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
-
-    const states = node.getStates();
-
-    for (const state of states) {
-
-        if ((/^tag-hover/u).test(state)) {
-
-            setItemState(graph, node.get('id'), state, false);
-
-        }
-
-    }
-
-};
-
 const MindMarkTypeMap: {
-    [key in MindMarks]?: MindMarkTypes;
+    [key in MindMark]?: MindMarkTypes;
 } = {};
-const genMindMarkTypeMap = (type: MindMarkTypes, marks: MindMarks[]): void => {
+const genMindMarkTypeMap = (type: MindMarkTypes, marks: MindMark[]): void => {
 
     for (const mark of marks) {
 
@@ -71,7 +50,7 @@ genMindMarkTypeMap(MindMarkTypes.Person, Object.values(MindMarksPerson));
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
-    class extends Base implements MarkFeatures {
+    class extends Base implements MarkFeatures.Mixins {
 
         showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this {
 
@@ -145,67 +124,27 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
-        getCurrentEditMarkValue (): MindMarks {
+        getCurrentEditMarkValue (): MindMark {
 
             return this.currentEditMarkValue;
 
         }
 
-        mark (nodeIds: NodeIds, mark: MindMarks): this {
+        mark (nodeIds: NodeIds, mark: MindMark): this {
 
-            const ids = fillNodeIds(nodeIds);
-
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-
-                if (model.mark === null) {
-
-                    model.mark = {};
-
-                }
-
-                const markType = MindMarkTypeMap[mark];
-
-                switch (markType) {
-
-                    case MindMarkTypes.Tag:
-                        model.mark.tag = mark as MindMarksTag;
-                        break;
-                    case MindMarkTypes.Priority:
-                        model.mark.priority = mark as MindMarksPriority;
-                        break;
-                    case MindMarkTypes.Task:
-                        model.mark.task = mark as MindMarksTask;
-                        break;
-                    case MindMarkTypes.Star:
-                        model.mark.star = mark as MindMarksStar;
-                        break;
-                    case MindMarkTypes.Flag:
-                        model.mark.flag = mark as MindMarksFlag;
-                        break;
-                    case MindMarkTypes.Person:
-                        model.mark.person = mark as MindMarksPerson;
-                        break;
-                    default:
-                        break;
-
-                }
-
-                // model.mark = arrayUniq(model.mark);
-                // traverseNodeUpdateMark(model);
-                node.draw();
-
-            }
-
-            this.graph.layout();
+            this.commander.addExec({
+                cmd : MarkFeatures.Commands.Mark,
+                opts : {
+                    nodeIds,
+                    mark,
+                },
+            } as Command<MarkFeatures.Commands.Mark>);
 
             return this;
 
         }
 
-        unmark (nodeIds: NodeIds, mark: MindMarks): this {
+        unmark (nodeIds: NodeIds, mark: MindMark): this {
 
             const ids = fillNodeIds(nodeIds);
 
@@ -232,72 +171,5 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             return this;
 
         }
-
-        // tagAdd (nodeIds: NodeIds, tags: string[]|string): this {
-
-        //     const ids = fillNodeIds(nodeIds);
-
-        //     let _tags = typeof tags === 'string' ? [tags] : tags;
-
-        //     _tags = difference(_tags, ['']);
-
-        //     for (const id of ids) {
-
-        //         const node = this.graph.findById(id);
-        //         const model = node.getModel() as MindmapNodeItem;
-
-        //         model.tag = Object.assign([], model.tag).concat(_tags);
-        //         node.draw();
-
-        //     }
-
-        //     this.graph.layout();
-        //     return this;
-
-        // }
-
-        // untag (nodeIds: NodeIds, untags: string[]|string): this {
-
-        //     const ids = fillNodeIds(nodeIds);
-
-        //     let _untags = typeof untags === 'string' ? [untags] : untags;
-
-        //     _untags = difference(_untags, ['']);
-
-        //     for (const id of ids) {
-
-        //         const node = this.graph.findById(id);
-        //         const model = node.getModel() as MindmapNodeItem;
-
-        //         model.tag = difference(model.tag, _untags);
-        //         cleanTagHoverState(this.graph, node);
-        //         node.draw();
-
-        //     }
-
-        //     this.graph.layout();
-        //     return this;
-
-        // }
-
-        // untagByIndex (nodeIds: NodeIds, index: number): this {
-
-        //     const ids = fillNodeIds(nodeIds);
-
-        //     for (const id of ids) {
-
-        //         const node = this.graph.findById(id);
-        //         const model = node.getModel() as MindmapNodeItem;
-
-        //         model.tag.splice(index, 1);
-        //         cleanTagHoverState(this.graph, node);
-        //         node.draw();
-
-        //     }
-
-        //     this.graph.layout();
-        //     return this;
-
-        // }
 
     };

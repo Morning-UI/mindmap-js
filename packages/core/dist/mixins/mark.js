@@ -11,20 +11,10 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { MindMarksTag, MindMarksTask, MindMarksStar, MindMarksFlag, MindMarksPerson, MindMarksPriority, MindMarkTypes, } from '../interface';
+import { MarkFeatures, MindMarksTag, MindMarksTask, MindMarksStar, MindMarksFlag, MindMarksPerson, MindMarksPriority, MindMarkTypes, } from '../interface';
 import { fillNodeIds, } from '../base/utils';
 import { markElementBuilder, } from '../utils/markBuilder';
-import { setItemState, } from '../utils/setItemState';
 import { getModel, } from '../utils/G6Ext';
-var cleanTagHoverState = function (graph, node) {
-    var states = node.getStates();
-    for (var _i = 0, states_1 = states; _i < states_1.length; _i++) {
-        var state = states_1[_i];
-        if ((/^tag-hover/u).test(state)) {
-            setItemState(graph, node.get('id'), state, false);
-        }
-    }
-};
 var MindMarkTypeMap = {};
 var genMindMarkTypeMap = function (type, marks) {
     for (var _i = 0, marks_1 = marks; _i < marks_1.length; _i++) {
@@ -101,48 +91,19 @@ export default (function (Base) {
             return this.currentEditMarkValue;
         };
         class_1.prototype.mark = function (nodeIds, mark) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                if (model.mark === null) {
-                    model.mark = {};
-                }
-                var markType = MindMarkTypeMap[mark];
-                switch (markType) {
-                    case MindMarkTypes.Tag:
-                        model.mark.tag = mark;
-                        break;
-                    case MindMarkTypes.Priority:
-                        model.mark.priority = mark;
-                        break;
-                    case MindMarkTypes.Task:
-                        model.mark.task = mark;
-                        break;
-                    case MindMarkTypes.Star:
-                        model.mark.star = mark;
-                        break;
-                    case MindMarkTypes.Flag:
-                        model.mark.flag = mark;
-                        break;
-                    case MindMarkTypes.Person:
-                        model.mark.person = mark;
-                        break;
-                    default:
-                        break;
-                }
-                // model.mark = arrayUniq(model.mark);
-                // traverseNodeUpdateMark(model);
-                node.draw();
-            }
-            this.graph.layout();
+            this.commander.addExec({
+                cmd: MarkFeatures.Commands.Mark,
+                opts: {
+                    nodeIds: nodeIds,
+                    mark: mark,
+                },
+            });
             return this;
         };
         class_1.prototype.unmark = function (nodeIds, mark) {
             var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
-                var id = ids_2[_i];
+            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
+                var id = ids_1[_i];
                 var node = this.graph.findById(id);
                 var model = getModel(node);
                 var markType = MindMarkTypeMap[mark];

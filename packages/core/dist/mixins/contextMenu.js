@@ -115,7 +115,7 @@ export default (function (Base) {
         };
         class_1.prototype.menuItemMarkDelete = function () {
             // const $target = evt.target as HTMLElement;
-            // const markValue = $target.getAttribute('mark-value') as MindMarks;
+            // const markValue = $target.getAttribute('mark-value') as MindMark;
             this.unmark(this.getCurrentEditMarkNodeIds(), this.getCurrentEditMarkValue());
             this.hideAllContextMenu();
         };

@@ -15,7 +15,7 @@ import {
     EventCallbacks,
     ContextMenuTypes,
     NodeIds,
-    MindMarks,
+    MindMark,
 }                                               from './interface';
 import {
     manualPaint,
@@ -68,7 +68,7 @@ export class MindmapCoreBase {
     currentEditNoteNodeIds: NodeIds;
     currentEditTagNodeIds: NodeIds;
     currentEditMarkNodeIds: NodeIds;
-    currentEditMarkValue: MindMarks;
+    currentEditMarkValue: MindMark;
     zoomValue: number;
 
     isMindmap = true;

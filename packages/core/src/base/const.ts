@@ -1,6 +1,6 @@
 import {
     MindMarkTypes,
-    MindMarks,
+    MindMark,
     XmindMarkerMethods,
 }                                               from '../interface';
 
@@ -21,7 +21,7 @@ export const TAG = {
 
 export const XMIND_MARKER_MAP: {
     [type in MindMarkTypes]?: {
-        [value in MindMarks]?: {
+        [value in MindMark]?: {
             method: XmindMarkerMethods;
             name: string;
         }

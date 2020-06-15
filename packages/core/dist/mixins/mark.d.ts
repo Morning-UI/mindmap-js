@@ -1,17 +1,17 @@
 import { TreeGraph } from '@antv/g6';
 import { Item } from '@antv/g6/lib/types';
-import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor, MindMarks, MindMarkTypes } from '../interface';
+import { NodeIds, MindmapCoreL0Ctor, MindMark, MindMarkTypes } from '../interface';
 declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
     new (...args: any[]): {
         showEditMark(nodeIds: NodeIds, markType: MindMarkTypes): this;
         hideEditMark(): this;
         getCurrentEditMarkNodeIds(): NodeIds;
-        getCurrentEditMarkValue(): MindMarks;
-        mark(nodeIds: NodeIds, mark: MindMarks): this;
-        unmark(nodeIds: NodeIds, mark: MindMarks): this;
+        getCurrentEditMarkValue(): MindMark;
+        mark(nodeIds: NodeIds, mark: MindMark): this;
+        unmark(nodeIds: NodeIds, mark: MindMark): this;
         graph: TreeGraph;
         G6: typeof import("@antv/g6");
-        data: MindmapNodeItem;
+        data: import("../interface").MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
         editElements: import("../interface").MindNodeElements;
@@ -25,7 +25,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
         currentEditMarkNodeIds: NodeIds;
-        currentEditMarkValue: MindMarks;
+        currentEditMarkValue: MindMark;
         zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;

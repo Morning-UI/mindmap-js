@@ -1,4 +1,4 @@
-import { MindmapNodeItem, NodeIds, MindmapCoreL0Ctor } from '../interface';
+import { NodeIds, MindmapCoreL0Ctor } from '../interface';
 declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
     new (...args: any[]): {
         showEditLink(nodeIds: NodeIds): this;
@@ -8,7 +8,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         unlink(nodeIds: NodeIds): this;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
-        data: MindmapNodeItem;
+        data: import("../interface").MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
         editElements: import("../interface").MindNodeElements;
@@ -22,7 +22,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         currentEditNoteNodeIds: NodeIds;
         currentEditTagNodeIds: NodeIds;
         currentEditMarkNodeIds: NodeIds;
-        currentEditMarkValue: import("../interface").MindMarks;
+        currentEditMarkValue: import("../interface").MindMark;
         zoomValue: number;
         isMindmap: boolean;
         eventList: import("../interface").EventList;

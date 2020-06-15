@@ -1,4 +1,4 @@
-import { MindMarkTypes, MindMarks, XmindMarkerMethods } from '../interface';
+import { MindMarkTypes, MindMark, XmindMarkerMethods } from '../interface';
 export declare const APPENDS_LIST: {
     link: {
         index: number;
@@ -14,7 +14,7 @@ export declare const TAG: {
 };
 export declare const XMIND_MARKER_MAP: {
     [type in MindMarkTypes]?: {
-        [value in MindMarks]?: {
+        [value in MindMark]?: {
             method: XmindMarkerMethods;
             name: string;
         };

@@ -3,7 +3,7 @@ import {
     ContextMenuTypes,
     MindmapCoreL1Ctor,
     ContextMenuFeatures,
-    MindMarks,
+    MindMark,
 }                                               from '../interface';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
@@ -155,7 +155,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
         menuItemMarkEdit (evt: MouseEvent): void {
 
             const $target = evt.target as HTMLElement;
-            const markValue = $target.getAttribute('mark-value') as MindMarks;
+            const markValue = $target.getAttribute('mark-value') as MindMark;
 
             this.mark(this.getCurrentEditMarkNodeIds(), markValue);
 
@@ -164,7 +164,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
         menuItemMarkDelete (): void {
 
             // const $target = evt.target as HTMLElement;
-            // const markValue = $target.getAttribute('mark-value') as MindMarks;
+            // const markValue = $target.getAttribute('mark-value') as MindMark;
 
             this.unmark(this.getCurrentEditMarkNodeIds(), this.getCurrentEditMarkValue());
             this.hideAllContextMenu();

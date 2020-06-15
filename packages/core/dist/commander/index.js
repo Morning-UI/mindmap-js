@@ -9,10 +9,12 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { FoldFeatures, LinkFeatures, } from '../interface';
+import { FoldFeatures, LinkFeatures, MarkFeatures, NoteFeatures, } from '../interface';
 import * as foldFeatures from '../features/fold';
 import * as linkFeatures from '../features/link';
-var Commands = __assign(__assign({}, foldFeatures), linkFeatures);
+import * as markFeatures from '../features/mark';
+import * as noteFeatures from '../features/note';
+var Commands = __assign(__assign(__assign(__assign({}, foldFeatures), linkFeatures), markFeatures), noteFeatures);
 var Commander = /** @class */ (function () {
     function Commander(options) {
         this.history = [];
@@ -39,6 +41,18 @@ var Commander = /** @class */ (function () {
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
                 case LinkFeatures.Commands.Unlink:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case MarkFeatures.Commands.Mark:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case MarkFeatures.Commands.Unmark:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case NoteFeatures.Commands.Note:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case NoteFeatures.Commands.Unnote:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
                 default:

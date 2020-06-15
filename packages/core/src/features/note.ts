@@ -1,5 +1,5 @@
 import {
-    LinkFeatures,
+    NoteFeatures,
     Command,
 }                                               from '../interface';
 import {
@@ -9,12 +9,12 @@ import {
     getModel,
 }                                               from '../utils/G6Ext';
 
-export const link: LinkFeatures.Link = (options) => {
+export const note: NoteFeatures.Note = (options) => {
 
     const {
         mindmap,
         nodeIds,
-        link : _link,
+        note : _note,
     } = options;
     const ids = fillNodeIds(nodeIds);
 
@@ -23,7 +23,7 @@ export const link: LinkFeatures.Link = (options) => {
         const node = mindmap.graph.findById(id);
         const model = getModel(node);
 
-        model.link = _link;
+        model.note = _note;
         // TODO: 启用draw后编辑链接后，appends宽度会改变
         node.draw();
 
@@ -32,41 +32,39 @@ export const link: LinkFeatures.Link = (options) => {
     mindmap.graph.layout();
 
     return {
-        note : '添加链接',
+        note : '添加备注',
         undoCmd : {
-            cmd : LinkFeatures.Commands.Unlink,
+            cmd : NoteFeatures.Commands.Unnote,
             opts : {
                 nodeIds,
             },
-        } as Command<LinkFeatures.Commands.Unlink>,
+        } as Command<NoteFeatures.Commands.Unnote>,
     };
 
 };
 
-export const unlink: LinkFeatures.Unlink = (options) => {
+export const unnote: NoteFeatures.Unnote = (options) => {
 
     const {
         mindmap,
         nodeIds,
     } = options;
     const ids = fillNodeIds(nodeIds);
-    const undoCmds: Command<LinkFeatures.Commands.Link>[] = [];
+    const undoCmds: Command<NoteFeatures.Commands.Note>[] = [];
 
     for (const id of ids) {
 
         const node = mindmap.graph.findById(id);
         const model = getModel(node);
 
-        if (model.link !== null) {
-            undoCmds.push({
-                cmd : LinkFeatures.Commands.Link,
-                opts : {
-                    nodeIds : id,
-                    link : model.link,
-                }
-            });
-        }
-        model.link = null;
+        undoCmds.push({
+            cmd : NoteFeatures.Commands.Note,
+            opts : {
+                nodeIds : id,
+                note : model.note,
+            },
+        });
+        model.note = null;
         node.draw();
 
     }
@@ -74,7 +72,7 @@ export const unlink: LinkFeatures.Unlink = (options) => {
     mindmap.graph.layout();
 
     return {
-        note : '取消链接',
+        note : '删除备注',
         undoCmd : undoCmds,
     };
 

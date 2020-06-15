@@ -23,10 +23,9 @@ import {
     Item,
     IG6GraphEvent,
 }                                               from '@antv/g6/lib/types';
-import MindmapCore, {
+import {
     MindmapCoreBase,
 }                                               from '../index';
-import { foldToggle } from 'src/features/fold';
 
 export interface MindmapCreateOptions {
     // 主容器
@@ -229,7 +228,7 @@ export interface InitNodeTagsOptions {
 }
 
 export type GenMarkOptions = {
-    markName: MindMarks;
+    markName: MindMark;
     markType: MindMarkTypes;
 } & InitNodeTagsOptions;
 
@@ -377,13 +376,6 @@ export type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
 export type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
 export type MindmapCoreL3Ctor<T = MindmapCoreL3Type> = new (...args: any[]) => T;
-export interface NoteFeatures {
-    showEditNote (nodeIds: NodeIds): this;
-    hideEditNote (): this;
-    getCurrentEditNoteNodeIds (): NodeIds;
-    note (nodeIds: NodeIds, note: string): this;
-    unnote (nodeIds: NodeIds): this;
-}
 export interface TagFeatures {
     // 显示标签编辑弹窗
     showEditTag (nodeIds: NodeIds): this;
@@ -449,8 +441,7 @@ export interface GetFeatures {
     getAllNodeIds (): NodeId[];
 }
 
-
-// Commander
+// Features
 export type FeatureOptions<FO> = {
     [key in keyof FO]: FO[key];
 } & {
@@ -459,38 +450,13 @@ export type FeatureOptions<FO> = {
 export type FeatureFn<FO> = (options: FO) => {
     [key in Exclude<keyof CommandExecRes, 'redoCmd' | 'time'>]: CommandExecRes[key];
 };
-export type CommandExecRes = {
-    note: string;
-    time: number;
-    undoCmd: Command<AllCommands> | Command<AllCommands>[];
-    redoCmd: Command<AllCommands> | Command<AllCommands>[];
-}
-export type Command<CMD extends AllCommands> = {
-    cmd: CMD;
-    opts?: CommandOptions<CMD>;
-}
-export type CommandOptions<CMD extends AllCommands> = {
-    [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
-}
-
-export type CommandHistory = CommandExecRes;
-
-export type AllCommands
-    = FoldFeatures.Commands
-    | LinkFeatures.Commands;
-
-export type AllCommandFOMap = {
-    [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
-    [LinkFeatures.Commands.Link]: LinkFeatures.FO.Link;
-    [LinkFeatures.Commands.Unlink]: LinkFeatures.FO.Unlink;
-};
 
 // Fold Features
 export namespace FoldFeatures {
 
     export namespace FO {
         export type FoldToggle = FeatureOptions<{
-            nodeIds: NodeIds;
+        nodeIds: NodeIds;
             fold?: boolean;
         }>;
     }
@@ -514,7 +480,6 @@ export namespace FoldFeatures {
 
 // Link Features
 export namespace LinkFeatures {
-
     export namespace FO {
         export type Link = FeatureOptions<{
             nodeIds: NodeIds;
@@ -541,17 +506,101 @@ export namespace LinkFeatures {
         link (nodeIds: NodeIds, link: string): this;
         unlink (nodeIds: NodeIds): this;
     }
-
 }
 
-export interface MarkFeatures {
-    showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this;
-    hideEditMark (): this;
-    getCurrentEditMarkNodeIds (): NodeIds;
-    getCurrentEditMarkValue (): MindMarks;
-    mark (nodeIds: NodeIds, mark: MindMarks): this;
-    unmark (nodeIds: NodeIds, mark: MindMarks): this;
+// Mark Features
+export namespace MarkFeatures {
+    export namespace FO {
+        export type Mark = FeatureOptions<{
+            nodeIds: NodeIds;
+            mark: MindMark|MindMark[];
+        }>;
+
+        export type Unmark = FeatureOptions<{
+            nodeIds: NodeIds;
+            mark?: MindMark|MindMark[];
+        }>;
+    }
+
+    export type Mark = FeatureFn<FO.Mark>;
+    export type Unmark = FeatureFn<FO.Unmark>;
+
+    export enum Commands {
+        Mark = 'mark',
+        Unmark = 'unmark',
+    }
+
+    export interface Mixins {
+        showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this;
+        hideEditMark (): this;
+        getCurrentEditMarkNodeIds (): NodeIds;
+        getCurrentEditMarkValue (): MindMark;
+        mark (nodeIds: NodeIds, mark: MindMark): this;
+        unmark (nodeIds: NodeIds, mark: MindMark): this;
+    }
 }
+
+// Note Features
+export namespace NoteFeatures {
+    export namespace FO {
+        export type Note = FeatureOptions<{
+            nodeIds: NodeIds;
+            note: string;
+        }>;
+
+        export type Unote = FeatureOptions<{
+            nodeIds: NodeIds;
+        }>;
+    }
+
+    export type Note = FeatureFn<FO.Note>;
+    export type Unnote = FeatureFn<FO.Unote>;
+
+    export enum Commands {
+        Note = 'note',
+        Unnote = 'unnote',
+    }
+
+    export interface Mixins {
+        showEditNote (nodeIds: NodeIds): this;
+        hideEditNote (): this;
+        getCurrentEditNoteNodeIds (): NodeIds;
+        note (nodeIds: NodeIds, note: string): this;
+        unnote (nodeIds: NodeIds): this;
+    }
+}
+
+// Commander
+export type AllCommands
+    = FoldFeatures.Commands
+    | LinkFeatures.Commands
+    | MarkFeatures.Commands
+    | NoteFeatures.Commands;
+
+export type AllCommandFOMap = {
+    [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
+    [LinkFeatures.Commands.Link]: LinkFeatures.FO.Link;
+    [LinkFeatures.Commands.Unlink]: LinkFeatures.FO.Unlink;
+    [MarkFeatures.Commands.Mark]: MarkFeatures.FO.Mark;
+    [MarkFeatures.Commands.Unmark]: MarkFeatures.FO.Unmark;
+    [NoteFeatures.Commands.Note]: NoteFeatures.FO.Note;
+    [NoteFeatures.Commands.Unnote]: NoteFeatures.FO.Unote;
+};
+export type CommandExecRes = {
+    note: string;
+    time: number;
+    undoCmd: Command<AllCommands> | Command<AllCommands>[];
+    redoCmd: Command<AllCommands> | Command<AllCommands>[];
+}
+export type Command<CMD extends AllCommands> = {
+    cmd: CMD;
+    opts?: CommandOptions<CMD>;
+}
+export type CommandOptions<CMD extends AllCommands> = {
+    [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
+}
+export type CommandHistory = CommandExecRes;
+
 export interface ReadDataFeatures {
     readData (data: MindmapDataItem): this;
 }
@@ -664,7 +713,7 @@ export enum MindMarksPerson {
     PersonCyan = 'personCyan',
     PersonGray = 'personGray',
 }
-export const MindMarks = {
+export const MindMark = {
     ...MindMarksTag,
     ...MindMarksPriority,
     ...MindMarksTask,
@@ -673,7 +722,7 @@ export const MindMarks = {
     ...MindMarksPerson,
 }
 
-export type MindMarks =
+export type MindMark =
     MindMarksTag
     | MindMarksPriority
     | MindMarksTask

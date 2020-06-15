@@ -37,6 +37,24 @@ export var LinkFeatures;
         Commands["Unlink"] = "unlink";
     })(Commands = LinkFeatures.Commands || (LinkFeatures.Commands = {}));
 })(LinkFeatures || (LinkFeatures = {}));
+// Mark Features
+export var MarkFeatures;
+(function (MarkFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["Mark"] = "mark";
+        Commands["Unmark"] = "unmark";
+    })(Commands = MarkFeatures.Commands || (MarkFeatures.Commands = {}));
+})(MarkFeatures || (MarkFeatures = {}));
+// Note Features
+export var NoteFeatures;
+(function (NoteFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["Note"] = "note";
+        Commands["Unnote"] = "unnote";
+    })(Commands = NoteFeatures.Commands || (NoteFeatures.Commands = {}));
+})(NoteFeatures || (NoteFeatures = {}));
 export var MindMarksTag;
 (function (MindMarksTag) {
     MindMarksTag["Red"] = "red";
@@ -99,7 +117,7 @@ export var MindMarksPerson;
     MindMarksPerson["PersonCyan"] = "personCyan";
     MindMarksPerson["PersonGray"] = "personGray";
 })(MindMarksPerson || (MindMarksPerson = {}));
-export var MindMarks = __assign(__assign(__assign(__assign(__assign(__assign({}, MindMarksTag), MindMarksPriority), MindMarksTask), MindMarksStar), MindMarksFlag), MindMarksPerson);
+export var MindMark = __assign(__assign(__assign(__assign(__assign(__assign({}, MindMarksTag), MindMarksPriority), MindMarksTask), MindMarksStar), MindMarksFlag), MindMarksPerson);
 export var MindMarkTypes;
 (function (MindMarkTypes) {
     MindMarkTypes["Tag"] = "tag";
