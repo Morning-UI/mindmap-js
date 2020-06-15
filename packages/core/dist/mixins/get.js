@@ -21,6 +21,31 @@ export default (function (Base) {
         function class_1() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
+        class_1.prototype.getNodeData = function (nodeIds) {
+            var ids = fillNodeIds(nodeIds);
+            var nodeModels = [];
+            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
+                var id = ids_1[_i];
+                nodeModels.push(getModel(this.graph.findById(id)));
+            }
+            var datas = pluckDataFromModels(nodeModels, dataItemGetter, this);
+            if (nodeModels.length <= 1) {
+                return datas[0];
+            }
+            return datas;
+        };
+        class_1.prototype.getNode = function (nodeIds) {
+            var ids = fillNodeIds(nodeIds);
+            var nodeModels = [];
+            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
+                var id = ids_2[_i];
+                nodeModels.push(getModel(this.graph.findById(id)));
+            }
+            if (nodeModels.length <= 1) {
+                return nodeModels[0];
+            }
+            return nodeModels;
+        };
         class_1.prototype.getAllSelectedNodeIds = function () {
             var nodes = this.graph.findAllByState('node', 'selected');
             var nodeIds = [];
@@ -33,36 +58,25 @@ export default (function (Base) {
         class_1.prototype.getSelectedNodeId = function () {
             return this.getAllSelectedNodeIds()[0];
         };
-        class_1.prototype.getAllSelectedNodeDetails = function () {
+        class_1.prototype.getAllSelectedNodeDatas = function () {
             var ids = this.getAllSelectedNodeIds();
             if (ids.length <= 1) {
-                return [this.getNodeDetail(ids)];
+                return [this.getNodeData(ids)];
             }
-            return this.getNodeDetail(ids);
+            return this.getNodeData(ids);
         };
-        class_1.prototype.getSelectedNodeDetail = function () {
-            return this.getAllSelectedNodeDetails()[0];
+        class_1.prototype.getSelectedNodeData = function () {
+            return this.getAllSelectedNodeDatas()[0];
         };
-        // TODO : detail和data的区别
-        class_1.prototype.getNodeDetail = function (nodeIds) {
-            var ids = fillNodeIds(nodeIds);
-            var nodeModels = [];
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                nodeModels.push(getModel(this.graph.findById(id)));
+        class_1.prototype.getAllSelectedNodes = function () {
+            var ids = this.getAllSelectedNodeIds();
+            if (ids.length <= 1) {
+                return [this.getNode(ids)];
             }
-            var details = pluckDataFromModels(nodeModels, dataItemGetter, this);
-            if (nodeModels.length <= 1) {
-                return details[0];
-            }
-            return details;
+            return this.getNode(ids);
         };
-        class_1.prototype.getRootNodeId = function () {
-            var nodes = this.getAllNodeIds();
-            if (nodes && nodes[0]) {
-                return nodes[0];
-            }
-            return undefined;
+        class_1.prototype.getSelectedNode = function () {
+            return this.getAllSelectedNodes()[0];
         };
         class_1.prototype.getAllNodeIds = function () {
             var nodes = this.graph.getNodes();
@@ -74,6 +88,27 @@ export default (function (Base) {
                 }
             }
             return nodeIds;
+        };
+        class_1.prototype.getAllNodeDatas = function () {
+            var datas = this.getNodeData(this.getAllNodeIds());
+            return Array.isArray(datas) ? datas : [datas];
+        };
+        class_1.prototype.getAllNodes = function () {
+            var nodes = this.getNode(this.getAllNodeIds());
+            return Array.isArray(nodes) ? nodes : [nodes];
+        };
+        class_1.prototype.getRootNodeId = function () {
+            var nodes = this.getAllNodeIds();
+            if (nodes && nodes[0]) {
+                return nodes[0];
+            }
+            return undefined;
+        };
+        class_1.prototype.getRootNode = function () {
+            return this.getNode(this.getRootNodeId());
+        };
+        class_1.prototype.getEdittingState = function () {
+            return this.editting;
         };
         return class_1;
     }(Base));

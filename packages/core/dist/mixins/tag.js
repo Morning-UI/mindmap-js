@@ -13,17 +13,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 import { TagFeatures, } from '../interface';
 import { fillNodeIds, } from '../base/utils';
-import { setItemState, } from '../utils/setItemState';
 import { getModel, } from '../utils/G6Ext';
-var cleanTagHoverState = function (graph, node) {
-    var states = node.getStates();
-    for (var _i = 0, states_1 = states; _i < states_1.length; _i++) {
-        var state = states_1[_i];
-        if ((/^tag-hover/u).test(state)) {
-            setItemState(graph, node.get('id'), state, false);
-        }
-    }
-};
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
@@ -84,16 +74,6 @@ export default (function (Base) {
                 opts: {
                     nodeIds: nodeIds,
                     tags: tags,
-                },
-            });
-            return this;
-        };
-        class_1.prototype.untagByIndex = function (nodeIds, index) {
-            this.commander.addExec({
-                cmd: TagFeatures.Commands.UntagByIndex,
-                opts: {
-                    nodeIds: nodeIds,
-                    index: index,
                 },
             });
             return this;

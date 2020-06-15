@@ -1,13 +1,5 @@
-import difference                               from 'lodash.difference';
-import {
-    TreeGraph,
-}                                               from '@antv/g6';
-import {
-    Item,
-}                                               from '@antv/g6/lib/types';
 import {
     NodeIds,
-    MindmapNodeItem,
     MindmapCoreL0Ctor,
     TagFeatures,
     Command,
@@ -16,27 +8,8 @@ import {
     fillNodeIds,
 }                                               from '../base/utils';
 import {
-    setItemState,
-}                                               from '../utils/setItemState';
-import {
     getModel,
 }                                               from '../utils/G6Ext';
-
-const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
-
-    const states = node.getStates();
-
-    for (const state of states) {
-
-        if ((/^tag-hover/u).test(state)) {
-
-            setItemState(graph, node.get('id'), state, false);
-
-        }
-
-    }
-
-};
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
@@ -122,20 +95,6 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
                     tags,
                 },
             } as Command<TagFeatures.Commands.Untag>);
-
-            return this;
-
-        }
-
-        untagByIndex (nodeIds: NodeIds, index: number): this {
-
-            this.commander.addExec({
-                cmd : TagFeatures.Commands.UntagByIndex,
-                opts : {
-                    nodeIds,
-                    index,
-                },
-            } as Command<TagFeatures.Commands.UntagByIndex>);
 
             return this;
 

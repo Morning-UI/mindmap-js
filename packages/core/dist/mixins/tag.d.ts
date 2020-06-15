@@ -1,6 +1,4 @@
-import { TreeGraph } from '@antv/g6';
-import { Item } from '@antv/g6/lib/types';
-import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor } from '../interface';
+import { NodeIds, MindmapCoreL0Ctor } from '../interface';
 declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
     new (...args: any[]): {
         showEditTag(nodeIds: NodeIds): this;
@@ -9,14 +7,13 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         tag(nodeIds: NodeIds, tags: string[] | string): this;
         tagAll(nodeIds: NodeIds, tags: string[] | string): this;
         untag(nodeIds: NodeIds, tags: string[] | string): this;
-        untagByIndex(nodeIds: NodeIds, index: number): this;
-        graph: TreeGraph;
+        graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
-        data: MindmapNodeItem;
+        data: import("../interface").MindmapNodeItem;
         dragging: boolean;
         editting: boolean;
         editElements: import("../interface").MindNodeElements;
-        editNode: Item;
+        editNode: import("@antv/g6/lib/types").Item;
         editContent: string;
         editZoom: number;
         contextNodeId: string;

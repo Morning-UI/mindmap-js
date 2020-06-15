@@ -26,6 +26,50 @@ import {
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
     class extends Base implements GetFeatures {
 
+        getNodeData (nodeIds: NodeIds): MindmapDataItems|MindmapDataItem {
+
+            const ids = fillNodeIds(nodeIds);
+            const nodeModels: MindmapNodeItems = [];
+
+            for (const id of ids) {
+
+                nodeModels.push(getModel(this.graph.findById(id)));
+
+            }
+
+            const datas = pluckDataFromModels(nodeModels, dataItemGetter, this);
+
+            if (nodeModels.length <= 1) {
+
+                return datas[0];
+
+            }
+
+            return datas;
+
+        }
+
+        getNode (nodeIds: NodeIds): MindmapNodeItems|MindmapNodeItem {
+
+            const ids = fillNodeIds(nodeIds);
+            const nodeModels: MindmapNodeItems = [];
+
+            for (const id of ids) {
+
+                nodeModels.push(getModel(this.graph.findById(id)));
+
+            }
+
+            if (nodeModels.length <= 1) {
+
+                return nodeModels[0];
+
+            }
+
+            return nodeModels;
+
+        }
+
         getAllSelectedNodeIds (): NodeId[] {
 
             const nodes = this.graph.findAllByState<INode>('node', 'selected');
@@ -47,61 +91,43 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
-        getAllSelectedNodeDetails (): MindmapDataItem[] {
+        getAllSelectedNodeDatas (): MindmapDataItems {
 
             const ids = this.getAllSelectedNodeIds();
 
             if (ids.length <= 1) {
 
-                return [this.getNodeDetail(ids) as MindmapDataItem];
+                return [this.getNodeData(ids) as MindmapDataItem];
 
             }
 
-            return this.getNodeDetail(ids) as MindmapDataItems;
+            return this.getNodeData(ids) as MindmapDataItems;
 
         }
 
-        getSelectedNodeDetail (): MindmapDataItem {
+        getSelectedNodeData (): MindmapDataItem {
 
-            return this.getAllSelectedNodeDetails()[0];
-
-        }
-
-        // TODO : detail和data的区别
-        getNodeDetail (nodeIds: NodeIds): MindmapDataItems|MindmapDataItem {
-
-            const ids = fillNodeIds(nodeIds);
-            const nodeModels: MindmapNodeItems = [];
-
-            for (const id of ids) {
-
-                nodeModels.push(getModel(this.graph.findById(id)));
-
-            }
-
-            const details = pluckDataFromModels(nodeModels, dataItemGetter, this);
-
-            if (nodeModels.length <= 1) {
-
-                return details[0];
-
-            }
-
-            return details;
+            return this.getAllSelectedNodeDatas()[0];
 
         }
 
-        getRootNodeId (): NodeId {
+        getAllSelectedNodes (): MindmapNodeItems {
 
-            const nodes = this.getAllNodeIds();
+            const ids = this.getAllSelectedNodeIds();
 
-            if (nodes && nodes[0]) {
+            if (ids.length <= 1) {
 
-                return nodes[0];
+                return [this.getNode(ids) as MindmapNodeItem];
 
             }
 
-            return undefined;
+            return this.getNode(ids) as MindmapNodeItems;
+
+        }
+
+        getSelectedNode (): MindmapNodeItem {
+
+            return this.getAllSelectedNodes()[0];
 
         }
 
@@ -121,6 +147,48 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             }
 
             return nodeIds;
+
+        }
+
+        getAllNodeDatas (): MindmapDataItems {
+
+            const datas = this.getNodeData(this.getAllNodeIds());
+
+            return Array.isArray(datas) ? datas : [datas] ;
+
+        }
+
+        getAllNodes (): MindmapNodeItems {
+
+            const nodes = this.getNode(this.getAllNodeIds());
+
+            return Array.isArray(nodes) ? nodes : [nodes] ;
+
+        }
+
+        getRootNodeId (): NodeId {
+
+            const nodes = this.getAllNodeIds();
+
+            if (nodes && nodes[0]) {
+
+                return nodes[0];
+
+            }
+
+            return undefined;
+
+        }
+
+        getRootNode (): MindmapNodeItem {
+
+            return this.getNode(this.getRootNodeId());
+
+        }
+
+        getEdittingState (): boolean {
+
+            return this.editting;
 
         }
 

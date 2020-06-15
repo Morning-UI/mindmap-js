@@ -7,6 +7,7 @@ import {
     MindMarkTypes,
     XmindMarkerMethods,
     MindmapNodeItems,
+    MindmapDetailItem,
 }                                               from '../interface';
 import {
     XMIND_MARKER_MAP,
@@ -36,6 +37,7 @@ export const nodeItemGetter: MindmapItemGetter<MindmapNodeItem> = {
     ...dataItemGetter,
     id : (model) => model.id,
     type : (model) => model.type,
+    depth : (model) => model.depth,
     anchorPoints : (model) => model.anchorPoints,
     children : (model, callback, getter, mindmap) => {
 

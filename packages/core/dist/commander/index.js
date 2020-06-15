@@ -67,9 +67,6 @@ var Commander = /** @class */ (function () {
                 case TagFeatures.Commands.Untag:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
-                case TagFeatures.Commands.UntagByIndex:
-                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
-                    break;
                 case ZoomFeatures.Commands.Zoom:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
@@ -120,23 +117,25 @@ var Commander = /** @class */ (function () {
         }
         return true;
     };
+    // 返回可撤销步骤数
     Commander.prototype.undo = function () {
         if (!this.hasUndo()) {
-            return;
+            return 0;
         }
         var command = this.history[this.current];
         this.execCommand(command.undoCmd);
         this.current -= 1;
-        return this;
+        return this.current + 1;
     };
+    // 返回可重做步骤数
     Commander.prototype.redo = function () {
         if (!this.hasRedo()) {
-            return;
+            return 0;
         }
         this.current += 1;
         var command = this.history[this.current];
         this.execCommand(command.redoCmd);
-        return this;
+        return this.history.length - this.current - 1;
     };
     return Commander;
 }());

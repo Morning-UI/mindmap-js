@@ -147,7 +147,7 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         menuItemTagDelete (): void {
 
-            this.untagByIndex(this.getContextNodeId(), this.getContextData().tagIndex);
+            this.untag(this.getContextNodeId(), this.getContextData().tag);
             this.hideContextMenu();
 
         }

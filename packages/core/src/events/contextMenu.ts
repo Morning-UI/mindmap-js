@@ -4,6 +4,8 @@ import {
 import {
     EventOptions,
     ContextMenuTypes,
+    MindmapNodeItems,
+    MindmapNodeItem,
 }                                               from '../interface';
 import {
     inAnnex,
@@ -79,13 +81,15 @@ export default {
 
                     if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.tagConGroup, index)) {
 
+                        const node = options.mindmap.getNode(model.id) as MindmapNodeItem;
+
                         options.mindmap.showContextMenu({
                             type : ContextMenuTypes.Tag,
                             nodeId : model.id,
                             x : canvasX,
                             y : canvasY,
                             data : {
-                                tagIndex : index / 2,
+                                tag : node.tag[index / 2],
                             },
                         });
                         break;

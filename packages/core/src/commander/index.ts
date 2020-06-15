@@ -142,13 +142,6 @@ export class Commander {
                     });
                     break;
 
-                case TagFeatures.Commands.UntagByIndex:
-                    execRes = Commands[cmdName]({
-                        mindmap,
-                        ...(command.opts as CommandOptions<TagFeatures.Commands.UntagByIndex>),
-                    });
-                    break;
-
                 case ZoomFeatures.Commands.Zoom:
                     execRes = Commands[cmdName]({
                         mindmap,
@@ -216,7 +209,7 @@ export class Commander {
         this.todo.push(command);
 
         return this;
-        
+
     }
 
     addExec (command: Command<AllCommands>): this {
@@ -237,7 +230,6 @@ export class Commander {
 
         return true;
 
-
     }
 
     hasRedo (): boolean {
@@ -252,37 +244,39 @@ export class Commander {
 
     }
 
-    undo (): this {
+    // 返回可撤销步骤数
+    undo (): number {
 
         if (!this.hasUndo()) {
 
-            return;
+            return 0;
 
         }
-        
+
         const command = this.history[this.current];
 
         this.execCommand(command.undoCmd);
         this.current -= 1;
 
-        return this;
+        return this.current + 1;
 
     }
 
-    redo (): this {
+    // 返回可重做步骤数
+    redo (): number {
 
         if (!this.hasRedo()) {
 
-            return;
+            return 0;
 
         }
-        
+
         this.current += 1;
 
         const command = this.history[this.current];
         this.execCommand(command.redoCmd);
 
-        return this;
+        return this.history.length - this.current - 1;
 
     }
 

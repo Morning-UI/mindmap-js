@@ -3,8 +3,8 @@ import { MindmapCoreL3Ctor } from '../interface';
 import { Commander } from '../commander/index';
 declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").MindmapCoreL3Type>>(Base: TBase) => {
     new (...args: any[]): {
-        redo(): this;
-        undo(): this;
+        redo(): number;
+        undo(): number;
         graph: G6.TreeGraph;
         G6: typeof G6;
         data: import("../interface").MindmapNodeItem;
@@ -48,13 +48,20 @@ declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").
             x: number;
             y: number;
         };
+        getNodeData(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItems;
+        getNode(nodeIds: import("../interface").NodeIds): import("../interface").MindmapNodeItem | import("../interface").MindmapNodeItem[];
         getAllSelectedNodeIds(): string[];
-        getAllSelectedNodeDetails(): import("../interface").MindmapDataItem[];
         getSelectedNodeId(): string;
-        getSelectedNodeDetail(): import("../interface").MindmapDataItem;
-        getNodeDetail(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItem | import("../interface").MindmapDataItem[];
-        getRootNodeId(): string;
+        getAllSelectedNodeDatas(): import("../interface").MindmapDataItems;
+        getSelectedNodeData(): import("../interface").MindmapDataItem;
+        getAllSelectedNodes(): import("../interface").MindmapNodeItems;
+        getSelectedNode(): import("../interface").MindmapNodeItem;
         getAllNodeIds(): string[];
+        getAllNodeDatas(): import("../interface").MindmapDataItems;
+        getAllNodes(): import("../interface").MindmapNodeItems;
+        getRootNodeId(): string;
+        getRootNode(): import("../interface").MindmapNodeItem;
+        getEdittingState(): boolean;
         foldToggle(nodeIds: import("../interface").NodeIds, fold: boolean): any;
         fold(nodeIds: import("../interface").NodeIds): any;
         unfold(nodeIds: import("../interface").NodeIds): any;
@@ -74,7 +81,6 @@ declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").
         tag(nodeIds: import("../interface").NodeIds, tags: string | string[]): any;
         tagAll(nodeIds: import("../interface").NodeIds, tags: string | string[]): any;
         untag(nodeIds: import("../interface").NodeIds, untags: string | string[]): any;
-        untagByIndex(nodeIds: import("../interface").NodeIds, index: number): any;
         showEditMark(nodeIds: import("../interface").NodeIds, markType: import("../interface").MindMarkTypes): any;
         hideEditMark(): any;
         getCurrentEditMarkNodeIds(): import("../interface").NodeIds;
@@ -96,7 +102,7 @@ declare const _default: <TBase extends MindmapCoreL3Ctor<import("../interface").
         menuItemMarkEdit(evt: MouseEvent): void;
         menuItemMarkDelete(): void;
         copyNodeToClipboard(nodeIds: import("../interface").NodeIds): string;
-        copyNode(nodeIds: import("../interface").NodeIds): import("../interface").MindmapNodeItems | import("../interface").MindmapNodeItem;
+        copyNode(nodeIds: import("../interface").NodeIds): import("../interface").MindmapNodeItem | import("../interface").MindmapNodeItems;
         getClipboard(): string;
         removeNode(nodeIds: import("../interface").NodeIds, _refresh: boolean): any;
         insertSubNode(nodeId: string, datas: any, index: number, _refresh: boolean): string | string[];

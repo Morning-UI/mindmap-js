@@ -72,45 +72,33 @@ export var untag = function (options) {
         var id = ids_3[_i];
         var node = mindmap.graph.findById(id);
         var model = getModel(node);
-        undoCmds.push({
-            cmd: TagFeatures.Commands.Tag,
-            opts: {
-                nodeIds: id,
-                tags: _untags,
-            },
-        });
-        model.tag = difference(model.tag, _untags);
+        if (tags === undefined) {
+            // 若tags没有入参，则清除所有tags
+            undoCmds.push({
+                cmd: TagFeatures.Commands.Tag,
+                opts: {
+                    nodeIds: id,
+                    tags: model.tag,
+                },
+            });
+            model.tag = null;
+        }
+        else {
+            undoCmds.push({
+                cmd: TagFeatures.Commands.Tag,
+                opts: {
+                    nodeIds: id,
+                    tags: _untags,
+                },
+            });
+            model.tag = difference(model.tag, _untags);
+        }
         cleanTagHoverState(mindmap.graph, node);
         node.draw();
     }
     mindmap.graph.layout();
     return {
         note: '删除标签',
-        undoCmd: undoCmds,
-    };
-};
-export var untagByIndex = function (options) {
-    var mindmap = options.mindmap, nodeIds = options.nodeIds, index = options.index;
-    var ids = fillNodeIds(nodeIds);
-    var undoCmds = [];
-    for (var _i = 0, ids_4 = ids; _i < ids_4.length; _i++) {
-        var id = ids_4[_i];
-        var node = mindmap.graph.findById(id);
-        var model = getModel(node);
-        undoCmds.push({
-            cmd: TagFeatures.Commands.Tag,
-            opts: {
-                nodeIds: id,
-                tags: model.tag[index],
-            },
-        });
-        model.tag.splice(index, 1);
-        cleanTagHoverState(mindmap.graph, node);
-        node.draw();
-    }
-    mindmap.graph.layout();
-    return {
-        note: '删除标签(指定位置)',
         undoCmd: undoCmds,
     };
 };

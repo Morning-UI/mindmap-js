@@ -105,7 +105,7 @@ export default (function (Base) {
             this.hideContextMenu();
         };
         class_1.prototype.menuItemTagDelete = function () {
-            this.untagByIndex(this.getContextNodeId(), this.getContextData().tagIndex);
+            this.untag(this.getContextNodeId(), this.getContextData().tag);
             this.hideContextMenu();
         };
         class_1.prototype.menuItemMarkEdit = function (evt) {

@@ -24,7 +24,7 @@ export var dataItemGetter = {
     },
     folded: function (model) { return model.folded; },
 };
-export var nodeItemGetter = __assign(__assign({}, dataItemGetter), { id: function (model) { return model.id; }, type: function (model) { return model.type; }, anchorPoints: function (model) { return model.anchorPoints; }, children: function (model, callback, getter, mindmap) {
+export var nodeItemGetter = __assign(__assign({}, dataItemGetter), { id: function (model) { return model.id; }, type: function (model) { return model.type; }, depth: function (model) { return model.depth; }, anchorPoints: function (model) { return model.anchorPoints; }, children: function (model, callback, getter, mindmap) {
         if (model.children) {
             return callback(model.children, getter, mindmap);
         }

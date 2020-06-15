@@ -11,6 +11,6 @@ export declare class Commander {
     addExec(command: Command<AllCommands>): this;
     hasUndo(): boolean;
     hasRedo(): boolean;
-    undo(): this;
-    redo(): this;
+    undo(): number;
+    redo(): number;
 }

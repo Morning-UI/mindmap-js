@@ -101,20 +101,13 @@ export default (function (Base) {
             return this;
         };
         class_1.prototype.unmark = function (nodeIds, mark) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                var markType = MindMarkTypeMap[mark];
-                // const index = model.mark.indexOf(mark);
-                if (model.mark !== null) {
-                    delete model.mark[markType];
-                }
-                // traverseNodeUpdateMark(model);
-                node.draw();
-            }
-            this.graph.layout();
+            this.commander.addExec({
+                cmd: MarkFeatures.Commands.Unmark,
+                opts: {
+                    nodeIds: nodeIds,
+                    mark: mark,
+                },
+            });
             return this;
         };
         return class_1;

@@ -63,7 +63,6 @@ export var TagFeatures;
         Commands["Tag"] = "tag";
         Commands["TagAll"] = "tagAll";
         Commands["Untag"] = "untag";
-        Commands["UntagByIndex"] = "untagByIndex";
     })(Commands = TagFeatures.Commands || (TagFeatures.Commands = {}));
 })(TagFeatures || (TagFeatures = {}));
 // Zoom Features
@@ -166,10 +165,3 @@ export var XmindMarkerMethods;
     XmindMarkerMethods["Flag"] = "flag";
     XmindMarkerMethods["Person"] = "people";
 })(XmindMarkerMethods || (XmindMarkerMethods = {}));
-// export type CommandList = {
-//     [key in keyof FoldMixins]: Function;
-// }
-// // export type CommandUndoMap = {
-//     // foldToggle : 
-// // }
-// export type FeatureFn = (options: CommandOptions) => void;

@@ -1,4 +1,4 @@
-import { NodeIds, MindmapCoreL1Ctor, MindmapNodeItem, NodeId, MindmapDataItems, MindmapDataItem } from '../interface';
+import { NodeIds, MindmapCoreL1Ctor, MindmapNodeItem, NodeId, MindmapNodeItems, MindmapDataItems, MindmapDataItem } from '../interface';
 declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").MindmapCoreL1Type>>(Base: TBase) => {
     new (...args: any[]): {
         removeNode(nodeIds: NodeIds, _refresh?: boolean): this;
@@ -46,13 +46,20 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
             x: number;
             y: number;
         };
+        getNodeData(nodeIds: NodeIds): MindmapDataItem | MindmapDataItems;
+        getNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
         getAllSelectedNodeIds(): string[];
-        getAllSelectedNodeDetails(): MindmapDataItem[];
         getSelectedNodeId(): string;
-        getSelectedNodeDetail(): MindmapDataItem;
-        getNodeDetail(nodeIds: NodeIds): MindmapDataItem | MindmapDataItem[];
-        getRootNodeId(): string;
+        getAllSelectedNodeDatas(): MindmapDataItems;
+        getSelectedNodeData(): MindmapDataItem;
+        getAllSelectedNodes(): MindmapNodeItems;
+        getSelectedNode(): MindmapNodeItem;
         getAllNodeIds(): string[];
+        getAllNodeDatas(): MindmapDataItems;
+        getAllNodes(): MindmapNodeItems;
+        getRootNodeId(): string;
+        getRootNode(): MindmapNodeItem;
+        getEdittingState(): boolean;
         foldToggle(nodeIds: NodeIds, fold: boolean): any;
         fold(nodeIds: NodeIds): any;
         unfold(nodeIds: NodeIds): any;
@@ -72,7 +79,6 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         tag(nodeIds: NodeIds, tags: string | string[]): any;
         tagAll(nodeIds: NodeIds, tags: string | string[]): any;
         untag(nodeIds: NodeIds, untags: string | string[]): any;
-        untagByIndex(nodeIds: NodeIds, index: number): any;
         showEditMark(nodeIds: NodeIds, markType: import("../interface").MindMarkTypes): any;
         hideEditMark(): any;
         getCurrentEditMarkNodeIds(): NodeIds;

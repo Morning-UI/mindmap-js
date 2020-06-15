@@ -1,13 +1,20 @@
-import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor, NodeId, MindmapDataItem, MindmapDataItems } from '../interface';
+import { NodeIds, MindmapNodeItem, MindmapCoreL0Ctor, NodeId, MindmapDataItem, MindmapDataItems, MindmapNodeItems } from '../interface';
 declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCoreBase>>(Base: TBase) => {
     new (...args: any[]): {
+        getNodeData(nodeIds: NodeIds): MindmapDataItems | MindmapDataItem;
+        getNode(nodeIds: NodeIds): MindmapNodeItems | MindmapNodeItem;
         getAllSelectedNodeIds(): NodeId[];
         getSelectedNodeId(): NodeId;
-        getAllSelectedNodeDetails(): MindmapDataItem[];
-        getSelectedNodeDetail(): MindmapDataItem;
-        getNodeDetail(nodeIds: NodeIds): MindmapDataItems | MindmapDataItem;
-        getRootNodeId(): NodeId;
+        getAllSelectedNodeDatas(): MindmapDataItems;
+        getSelectedNodeData(): MindmapDataItem;
+        getAllSelectedNodes(): MindmapNodeItems;
+        getSelectedNode(): MindmapNodeItem;
         getAllNodeIds(): NodeId[];
+        getAllNodeDatas(): MindmapDataItems;
+        getAllNodes(): MindmapNodeItems;
+        getRootNodeId(): NodeId;
+        getRootNode(): MindmapNodeItem;
+        getEdittingState(): boolean;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;

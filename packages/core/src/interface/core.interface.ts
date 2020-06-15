@@ -112,6 +112,7 @@ export type MindmapDataItems = MindmapDataItem[];
 export type MindmapNodeItem = MindmapDataItem & {
     id: string;
     type: string;
+    depth: number;
     anchorPoints: number[][];
 
     children?: MindmapNodeItems;
@@ -415,15 +416,6 @@ export interface NodeFeatures {
         _refresh: boolean,
     ): string | string[];
 }
-export interface GetFeatures {
-    getAllSelectedNodeIds (): NodeId[];
-    getAllSelectedNodeDetails (): MindmapDataItem[];
-    getSelectedNodeId (): NodeId;
-    getSelectedNodeDetail (): MindmapDataItem;
-    getNodeDetail (nodeIds: NodeIds): MindmapDataItem|MindmapDataItem[];
-    getRootNodeId (): NodeId;
-    getAllNodeIds (): NodeId[];
-}
 
 // Features
 export type FeatureOptions<FO> = {
@@ -569,25 +561,18 @@ export namespace TagFeatures {
 
         export type Untag = FeatureOptions<{
             nodeIds: NodeIds;
-            tags: string[]|string;
-        }>
-
-        export type UntagByIndex = FeatureOptions<{
-            nodeIds: NodeIds;
-            index: number;
+            tags?: string[]|string;
         }>
     }
 
     export type Tag = FeatureFn<FO.Tag>;
     export type TagAll = FeatureFn<FO.TagAll>;
     export type Untag = FeatureFn<FO.Untag>;
-    export type UntagByIndex = FeatureFn<FO.UntagByIndex>;
 
     export enum Commands {
         Tag = 'tag',
         TagAll = 'tagAll',
         Untag = 'untag',
-        UntagByIndex = 'untagByIndex',
     }
 
     export interface Mixins {
@@ -603,8 +588,6 @@ export namespace TagFeatures {
         tagAll (nodeIds: NodeIds, tags: string[]|string): this;
         // 节点删除标签(名称匹配)
         untag (nodeIds: NodeIds, untags: string[]|string): this;
-        // 节点删除标签(位置匹配)
-        untagByIndex (nodeIds: NodeIds, index: number): this;
     }
 }
 
@@ -651,6 +634,42 @@ export namespace ZoomFeatures {
     }
 }
 
+// Get Features
+export namespace GetFeatures {
+
+    export interface Mixins {
+        // 获取节点数据
+        getNodeData (nodeIds: NodeIds): MindmapDataItems|MindmapDataItem;
+        // 获取节点信息
+        getNode (nodeIds: NodeIds): MindmapNodeItem[]|MindmapNodeItem;
+        // 获取所有选中节点的id
+        getAllSelectedNodeIds (): NodeId[];
+        // 获取第一个选中节点的id
+        getSelectedNodeId (): NodeId;
+        // 获取所有选中节点的数据
+        getAllSelectedNodeDatas (): MindmapDataItems;
+        // 获取第一个选中节点的数据
+        getSelectedNodeData (): MindmapDataItem;
+        // 获取所有选中节点的信息
+        getAllSelectedNodes (): MindmapNodeItems;
+        // 获取第一个选中节点的信息
+        getSelectedNode (): MindmapNodeItem;
+        // 获取所有节点id
+        getAllNodeIds (): NodeId[];
+        // 获取所有节点数据
+        getAllNodeDatas (): MindmapDataItems;
+        // 获取所有节点信息
+        getAllNodes (): MindmapNodeItems;
+        // 获取根节点id
+        getRootNodeId (): NodeId;
+        // 获取根节点信息
+        getRootNode (): MindmapNodeItem;
+        // 获取当前编辑状态
+        getEdittingState (): boolean;
+    }
+
+}
+
 // Commander
 export type AllCommands
     = FoldFeatures.Commands
@@ -671,7 +690,6 @@ export type AllCommandFOMap = {
     [TagFeatures.Commands.Tag]: TagFeatures.FO.Tag;
     [TagFeatures.Commands.TagAll]: TagFeatures.FO.TagAll;
     [TagFeatures.Commands.Untag]: TagFeatures.FO.Untag;
-    [TagFeatures.Commands.UntagByIndex]: TagFeatures.FO.UntagByIndex;
     [ZoomFeatures.Commands.Zoom]: ZoomFeatures.FO.Zoom;
     [ZoomFeatures.Commands.FitZoom]: ZoomFeatures.FO.FitZoom;
     [ZoomFeatures.Commands.MoveCanvas]: ZoomFeatures.FO.MoveCanvas;
@@ -715,7 +733,7 @@ export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
     MindmapCoreL0Type
     & ZoomFeatures.Mixins
-    & GetFeatures
+    & GetFeatures.Mixins
     & FoldFeatures.Mixins
     & LinkFeatures.Mixins
     & NoteFeatures.Mixins
@@ -895,14 +913,3 @@ export enum XmindMarkerMethods {
     Flag = 'flag',
     Person = 'people',
 }
-
-
-// export type CommandList = {
-//     [key in keyof FoldMixins]: Function;
-// }
-
-// // export type CommandUndoMap = {
-//     // foldToggle : 
-// // }
-
-// export type FeatureFn = (options: CommandOptions) => void;

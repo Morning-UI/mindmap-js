@@ -146,27 +146,13 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         unmark (nodeIds: NodeIds, mark: MindMark): this {
 
-            const ids = fillNodeIds(nodeIds);
-
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-                const markType = MindMarkTypeMap[mark];
-                // const index = model.mark.indexOf(mark);
-
-                if (model.mark !== null) {
-
-                    delete model.mark[markType];
-
-                }
-
-                // traverseNodeUpdateMark(model);
-                node.draw();
-
-            }
-
-            this.graph.layout();
+            this.commander.addExec({
+                cmd : MarkFeatures.Commands.Unmark,
+                opts : {
+                    nodeIds,
+                    mark,
+                },
+            } as Command<MarkFeatures.Commands.Unmark>);
 
             return this;
 

@@ -39,13 +39,14 @@ export default {
                 var index = (model.tag.length * 2) - 2;
                 while (index >= 0) {
                     if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.tagConGroup, index)) {
+                        var node = options.mindmap.getNode(model.id);
                         options.mindmap.showContextMenu({
                             type: ContextMenuTypes.Tag,
                             nodeId: model.id,
                             x: canvasX,
                             y: canvasY,
                             data: {
-                                tagIndex: index / 2,
+                                tag: node.tag[index / 2],
                             },
                         });
                         break;

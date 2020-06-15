@@ -136,15 +136,31 @@ export const untag: TagFeatures.Untag = (options) => {
         const node = mindmap.graph.findById(id);
         const model = getModel(node);
 
-        undoCmds.push({
-            cmd : TagFeatures.Commands.Tag,
-            opts : {
-                nodeIds : id,
-                tags : _untags,
-            },
-        });
+        if (tags === undefined) {
 
-        model.tag = difference(model.tag, _untags);
+            // 若tags没有入参，则清除所有tags
+            undoCmds.push({
+                cmd : TagFeatures.Commands.Tag,
+                opts : {
+                    nodeIds : id,
+                    tags : model.tag,
+                },
+            });
+            model.tag = null;
+
+        } else {
+
+            undoCmds.push({
+                cmd : TagFeatures.Commands.Tag,
+                opts : {
+                    nodeIds : id,
+                    tags : _untags,
+                },
+            });
+            model.tag = difference(model.tag, _untags);
+
+        }
+
         cleanTagHoverState(mindmap.graph, node);
         node.draw();
 
@@ -154,44 +170,6 @@ export const untag: TagFeatures.Untag = (options) => {
 
     return {
         note : '删除标签',
-        undoCmd : undoCmds,
-    };
-
-};
-
-export const untagByIndex: TagFeatures.UntagByIndex = (options) => {
-
-    const {
-        mindmap,
-        nodeIds,
-        index,
-    } = options;
-    const ids = fillNodeIds(nodeIds);
-    const undoCmds: Command<TagFeatures.Commands.Tag>[] = [];
-
-    for (const id of ids) {
-
-        const node = mindmap.graph.findById(id);
-        const model = getModel(node);
-
-        undoCmds.push({
-            cmd : TagFeatures.Commands.Tag,
-            opts : {
-                nodeIds : id,
-                tags : model.tag[index],
-            },
-        });
-
-        model.tag.splice(index, 1);
-        cleanTagHoverState(mindmap.graph, node);
-        node.draw();
-
-    }
-
-    mindmap.graph.layout();
-
-    return {
-        note : '删除标签(指定位置)',
         undoCmd : undoCmds,
     };
 

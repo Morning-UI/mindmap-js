@@ -42,12 +42,10 @@ export default (function (Base) {
             return _this;
         }
         class_1.prototype.redo = function () {
-            this.commander.redo();
-            return this;
+            return this.commander.redo();
         };
         class_1.prototype.undo = function () {
-            this.commander.undo();
-            return this;
+            return this.commander.undo();
         };
         return class_1;
     }(Base));

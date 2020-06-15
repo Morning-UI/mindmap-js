@@ -43,19 +43,15 @@ export default <TBase extends MindmapCoreL3Ctor> (Base: TBase) =>
 
         }
 
-        redo (): this {
+        redo (): number {
 
-            this.commander.redo();
-
-            return this;
+            return this.commander.redo();
 
         }
 
-        undo (): this {
+        undo (): number {
 
-            this.commander.undo();
-
-            return this;
+            return this.commander.undo();
 
         }
 
