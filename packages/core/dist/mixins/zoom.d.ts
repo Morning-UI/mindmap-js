@@ -4,6 +4,11 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         zoom(zoom: number): this;
         getZoom(): number;
         fitZoom(): this;
+        moveCanvas(x: number, y: number): this;
+        getCanvasPos(): ({
+            x: number;
+            y: number;
+        });
         _updateZoomValue(): this;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");

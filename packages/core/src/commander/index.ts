@@ -14,17 +14,23 @@ import {
     CommandOptions,
     MarkFeatures,
     NoteFeatures,
+    TagFeatures,
+    ZoomFeatures,
 }                                               from '../interface';
 import * as foldFeatures                        from '../features/fold';
 import * as linkFeatures                        from '../features/link';
 import * as markFeatures                        from '../features/mark';
 import * as noteFeatures                        from '../features/note';
+import * as tagFeatures                         from '../features/tag';
+import * as zoomFeatures                        from '../features/zoom';
 
 const Commands = {
     ...foldFeatures,
     ...linkFeatures,
     ...markFeatures,
     ...noteFeatures,
+    ...tagFeatures,
+    ...zoomFeatures,
 };
 
 export class Commander {
@@ -59,6 +65,8 @@ export class Commander {
         }
 
         for (const command of _commands) {
+
+            console.log('EXEC', command);
 
             const cmdName = command.cmd;
 
@@ -113,6 +121,55 @@ export class Commander {
                     });
                     break;
 
+                case TagFeatures.Commands.Tag:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<TagFeatures.Commands.Tag>),
+                    });
+                    break;
+
+                case TagFeatures.Commands.TagAll:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<TagFeatures.Commands.TagAll>),
+                    });
+                    break;
+
+                case TagFeatures.Commands.Untag:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<TagFeatures.Commands.Untag>),
+                    });
+                    break;
+
+                case TagFeatures.Commands.UntagByIndex:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<TagFeatures.Commands.UntagByIndex>),
+                    });
+                    break;
+
+                case ZoomFeatures.Commands.Zoom:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<ZoomFeatures.Commands.Zoom>),
+                    });
+                    break;
+
+                case ZoomFeatures.Commands.FitZoom:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<ZoomFeatures.Commands.FitZoom>),
+                    });
+                    break;
+
+                case ZoomFeatures.Commands.MoveCanvas:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...(command.opts as CommandOptions<ZoomFeatures.Commands.MoveCanvas>),
+                    });
+                    break;
+
                 default:
                     break;
 
@@ -132,8 +189,6 @@ export class Commander {
 
         const command = this.todo.shift();
         const cmdRes = this.execCommand(command);
-
-        console.log('EXEC:', cmdRes);
 
         this.history.splice(this.current + 1);
         this.history.push(cmdRes);

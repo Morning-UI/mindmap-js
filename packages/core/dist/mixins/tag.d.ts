@@ -8,7 +8,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         getCurrentEditTagNodeIds(): NodeIds;
         tag(nodeIds: NodeIds, tags: string[] | string): this;
         tagAll(nodeIds: NodeIds, tags: string[] | string): this;
-        untag(nodeIds: NodeIds, untags: string[] | string): this;
+        untag(nodeIds: NodeIds, tags: string[] | string): this;
         untagByIndex(nodeIds: NodeIds, index: number): this;
         graph: TreeGraph;
         G6: typeof import("@antv/g6");

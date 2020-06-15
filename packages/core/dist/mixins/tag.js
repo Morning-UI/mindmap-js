@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import difference from 'lodash.difference';
+import { TagFeatures, } from '../interface';
 import { fillNodeIds, } from '../base/utils';
 import { setItemState, } from '../utils/setItemState';
 import { getModel, } from '../utils/G6Ext';
@@ -59,59 +59,43 @@ export default (function (Base) {
             return this.currentEditTagNodeIds;
         };
         class_1.prototype.tag = function (nodeIds, tags) {
-            var ids = fillNodeIds(nodeIds);
-            var _tags = typeof tags === 'string' ? [tags] : tags;
-            _tags = difference(_tags, ['']);
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                model.tag = Object.assign([], model.tag).concat(_tags);
-                node.draw();
-            }
-            this.graph.layout();
+            this.commander.addExec({
+                cmd: TagFeatures.Commands.Tag,
+                opts: {
+                    nodeIds: nodeIds,
+                    tags: tags,
+                },
+            });
             return this;
         };
         class_1.prototype.tagAll = function (nodeIds, tags) {
-            var ids = fillNodeIds(nodeIds);
-            var _tags = typeof tags === 'string' ? [tags] : tags;
-            _tags = difference(_tags, ['']);
-            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
-                var id = ids_2[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                model.tag = Object.assign([], _tags);
-                node.draw();
-            }
-            this.graph.layout();
+            this.commander.addExec({
+                cmd: TagFeatures.Commands.TagAll,
+                opts: {
+                    nodeIds: nodeIds,
+                    tags: tags,
+                },
+            });
             return this;
         };
-        class_1.prototype.untag = function (nodeIds, untags) {
-            var ids = fillNodeIds(nodeIds);
-            var _untags = typeof untags === 'string' ? [untags] : untags;
-            _untags = difference(_untags, ['']);
-            for (var _i = 0, ids_3 = ids; _i < ids_3.length; _i++) {
-                var id = ids_3[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                model.tag = difference(model.tag, _untags);
-                cleanTagHoverState(this.graph, node);
-                node.draw();
-            }
-            this.graph.layout();
+        class_1.prototype.untag = function (nodeIds, tags) {
+            this.commander.addExec({
+                cmd: TagFeatures.Commands.Untag,
+                opts: {
+                    nodeIds: nodeIds,
+                    tags: tags,
+                },
+            });
             return this;
         };
         class_1.prototype.untagByIndex = function (nodeIds, index) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_4 = ids; _i < ids_4.length; _i++) {
-                var id = ids_4[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                model.tag.splice(index, 1);
-                cleanTagHoverState(this.graph, node);
-                node.draw();
-            }
-            this.graph.layout();
+            this.commander.addExec({
+                cmd: TagFeatures.Commands.UntagByIndex,
+                opts: {
+                    nodeIds: nodeIds,
+                    index: index,
+                },
+            });
             return this;
         };
         return class_1;

@@ -1,33 +1,27 @@
 import {
+    IGroup,
+}                                               from '@antv/g-base/lib/interfaces';
+import {
+    IBBox,
+}                                               from '@antv/g6/lib/types';
+import {
     MindmapCoreL0Ctor,
     ZoomFeatures,
+    Command,
 }                                               from '../interface';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
-    class extends Base implements ZoomFeatures {
+    class extends Base implements ZoomFeatures.Mixins {
 
         zoom (zoom: number): this {
 
-            let _zoom = zoom;
-
-            if (_zoom > this._options.maxZoom) {
-
-                _zoom = this._options.maxZoom;
-
-            }
-
-            if (_zoom < this._options.minZoom) {
-
-                _zoom = this._options.minZoom;
-
-            }
-
-            this.graph.zoomTo(_zoom, {
-                x : this.graph.get('width') / 2,
-                y : this.graph.get('height') / 2,
-            });
-            this._updateZoomValue();
+            this.commander.addExec({
+                cmd : ZoomFeatures.Commands.Zoom,
+                opts : {
+                    zoom,
+                },
+            } as Command<ZoomFeatures.Commands.Zoom>);
 
             return this;
 
@@ -41,10 +35,39 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         fitZoom (): this {
 
-            this.graph.fitView();
-            this._updateZoomValue();
+            this.commander.addExec({
+                cmd : ZoomFeatures.Commands.FitZoom,
+            } as Command<ZoomFeatures.Commands.FitZoom>);
 
             return this;
+
+        }
+
+        moveCanvas (x: number, y: number): this {
+
+            this.commander.addExec({
+                cmd : ZoomFeatures.Commands.MoveCanvas,
+                opts : {
+                    x,
+                    y,
+                },
+            } as Command<ZoomFeatures.Commands.MoveCanvas>);
+
+            return this;
+
+        }
+
+        getCanvasPos (): ({
+            x: number;
+            y: number;
+        }) {
+
+            const canvasBBox = (this.graph.get('group') as IGroup).getCanvasBBox() as IBBox;
+
+            return {
+                x : canvasBBox.x,
+                y : canvasBBox.y,
+            };
 
         }
 

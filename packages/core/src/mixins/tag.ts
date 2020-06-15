@@ -10,6 +10,7 @@ import {
     MindmapNodeItem,
     MindmapCoreL0Ctor,
     TagFeatures,
+    Command,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -39,7 +40,7 @@ const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
-    class extends Base implements TagFeatures {
+    class extends Base implements TagFeatures.Mixins {
 
         showEditTag (nodeIds: NodeIds): this {
 
@@ -86,90 +87,56 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         tag (nodeIds: NodeIds, tags: string[]|string): this {
 
-            const ids = fillNodeIds(nodeIds);
+            this.commander.addExec({
+                cmd : TagFeatures.Commands.Tag,
+                opts : {
+                    nodeIds,
+                    tags,
+                },
+            } as Command<TagFeatures.Commands.Tag>);
 
-            let _tags = typeof tags === 'string' ? [tags] : tags;
-
-            _tags = difference(_tags, ['']);
-
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-
-                model.tag = Object.assign([], model.tag).concat(_tags);
-                node.draw();
-
-            }
-
-            this.graph.layout();
             return this;
 
         }
 
         tagAll (nodeIds: NodeIds, tags: string[]|string): this {
 
-            const ids = fillNodeIds(nodeIds);
+            this.commander.addExec({
+                cmd : TagFeatures.Commands.TagAll,
+                opts : {
+                    nodeIds,
+                    tags,
+                },
+            } as Command<TagFeatures.Commands.TagAll>);
 
-            let _tags = typeof tags === 'string' ? [tags] : tags;
-
-            _tags = difference(_tags, ['']);
-
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-
-                model.tag = Object.assign([], _tags);
-                node.draw();
-
-            }
-
-            this.graph.layout();
             return this;
 
         }
 
-        untag (nodeIds: NodeIds, untags: string[]|string): this {
+        untag (nodeIds: NodeIds, tags: string[]|string): this {
 
-            const ids = fillNodeIds(nodeIds);
+            this.commander.addExec({
+                cmd : TagFeatures.Commands.Untag,
+                opts : {
+                    nodeIds,
+                    tags,
+                },
+            } as Command<TagFeatures.Commands.Untag>);
 
-            let _untags = typeof untags === 'string' ? [untags] : untags;
-
-            _untags = difference(_untags, ['']);
-
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-
-                model.tag = difference(model.tag, _untags);
-                cleanTagHoverState(this.graph, node);
-                node.draw();
-
-            }
-
-            this.graph.layout();
             return this;
 
         }
 
         untagByIndex (nodeIds: NodeIds, index: number): this {
 
-            const ids = fillNodeIds(nodeIds);
+            this.commander.addExec({
+                cmd : TagFeatures.Commands.UntagByIndex,
+                opts : {
+                    nodeIds,
+                    index,
+                },
+            } as Command<TagFeatures.Commands.UntagByIndex>);
 
-            for (const id of ids) {
-
-                const node = this.graph.findById(id);
-                const model = getModel(node);
-
-                model.tag.splice(index, 1);
-                cleanTagHoverState(this.graph, node);
-                node.draw();
-
-            }
-
-            this.graph.layout();
             return this;
 
         }

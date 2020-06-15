@@ -55,6 +55,27 @@ export var NoteFeatures;
         Commands["Unnote"] = "unnote";
     })(Commands = NoteFeatures.Commands || (NoteFeatures.Commands = {}));
 })(NoteFeatures || (NoteFeatures = {}));
+// Tag Features
+export var TagFeatures;
+(function (TagFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["Tag"] = "tag";
+        Commands["TagAll"] = "tagAll";
+        Commands["Untag"] = "untag";
+        Commands["UntagByIndex"] = "untagByIndex";
+    })(Commands = TagFeatures.Commands || (TagFeatures.Commands = {}));
+})(TagFeatures || (TagFeatures = {}));
+// Zoom Features
+export var ZoomFeatures;
+(function (ZoomFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["Zoom"] = "zoom";
+        Commands["FitZoom"] = "fitZoom";
+        Commands["MoveCanvas"] = "moveCanvas";
+    })(Commands = ZoomFeatures.Commands || (ZoomFeatures.Commands = {}));
+})(ZoomFeatures || (ZoomFeatures = {}));
 export var MindMarksTag;
 (function (MindMarksTag) {
     MindMarksTag["Red"] = "red";

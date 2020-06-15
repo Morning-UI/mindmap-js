@@ -9,12 +9,14 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { FoldFeatures, LinkFeatures, MarkFeatures, NoteFeatures, } from '../interface';
+import { FoldFeatures, LinkFeatures, MarkFeatures, NoteFeatures, TagFeatures, ZoomFeatures, } from '../interface';
 import * as foldFeatures from '../features/fold';
 import * as linkFeatures from '../features/link';
 import * as markFeatures from '../features/mark';
 import * as noteFeatures from '../features/note';
-var Commands = __assign(__assign(__assign(__assign({}, foldFeatures), linkFeatures), markFeatures), noteFeatures);
+import * as tagFeatures from '../features/tag';
+import * as zoomFeatures from '../features/zoom';
+var Commands = __assign(__assign(__assign(__assign(__assign(__assign({}, foldFeatures), linkFeatures), markFeatures), noteFeatures), tagFeatures), zoomFeatures);
 var Commander = /** @class */ (function () {
     function Commander(options) {
         this.history = [];
@@ -32,6 +34,7 @@ var Commander = /** @class */ (function () {
         }
         for (var _i = 0, _commands_1 = _commands; _i < _commands_1.length; _i++) {
             var command = _commands_1[_i];
+            console.log('EXEC', command);
             var cmdName = command.cmd;
             switch (cmdName) {
                 case FoldFeatures.Commands.FoldToggle:
@@ -55,6 +58,27 @@ var Commander = /** @class */ (function () {
                 case NoteFeatures.Commands.Unnote:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
+                case TagFeatures.Commands.Tag:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case TagFeatures.Commands.TagAll:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case TagFeatures.Commands.Untag:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case TagFeatures.Commands.UntagByIndex:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case ZoomFeatures.Commands.Zoom:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case ZoomFeatures.Commands.FitZoom:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case ZoomFeatures.Commands.MoveCanvas:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
                 default:
                     break;
             }
@@ -64,7 +88,6 @@ var Commander = /** @class */ (function () {
     Commander.prototype.exec = function () {
         var command = this.todo.shift();
         var cmdRes = this.execCommand(command);
-        console.log('EXEC:', cmdRes);
         this.history.splice(this.current + 1);
         this.history.push(cmdRes);
         this.current = this.history.length - 1;

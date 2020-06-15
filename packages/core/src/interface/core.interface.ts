@@ -376,22 +376,6 @@ export type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
 export type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
 export type MindmapCoreL3Ctor<T = MindmapCoreL3Type> = new (...args: any[]) => T;
-export interface TagFeatures {
-    // 显示标签编辑弹窗
-    showEditTag (nodeIds: NodeIds): this;
-    // 关闭标签编辑弹窗
-    hideEditTag (): this;
-    // 获取当前正在编辑标签的NodeId
-    getCurrentEditTagNodeIds (): NodeIds;
-    // 节点增加标签
-    tag (nodeIds: NodeIds, tags: string[]|string): this;
-    // 节点标签替换为
-    tagAll (nodeIds: NodeIds, tags: string[]|string): this;
-    // 节点删除标签(名称匹配)
-    untag (nodeIds: NodeIds, untags: string[]|string): this;
-    // 节点删除标签(位置匹配)
-    untagByIndex (nodeIds: NodeIds, index: number): this;
-}
 export interface ContextMenuFeatures {
     // 显示右键菜单
     showContextMenu (options: ShowContextMenuOptions): this;
@@ -445,7 +429,7 @@ export interface GetFeatures {
 export type FeatureOptions<FO> = {
     [key in keyof FO]: FO[key];
 } & {
-    mindmap: MindmapCoreType;
+    mindmap: MindmapCoreL3Type;
 };
 export type FeatureFn<FO> = (options: FO) => {
     [key in Exclude<keyof CommandExecRes, 'redoCmd' | 'time'>]: CommandExecRes[key];
@@ -570,12 +554,111 @@ export namespace NoteFeatures {
     }
 }
 
+// Tag Features
+export namespace TagFeatures {
+    export namespace FO {
+        export type Tag = FeatureOptions<{
+            nodeIds: NodeIds;
+            tags: string[]|string;
+        }>
+
+        export type TagAll = FeatureOptions<{
+            nodeIds: NodeIds;
+            tags: string[]|string;
+        }>
+
+        export type Untag = FeatureOptions<{
+            nodeIds: NodeIds;
+            tags: string[]|string;
+        }>
+
+        export type UntagByIndex = FeatureOptions<{
+            nodeIds: NodeIds;
+            index: number;
+        }>
+    }
+
+    export type Tag = FeatureFn<FO.Tag>;
+    export type TagAll = FeatureFn<FO.TagAll>;
+    export type Untag = FeatureFn<FO.Untag>;
+    export type UntagByIndex = FeatureFn<FO.UntagByIndex>;
+
+    export enum Commands {
+        Tag = 'tag',
+        TagAll = 'tagAll',
+        Untag = 'untag',
+        UntagByIndex = 'untagByIndex',
+    }
+
+    export interface Mixins {
+        // 显示标签编辑弹窗
+        showEditTag (nodeIds: NodeIds): this;
+        // 关闭标签编辑弹窗
+        hideEditTag (): this;
+        // 获取当前正在编辑标签的NodeId
+        getCurrentEditTagNodeIds (): NodeIds;
+        // 节点增加标签
+        tag (nodeIds: NodeIds, tags: string[]|string): this;
+        // 节点标签替换为
+        tagAll (nodeIds: NodeIds, tags: string[]|string): this;
+        // 节点删除标签(名称匹配)
+        untag (nodeIds: NodeIds, untags: string[]|string): this;
+        // 节点删除标签(位置匹配)
+        untagByIndex (nodeIds: NodeIds, index: number): this;
+    }
+}
+
+// Zoom Features
+export namespace ZoomFeatures {
+    export namespace FO {
+        export type Zoom = FeatureOptions<{
+            zoom: number;
+        }>;
+
+        export type FitZoom = FeatureOptions<{}>;
+
+        export type MoveCanvas = FeatureOptions<{
+            x: number;
+            y: number;
+        }>;
+    }
+
+    export type Zoom = FeatureFn<FO.Zoom>;
+    export type FitZoom = FeatureFn<FO.FitZoom>;
+    export type MoveCanvas = FeatureFn<FO.MoveCanvas>;
+
+    export enum Commands {
+        Zoom = 'zoom',
+        FitZoom = 'fitZoom',
+        MoveCanvas = 'moveCanvas',
+    }
+
+    export interface Mixins {
+        _updateZoomValue (): this;
+        // 缩放画布
+        zoom (zoom: number): this;
+        // 获取画布缩放值
+        getZoom (): number;
+        // 调整至适合的缩放
+        fitZoom (): this;
+        // 移动画布
+        moveCanvas (x: number, y: number): this;
+        // 获取画布位置
+        getCanvasPos (): {
+            x: number;
+            y: number;
+        };
+    }
+}
+
 // Commander
 export type AllCommands
     = FoldFeatures.Commands
     | LinkFeatures.Commands
     | MarkFeatures.Commands
-    | NoteFeatures.Commands;
+    | NoteFeatures.Commands
+    | TagFeatures.Commands
+    | ZoomFeatures.Commands;
 
 export type AllCommandFOMap = {
     [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
@@ -585,6 +668,13 @@ export type AllCommandFOMap = {
     [MarkFeatures.Commands.Unmark]: MarkFeatures.FO.Unmark;
     [NoteFeatures.Commands.Note]: NoteFeatures.FO.Note;
     [NoteFeatures.Commands.Unnote]: NoteFeatures.FO.Unote;
+    [TagFeatures.Commands.Tag]: TagFeatures.FO.Tag;
+    [TagFeatures.Commands.TagAll]: TagFeatures.FO.TagAll;
+    [TagFeatures.Commands.Untag]: TagFeatures.FO.Untag;
+    [TagFeatures.Commands.UntagByIndex]: TagFeatures.FO.UntagByIndex;
+    [ZoomFeatures.Commands.Zoom]: ZoomFeatures.FO.Zoom;
+    [ZoomFeatures.Commands.FitZoom]: ZoomFeatures.FO.FitZoom;
+    [ZoomFeatures.Commands.MoveCanvas]: ZoomFeatures.FO.MoveCanvas;
 };
 export type CommandExecRes = {
     note: string;
@@ -603,15 +693,6 @@ export type CommandHistory = CommandExecRes;
 
 export interface ReadDataFeatures {
     readData (data: MindmapDataItem): this;
-}
-export interface ZoomFeatures {
-    _updateZoomValue (): this;
-    // 缩放画布
-    zoom (zoom: number): this;
-    // 获取画布缩放值
-    getZoom (): number;
-    // 调整至适合的缩放
-    fitZoom (): this;
 }
 export interface ExportFeatures {
     _screenshotting (shotting: boolean): void;
@@ -633,13 +714,13 @@ export interface ClipboardFeatures {
 export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
     MindmapCoreL0Type
-    & ZoomFeatures
+    & ZoomFeatures.Mixins
     & GetFeatures
     & FoldFeatures.Mixins
     & LinkFeatures.Mixins
-    & NoteFeatures
-    & TagFeatures
-    & MarkFeatures;
+    & NoteFeatures.Mixins
+    & TagFeatures.Mixins
+    & MarkFeatures.Mixins;
 
 export type MindmapCoreL2Type =
     MindmapCoreL1Type

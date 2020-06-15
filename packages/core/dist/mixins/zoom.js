@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+import { ZoomFeatures, } from '../interface';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
@@ -19,27 +20,39 @@ export default (function (Base) {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         class_1.prototype.zoom = function (zoom) {
-            var _zoom = zoom;
-            if (_zoom > this._options.maxZoom) {
-                _zoom = this._options.maxZoom;
-            }
-            if (_zoom < this._options.minZoom) {
-                _zoom = this._options.minZoom;
-            }
-            this.graph.zoomTo(_zoom, {
-                x: this.graph.get('width') / 2,
-                y: this.graph.get('height') / 2,
+            this.commander.addExec({
+                cmd: ZoomFeatures.Commands.Zoom,
+                opts: {
+                    zoom: zoom,
+                },
             });
-            this._updateZoomValue();
             return this;
         };
         class_1.prototype.getZoom = function () {
             return this.graph.getZoom();
         };
         class_1.prototype.fitZoom = function () {
-            this.graph.fitView();
-            this._updateZoomValue();
+            this.commander.addExec({
+                cmd: ZoomFeatures.Commands.FitZoom,
+            });
             return this;
+        };
+        class_1.prototype.moveCanvas = function (x, y) {
+            this.commander.addExec({
+                cmd: ZoomFeatures.Commands.MoveCanvas,
+                opts: {
+                    x: x,
+                    y: y,
+                },
+            });
+            return this;
+        };
+        class_1.prototype.getCanvasPos = function () {
+            var canvasBBox = this.graph.get('group').getCanvasBBox();
+            return {
+                x: canvasBBox.x,
+                y: canvasBBox.y,
+            };
         };
         class_1.prototype._updateZoomValue = function () {
             var _this = this;

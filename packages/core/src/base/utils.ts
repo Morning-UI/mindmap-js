@@ -391,8 +391,8 @@ export const clearSelectedNode = (mindmap: MindmapCoreType, selectedState: 'sele
     const edges = graph.findAllByState<IEdge>('edge', selectedState);
 
     graph.setAutoPaint(false);
-    nodes.forEach((_node) => setItemState(graph, _node.get('id'), selectedState, false));
-    edges.forEach((edge) => setItemState(graph, edge.get('id'), selectedState, false));
+    nodes.forEach((_node: INode) => setItemState(graph, _node.get('id'), selectedState, false));
+    edges.forEach((edge: IEdge) => setItemState(graph, edge.get('id'), selectedState, false));
     graph.paint();
     graph.setAutoPaint(autoPaint);
 
