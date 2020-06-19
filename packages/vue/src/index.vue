@@ -88,7 +88,7 @@ export default {
         this.mindmap = new Mindmap({
             $con : this.$el,
         })
-        .readData(testData.data2)
+        .readData(testData.data2, true)
         .on(EventNames.EditContentChange, (editContent) => {
             this.editContent = editContent;
         });

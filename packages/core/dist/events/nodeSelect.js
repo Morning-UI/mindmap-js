@@ -1,12 +1,5 @@
-// import {
-//     NODE_SHAPE_INDEX
-// }                                   from '../nodes/mindNode';
-// import {
-//     inNodeShape,
-// }                                   from '../base/utils';
 import { inAnnex, inNodeShape, } from '../base/utils';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
-import { setItemState, } from '../utils/setItemState';
 import { getModel, } from '../utils/G6Ext';
 export default {
     select: function (evt, options) {
@@ -21,26 +14,26 @@ export default {
         if (options.mindmap.keydownState.mod) {
             if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
                 if (evt.item.getStates().indexOf('selected') !== -1) {
-                    setItemState(options.graph, evt.item.get('id'), 'selected', false);
+                    options.mindmap.unselectNode(evt.item.get('id'));
                 }
                 else {
-                    setItemState(options.graph, evt.item.get('id'), 'selected', true);
+                    options.mindmap.selectNode(evt.item.get('id'));
                 }
             }
         }
         else {
-            options.mindmap.clearSelectedNode();
+            options.mindmap.clearAllSelectedNode();
             if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
-                setItemState(options.graph, evt.item.get('id'), 'selected', true);
+                options.mindmap.selectNode(evt.item.get('id'));
             }
         }
     },
     clear: function (evt, options) {
         if (evt.item === null) {
-            options.mindmap.clearSelectedNode();
+            options.mindmap.clearAllSelectedNode();
         }
         else if (!inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
-            options.mindmap.clearSelectedNode();
+            options.mindmap.clearAllSelectedNode();
         }
     },
 };

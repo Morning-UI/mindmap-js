@@ -19,14 +19,11 @@ import {
     BRUSH_SELECT_STYLE,
 }                                               from '../style';
 import {
-    clearSelectedNode,
-}                                               from '../base/utils';
-import {
     setItemState,
 }                                               from '../utils/setItemState';
 import {
     getModel,
-}                                               from '../utils/getModel';
+}                                               from '../utils/G6Ext';
 
 type OriginPointType = {
     x: number;
@@ -79,7 +76,7 @@ const clearStates = (mindmap: MindmapCoreType): void => {
 
     if (!mindmap.keydownState.mod) {
 
-        clearSelectedNode(mindmap, 'selected');
+        mindmap.clearAllSelectedNode();
         selectedNodes = [];
 
     }

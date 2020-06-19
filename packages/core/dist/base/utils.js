@@ -2,7 +2,6 @@ import * as G6 from '@antv/g6';
 import { NODE_SHAPE_INDEX, } from '../nodes/mindNode';
 import { MIND_NODE_STYLE, MARKS_STYLE, } from '../style';
 import { markBuilder, } from '../utils/markBuilder';
-import { setItemState, } from '../utils/setItemState';
 import { getModel, } from '../utils/G6Ext';
 export var genNodeStyles = function (styles, cfg) {
     return G6.Util.deepMix({}, styles, 
@@ -34,6 +33,8 @@ export var getNodeElements = function (item) {
     for (var key in NODE_SHAPE_INDEX) {
         elements[key] = group.getChildByIndex(NODE_SHAPE_INDEX[key]);
     }
+    elements['foldBtnGroup.circle'] = elements.foldBtnGroup.getChildByIndex(0);
+    elements['foldBtnGroup.icon'] = elements.foldBtnGroup.getChildByIndex(1);
     return elements;
 };
 export var getAppends = function (cfg) {
@@ -215,17 +216,6 @@ export var toggleNodeVisibility = function (node, type, callback) {
         .get('group')
         .getChildByIndex(NODE_SHAPE_INDEX.foldBtnGroup)[type]();
     toggleAllChildrenVisibility(node, type, callback);
-};
-export var clearSelectedNode = function (mindmap, selectedState) {
-    var graph = mindmap.graph;
-    var autoPaint = graph.get('autoPaint');
-    var nodes = graph.findAllByState('node', selectedState);
-    var edges = graph.findAllByState('edge', selectedState);
-    graph.setAutoPaint(false);
-    nodes.forEach(function (_node) { return setItemState(graph, _node.get('id'), selectedState, false); });
-    edges.forEach(function (edge) { return setItemState(graph, edge.get('id'), selectedState, false); });
-    graph.paint();
-    graph.setAutoPaint(autoPaint);
 };
 export var genMarkShape = function (options) {
     var shapes = options.shapes, markType = options.markType;

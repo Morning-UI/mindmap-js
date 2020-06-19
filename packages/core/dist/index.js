@@ -1,7 +1,6 @@
 import { EventNames, } from './interface';
 import { manualPaint, } from './base/graph';
 import { getNodeElements, } from './base/utils';
-import { setItemState, } from './utils/setItemState';
 import { refreshTextEditorPosition, } from './base/editor';
 import { mindNodeAdjustPosition, NODE_SHAPE_INDEX, } from './nodes/mindNode';
 import mixinConstructor from './mixins/constructor';
@@ -33,69 +32,6 @@ var MindmapCoreBase = /** @class */ (function () {
         };
         return this;
     }
-    MindmapCoreBase.prototype.clearSelectedNode = function () {
-        var selectedState = 'selected';
-        var graph = this.graph;
-        var autoPaint = graph.get('autoPaint');
-        var nodeItems = graph.findAllByState('node', selectedState);
-        var edgeItems = graph.findAllByState('edge', selectedState);
-        graph.setAutoPaint(false);
-        nodeItems.forEach(function (node) { return setItemState(graph, node.get('id'), selectedState, false); });
-        edgeItems.forEach(function (edge) { return setItemState(graph, edge.get('id'), selectedState, false); });
-        graph.paint();
-        graph.setAutoPaint(autoPaint);
-        return this;
-    };
-    MindmapCoreBase.prototype.focusNodeTextEditor = function (nodeId, clean) {
-        if (clean === void 0) { clean = false; }
-        var node = this.graph.findById(nodeId);
-        var elements = getNodeElements(node);
-        this.editting = true;
-        this.editElements = elements;
-        this.editNode = node;
-        refreshTextEditorPosition(this);
-        elements.text.attr({
-            opacity: 0,
-        });
-        this.editNode.setState('editing', true);
-        this.graph.paint();
-        this._options.$editorInput.focus();
-        // if (clean) {
-        //     setTimeout(() => {
-        //         this.data.editContent = this
-        //             .data
-        //             .editContent
-        //             .split('')
-        //             .slice(-1)
-        //             .join('');
-        //         editInput(this);
-        //     });
-        // }
-        // TODO : 实现聚焦
-        return this;
-    };
-    MindmapCoreBase.prototype.blurNodeTextEditor = function () {
-        var _this = this;
-        if (!this.editting) {
-            return this;
-        }
-        var elements = getNodeElements(this.editNode);
-        elements.text.attr({
-            opacity: 1,
-        });
-        this.graph.paint();
-        this._options.$editor.style.display = 'none';
-        this.editContent = '';
-        this.editElements = {};
-        this.editZoom = 1;
-        this.editNode.setState('editing', false);
-        this.editNode = null;
-        this.graph.layout();
-        setTimeout(function () {
-            _this.editting = false;
-        });
-        return this;
-    };
     MindmapCoreBase.prototype.editorInput = function (content) {
         var _this = this;
         if (this.editting) {

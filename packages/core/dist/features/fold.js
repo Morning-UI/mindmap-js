@@ -38,7 +38,7 @@ export var foldToggle = function (options) {
             opts: {
                 nodeIds: nodeIds,
                 fold: !fold,
-            }
-        }
+            },
+        },
     };
 };

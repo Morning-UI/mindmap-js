@@ -30,9 +30,6 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         };
         _options: import("../interface").MindmapInsideOptions;
         commander: import("../commander").Commander;
-        clearSelectedNode(): any;
-        focusNodeTextEditor(nodeId: string, clean?: boolean): any;
-        blurNodeTextEditor(): any;
         editorInput(content: string): any;
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;

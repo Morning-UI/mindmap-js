@@ -1,10 +1,3 @@
-// import {
-//     NODE_SHAPE_INDEX
-// }                                   from '../nodes/mindNode';
-// import {
-//     inNodeShape,
-// }                                   from '../base/utils';
-
 import {
     IG6GraphEvent,
 }                                               from '@antv/g6/lib/types';
@@ -13,7 +6,6 @@ import {
 }                                               from '@antv/g-base/lib/interfaces';
 import {
     EventOptions,
-    MindmapNodeItem,
 }                                               from '../interface';
 import {
     inAnnex,
@@ -22,9 +14,6 @@ import {
 import {
     NODE_SHAPE_INDEX,
 }                                               from '../nodes/mindNode';
-import {
-    setItemState,
-}                                               from '../utils/setItemState';
 import {
     getModel,
 }                                               from '../utils/G6Ext';
@@ -58,11 +47,11 @@ export default {
 
                 if (evt.item.getStates().indexOf('selected') !== -1) {
 
-                    setItemState(options.graph, evt.item.get('id'), 'selected', false);
+                    options.mindmap.unselectNode(evt.item.get('id'));
 
                 } else {
 
-                    setItemState(options.graph, evt.item.get('id'), 'selected', true);
+                    options.mindmap.selectNode(evt.item.get('id'));
 
                 }
 
@@ -70,11 +59,11 @@ export default {
 
         } else {
 
-            options.mindmap.clearSelectedNode();
+            options.mindmap.clearAllSelectedNode();
 
             if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
 
-                setItemState(options.graph, evt.item.get('id'), 'selected', true);
+                options.mindmap.selectNode(evt.item.get('id'));
 
             }
 
@@ -85,11 +74,11 @@ export default {
 
         if (evt.item === null) {
 
-            options.mindmap.clearSelectedNode();
+            options.mindmap.clearAllSelectedNode();
 
         } else if (!inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
 
-            options.mindmap.clearSelectedNode();
+            options.mindmap.clearAllSelectedNode();
 
         }
 

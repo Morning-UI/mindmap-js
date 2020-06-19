@@ -25,6 +25,7 @@ var addShape = function (options) {
         attrs: attrs,
         draggable: true,
     });
+    return shapes[name];
 };
 var addGroup = function (options) {
     var group = options.group, shapes = options.shapes, name = options.name, id = options.id;
@@ -38,6 +39,7 @@ var addGroup = function (options) {
             y: 0,
         },
     });
+    return shapes[name];
 };
 var initNodeBase = function (options) {
     var shapes = options.shapes, cfg = options.cfg, group = options.group, style = options.style;
@@ -555,15 +557,18 @@ export var mindNodeAdjustPosition = function (elements, cfg, mindmap) {
     //     height : style.bottomlineHeight,
     //     width : boxBbox.width + 2
     // });
-    elements['foldBtnGroup.circle'].attr({
-        x: boxBBox.maxX,
-        y: (textBBox.height / 2) + style.paddingY,
-    });
-    var foldBtnBBox = getBBox(elements['foldBtnGroup.circle']);
-    elements['foldBtnGroup.icon'].attr({
-        x: foldBtnBBox.maxX - (foldBtnBBox.width / 2),
-        y: foldBtnBBox.maxY - (foldBtnBBox.height / 2),
-    });
+    if (cfg.children.length > 0 || cfg._foldedChildren.length > 0) {
+        console.log(elements);
+        elements['foldBtnGroup.circle'].attr({
+            x: boxBBox.maxX,
+            y: (textBBox.height / 2) + style.paddingY,
+        });
+        var foldBtnBBox = getBBox(elements['foldBtnGroup.circle']);
+        elements['foldBtnGroup.icon'].attr({
+            x: foldBtnBBox.maxX - (foldBtnBBox.width / 2),
+            y: foldBtnBBox.maxY - (foldBtnBBox.height / 2),
+        });
+    }
     if (tags && tags.length > 0) {
         tagConGroupAdjustPosition({
             box: elements.box,

@@ -93,6 +93,9 @@ export const getNodeElements = (item: Item): MindNodeElements => {
 
     }
 
+    elements['foldBtnGroup.circle'] = (elements.foldBtnGroup as IGroup).getChildByIndex(0);
+    elements['foldBtnGroup.icon'] = (elements.foldBtnGroup as IGroup).getChildByIndex(1);
+
     return elements;
 
 };
@@ -380,21 +383,6 @@ export const toggleNodeVisibility = (
         ]();
 
     toggleAllChildrenVisibility(node, type, callback);
-
-};
-
-export const clearSelectedNode = (mindmap: MindmapCoreType, selectedState: 'selected'): void => {
-
-    const graph = mindmap.graph;
-    const autoPaint = graph.get('autoPaint');
-    const nodes = graph.findAllByState<INode>('node', selectedState);
-    const edges = graph.findAllByState<IEdge>('edge', selectedState);
-
-    graph.setAutoPaint(false);
-    nodes.forEach((_node: INode) => setItemState(graph, _node.get('id'), selectedState, false));
-    edges.forEach((edge: IEdge) => setItemState(graph, edge.get('id'), selectedState, false));
-    graph.paint();
-    graph.setAutoPaint(autoPaint);
 
 };
 

@@ -9,14 +9,15 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-import { FoldFeatures, LinkFeatures, MarkFeatures, NoteFeatures, TagFeatures, ZoomFeatures, } from '../interface';
+import { FoldFeatures, LinkFeatures, MarkFeatures, NoteFeatures, TagFeatures, ZoomFeatures, DataFeatures, } from '../interface';
 import * as foldFeatures from '../features/fold';
 import * as linkFeatures from '../features/link';
 import * as markFeatures from '../features/mark';
 import * as noteFeatures from '../features/note';
 import * as tagFeatures from '../features/tag';
 import * as zoomFeatures from '../features/zoom';
-var Commands = __assign(__assign(__assign(__assign(__assign(__assign({}, foldFeatures), linkFeatures), markFeatures), noteFeatures), tagFeatures), zoomFeatures);
+import * as dataFeatures from '../features/data';
+var Commands = __assign(__assign(__assign(__assign(__assign(__assign(__assign({}, foldFeatures), linkFeatures), markFeatures), noteFeatures), tagFeatures), zoomFeatures), dataFeatures);
 var Commander = /** @class */ (function () {
     function Commander(options) {
         this.history = [];
@@ -76,6 +77,9 @@ var Commander = /** @class */ (function () {
                 case ZoomFeatures.Commands.MoveCanvas:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
+                case DataFeatures.Commands.ReadData:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
                 default:
                     break;
             }
@@ -85,24 +89,27 @@ var Commander = /** @class */ (function () {
     Commander.prototype.exec = function () {
         var command = this.todo.shift();
         var cmdRes = this.execCommand(command);
-        this.history.splice(this.current + 1);
-        this.history.push(cmdRes);
-        this.current = this.history.length - 1;
-        if (this.history.length > this.options.maxRecordNums) {
-            this.history.shift();
-            this.current -= 1;
+        if (command._record) {
+            this.history.splice(this.current + 1);
+            this.history.push(cmdRes);
+            this.current = this.history.length - 1;
+            if (this.history.length > this.options.maxRecordNums) {
+                this.history.shift();
+                this.current -= 1;
+            }
         }
         if (this.todo.length > 0) {
             this.exec();
         }
         return this;
     };
-    Commander.prototype.add = function (command) {
-        this.todo.push(command);
+    Commander.prototype.add = function (command, record) {
+        if (record === void 0) { record = true; }
+        this.todo.push(__assign({ _record: record }, command));
         return this;
     };
-    Commander.prototype.addExec = function (command) {
-        this.add(command).exec();
+    Commander.prototype.addExec = function (command, record) {
+        this.add(command, record).exec();
         return this;
     };
     Commander.prototype.hasUndo = function () {

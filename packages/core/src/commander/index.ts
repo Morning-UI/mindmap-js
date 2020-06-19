@@ -1,21 +1,17 @@
 import {
-    NodeIds,
-    MindmapNodeItem,
-    MindmapCoreL0Ctor,
     FoldFeatures,
-    MindmapCoreL0Type,
     CommanderOptions,
     Command,
     AllCommands,
     CommandHistory,
     CommandExecRes,
-    AllCommandFOMap,
     LinkFeatures,
     CommandOptions,
     MarkFeatures,
     NoteFeatures,
     TagFeatures,
     ZoomFeatures,
+    DataFeatures,
 }                                               from '../interface';
 import * as foldFeatures                        from '../features/fold';
 import * as linkFeatures                        from '../features/link';
@@ -23,6 +19,7 @@ import * as markFeatures                        from '../features/mark';
 import * as noteFeatures                        from '../features/note';
 import * as tagFeatures                         from '../features/tag';
 import * as zoomFeatures                        from '../features/zoom';
+import * as dataFeatures                        from '../features/data';
 
 const Commands = {
     ...foldFeatures,
@@ -31,6 +28,7 @@ const Commands = {
     ...noteFeatures,
     ...tagFeatures,
     ...zoomFeatures,
+    ...dataFeatures,
 };
 
 export class Commander {
@@ -75,91 +73,98 @@ export class Commander {
                 case FoldFeatures.Commands.FoldToggle:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<FoldFeatures.Commands.FoldToggle>),
+                        ...command.opts as CommandOptions<FoldFeatures.Commands.FoldToggle>,
                     });
                     break;
 
                 case LinkFeatures.Commands.Link:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<LinkFeatures.Commands.Link>),
+                        ...command.opts as CommandOptions<LinkFeatures.Commands.Link>,
                     });
                     break;
 
                 case LinkFeatures.Commands.Unlink:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<LinkFeatures.Commands.Unlink>),
+                        ...command.opts as CommandOptions<LinkFeatures.Commands.Unlink>,
                     });
                     break;
 
                 case MarkFeatures.Commands.Mark:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<MarkFeatures.Commands.Mark>),
+                        ...command.opts as CommandOptions<MarkFeatures.Commands.Mark>,
                     });
                     break;
 
                 case MarkFeatures.Commands.Unmark:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<MarkFeatures.Commands.Unmark>),
+                        ...command.opts as CommandOptions<MarkFeatures.Commands.Unmark>,
                     });
                     break;
 
                 case NoteFeatures.Commands.Note:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<NoteFeatures.Commands.Note>),
+                        ...command.opts as CommandOptions<NoteFeatures.Commands.Note>,
                     });
                     break;
 
                 case NoteFeatures.Commands.Unnote:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<NoteFeatures.Commands.Unnote>),
+                        ...command.opts as CommandOptions<NoteFeatures.Commands.Unnote>,
                     });
                     break;
 
                 case TagFeatures.Commands.Tag:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<TagFeatures.Commands.Tag>),
+                        ...command.opts as CommandOptions<TagFeatures.Commands.Tag>,
                     });
                     break;
 
                 case TagFeatures.Commands.TagAll:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<TagFeatures.Commands.TagAll>),
+                        ...command.opts as CommandOptions<TagFeatures.Commands.TagAll>,
                     });
                     break;
 
                 case TagFeatures.Commands.Untag:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<TagFeatures.Commands.Untag>),
+                        ...command.opts as CommandOptions<TagFeatures.Commands.Untag>,
                     });
                     break;
 
                 case ZoomFeatures.Commands.Zoom:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<ZoomFeatures.Commands.Zoom>),
+                        ...command.opts as CommandOptions<ZoomFeatures.Commands.Zoom>,
                     });
                     break;
 
                 case ZoomFeatures.Commands.FitZoom:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<ZoomFeatures.Commands.FitZoom>),
+                        ...command.opts as CommandOptions<ZoomFeatures.Commands.FitZoom>,
                     });
                     break;
 
                 case ZoomFeatures.Commands.MoveCanvas:
                     execRes = Commands[cmdName]({
                         mindmap,
-                        ...(command.opts as CommandOptions<ZoomFeatures.Commands.MoveCanvas>),
+                        ...command.opts as CommandOptions<ZoomFeatures.Commands.MoveCanvas>,
+                    });
+                    break;
+
+                case DataFeatures.Commands.ReadData:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...command.opts as CommandOptions<DataFeatures.Commands.ReadData>,
                     });
                     break;
 
@@ -183,14 +188,18 @@ export class Commander {
         const command = this.todo.shift();
         const cmdRes = this.execCommand(command);
 
-        this.history.splice(this.current + 1);
-        this.history.push(cmdRes);
-        this.current = this.history.length - 1;
+        if (command._record) {
 
-        if (this.history.length > this.options.maxRecordNums) {
+            this.history.splice(this.current + 1);
+            this.history.push(cmdRes);
+            this.current = this.history.length - 1;
 
-            this.history.shift();
-            this.current -= 1;
+            if (this.history.length > this.options.maxRecordNums) {
+
+                this.history.shift();
+                this.current -= 1;
+
+            }
 
         }
 
@@ -204,17 +213,20 @@ export class Commander {
 
     }
 
-    add (command: Command<AllCommands>): this {
+    add (command: Command<AllCommands>, record = true): this {
 
-        this.todo.push(command);
+        this.todo.push({
+            _record : record,
+            ...command,
+        });
 
         return this;
 
     }
 
-    addExec (command: Command<AllCommands>): this {
+    addExec (command: Command<AllCommands>, record: boolean): this {
 
-        this.add(command).exec();
+        this.add(command, record).exec();
 
         return this;
 

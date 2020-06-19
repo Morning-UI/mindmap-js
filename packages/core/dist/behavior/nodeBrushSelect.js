@@ -1,7 +1,6 @@
 import { BRUSH_SELECT_STYLE, } from '../style';
-import { clearSelectedNode, } from '../base/utils';
 import { setItemState, } from '../utils/setItemState';
-import { getModel, } from '../utils/getModel';
+import { getModel, } from '../utils/G6Ext';
 var selectedNodes = [];
 var brushShape = null;
 var dragging = false;
@@ -34,7 +33,7 @@ var stopBurshSelect = function (mindmap) {
 };
 var clearStates = function (mindmap) {
     if (!mindmap.keydownState.mod) {
-        clearSelectedNode(mindmap, 'selected');
+        mindmap.clearAllSelectedNode();
         selectedNodes = [];
     }
 };

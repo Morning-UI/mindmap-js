@@ -91,6 +91,14 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
+        getSelectedLastNodeId (): NodeId {
+
+            const ids = this.getAllSelectedNodeIds();
+
+            return ids[ids.length - 1];
+
+        }
+
         getAllSelectedNodeDatas (): MindmapDataItems {
 
             const ids = this.getAllSelectedNodeIds();
@@ -180,9 +188,15 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
+        getRootData (): MindmapDataItem {
+
+            return this.getNodeData(this.getRootNodeId()) as MindmapDataItem;
+
+        }
+
         getRootNode (): MindmapNodeItem {
 
-            return this.getNode(this.getRootNodeId());
+            return this.getNode(this.getRootNodeId()) as MindmapNodeItem;
 
         }
 

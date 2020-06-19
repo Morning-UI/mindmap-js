@@ -1,8 +1,25 @@
-import { NodeIds, MindmapCoreL1Ctor, MindmapNodeItem, NodeId, MindmapNodeItems, MindmapDataItems, MindmapDataItem } from '../interface';
-declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").MindmapCoreL1Type>>(Base: TBase) => {
+import { NodeIds, MindmapCoreL1Ctor, MindmapNodeItem, NodeId, MindmapNodeItems, MindmapDataItems, MindmapDataItem, MindmapCoreL1Type } from '../interface';
+declare const _default: <TBase extends MindmapCoreL1Ctor<MindmapCoreL1Type>>(Base: TBase) => {
     new (...args: any[]): {
+        focusNodeTextEditor(nodeId: NodeId, clean?: boolean): this;
+        blurNodeTextEditor(): this;
+        selectNode(nodeIds: NodeIds): this;
+        unselectNode(nodeIds: NodeIds): this;
+        clearAllSelectedNode(): this;
+        selectMoveUp(): this;
+        selectMoveDown(): this;
+        selectMoveBefore(): this;
+        selectMoveAfter(): this;
         removeNode(nodeIds: NodeIds, _refresh?: boolean): this;
-        insertSubNode(nodeId: NodeId, datas: MindmapDataItems | MindmapDataItem, index?: number, _refresh?: boolean): string | string[];
+        insertSubNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems, index?: number, _refresh?: boolean): string | string[];
+        insertUpwardNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
+        insertDownwardNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
+        insertFirstNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
+        insertLastNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
+        appendUniqueNode(nodeId: NodeId, datas: MindmapDataItem): NodeId;
+        prependUniqueNode(nodeId: NodeId, datas: MindmapDataItem): NodeId;
+        nodeMoveUp(nodeId: NodeId): this;
+        nodeMoveDown(nodeId: NodeId): this;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
@@ -29,9 +46,6 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         };
         _options: import("../interface").MindmapInsideOptions;
         commander: import("../commander").Commander;
-        clearSelectedNode(): any;
-        focusNodeTextEditor(nodeId: string, clean?: boolean): any;
-        blurNodeTextEditor(): any;
         editorInput(content: string): any;
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;
@@ -50,6 +64,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
         getAllSelectedNodeIds(): string[];
         getSelectedNodeId(): string;
+        getSelectedLastNodeId(): string;
         getAllSelectedNodeDatas(): MindmapDataItems;
         getSelectedNodeData(): MindmapDataItem;
         getAllSelectedNodes(): MindmapNodeItems;
@@ -58,6 +73,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getAllNodeDatas(): MindmapDataItems;
         getAllNodes(): MindmapNodeItems;
         getRootNodeId(): string;
+        getRootData(): MindmapDataItem;
         getRootNode(): MindmapNodeItem;
         getEdittingState(): boolean;
         foldToggle(nodeIds: NodeIds, fold: boolean): any;

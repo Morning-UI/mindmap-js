@@ -49,7 +49,7 @@ const DEBUG_BOX_SIZING = false;
 
 let nodeShapeIndex = 0;
 
-const addShape = (options: AddShapeOptions): void => {
+const addShape = (options: AddShapeOptions): IShape => {
 
     const {
         name,
@@ -70,9 +70,11 @@ const addShape = (options: AddShapeOptions): void => {
         draggable : true,
     });
 
+    return shapes[name] as IShape;
+
 };
 
-const addGroup = (options: AddGroupOptions): void => {
+const addGroup = (options: AddGroupOptions): IGroup => {
 
     const {
         group,
@@ -94,6 +96,8 @@ const addGroup = (options: AddGroupOptions): void => {
             y : 0,
         },
     });
+
+    return shapes[name] as IGroup;
 
 };
 
@@ -859,17 +863,23 @@ export const mindNodeAdjustPosition = (
     //     width : boxBbox.width + 2
     // });
 
-    elements['foldBtnGroup.circle'].attr({
-        x : boxBBox.maxX,
-        y : (textBBox.height / 2) + style.paddingY,
-    });
+    if (cfg.children.length > 0 || cfg._foldedChildren.length > 0) {
 
-    const foldBtnBBox = getBBox(elements['foldBtnGroup.circle']);
+        console.log(elements);
 
-    elements['foldBtnGroup.icon'].attr({
-        x : foldBtnBBox.maxX - (foldBtnBBox.width / 2),
-        y : foldBtnBBox.maxY - (foldBtnBBox.height / 2),
-    });
+        elements['foldBtnGroup.circle'].attr({
+            x : boxBBox.maxX,
+            y : (textBBox.height / 2) + style.paddingY,
+        });
+
+        const foldBtnBBox = getBBox(elements['foldBtnGroup.circle']);
+
+        elements['foldBtnGroup.icon'].attr({
+            x : foldBtnBBox.maxX - (foldBtnBBox.width / 2),
+            y : foldBtnBBox.maxY - (foldBtnBBox.height / 2),
+        });
+
+    }
 
     if (tags && tags.length > 0) {
 

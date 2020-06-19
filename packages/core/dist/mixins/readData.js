@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { traverseData, } from '../utils/traverseData';
+import { DataFeatures, } from '../interface';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
@@ -19,15 +19,14 @@ export default (function (Base) {
         function class_1() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        class_1.prototype.readData = function (data) {
-            var _this = this;
-            this.data = traverseData(data);
-            this.graph.read(this.data);
-            setTimeout(function () {
-                _this.graph.layout(true);
-                // this.$refs['mor-mindmap-zoomslider'].set(vm.getZoom() * 100);
-                _this._updateZoomValue();
-            });
+        class_1.prototype.readData = function (data, first) {
+            if (first === void 0) { first = false; }
+            this.commander.addExec({
+                cmd: DataFeatures.Commands.ReadData,
+                opts: {
+                    data: data,
+                },
+            }, !first);
             return this;
         };
         return class_1;

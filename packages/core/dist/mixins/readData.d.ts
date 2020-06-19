@@ -1,7 +1,7 @@
 import { MindmapDataItem, MindmapCoreL1Ctor } from '../interface';
 declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").MindmapCoreL1Type>>(Base: TBase) => {
     new (...args: any[]): {
-        readData(data: MindmapDataItem): this;
+        readData(data: MindmapDataItem, first?: boolean): this;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: import("../interface").MindmapNodeItem;
@@ -28,9 +28,6 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         };
         _options: import("../interface").MindmapInsideOptions;
         commander: import("../commander").Commander;
-        clearSelectedNode(): any;
-        focusNodeTextEditor(nodeId: string, clean?: boolean): any;
-        blurNodeTextEditor(): any;
         editorInput(content: string): any;
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;
@@ -45,10 +42,11 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
             x: number;
             y: number;
         };
-        getNodeData(nodeIds: import("../interface").NodeIds): MindmapDataItem | import("../interface").MindmapDataItems;
+        getNodeData(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItems | MindmapDataItem;
         getNode(nodeIds: import("../interface").NodeIds): import("../interface").MindmapNodeItem | import("../interface").MindmapNodeItem[];
         getAllSelectedNodeIds(): string[];
         getSelectedNodeId(): string;
+        getSelectedLastNodeId(): string;
         getAllSelectedNodeDatas(): import("../interface").MindmapDataItems;
         getSelectedNodeData(): MindmapDataItem;
         getAllSelectedNodes(): import("../interface").MindmapNodeItems;
@@ -57,6 +55,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getAllNodeDatas(): import("../interface").MindmapDataItems;
         getAllNodes(): import("../interface").MindmapNodeItems;
         getRootNodeId(): string;
+        getRootData(): MindmapDataItem;
         getRootNode(): import("../interface").MindmapNodeItem;
         getEdittingState(): boolean;
         foldToggle(nodeIds: import("../interface").NodeIds, fold: boolean): any;

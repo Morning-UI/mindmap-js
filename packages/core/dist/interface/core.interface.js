@@ -75,6 +75,14 @@ export var ZoomFeatures;
         Commands["MoveCanvas"] = "moveCanvas";
     })(Commands = ZoomFeatures.Commands || (ZoomFeatures.Commands = {}));
 })(ZoomFeatures || (ZoomFeatures = {}));
+// Data Features
+export var DataFeatures;
+(function (DataFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["ReadData"] = "readData";
+    })(Commands = DataFeatures.Commands || (DataFeatures.Commands = {}));
+})(DataFeatures || (DataFeatures = {}));
 export var MindMarksTag;
 (function (MindMarksTag) {
     MindMarksTag["Red"] = "red";

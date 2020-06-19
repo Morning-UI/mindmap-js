@@ -103,7 +103,7 @@ export type MindmapDataItem = {
     note?: string;
     tag?: string[];
     mark?: MarkSet;
-    children?: MindmapDataItem[];
+    children?: MindmapDataItems;
     folded?: boolean;
 }
 
@@ -205,7 +205,7 @@ export interface InitNodeOptions {
     shapes: MindNodeShapes;
     mindmap: MindmapCoreL0Type;
     cfg: MindmapNodeItem;
-    group: GGroup;
+    group: IGroup;
     style: NodeStyle;
 }
 
@@ -242,15 +242,15 @@ export interface InitNodeMarksOptions {
 
 export interface AddShapeOptions {
     name: string;
-    type: 'rect' | 'text';
-    group: GGroup;
+    type: 'rect' | 'text' | 'circle';
+    group: IGroup;
     shapes: MindNodeShapes;
     attrs: ShapeAttrs;
     draggable?: boolean;
 }
 
 export interface AddGroupOptions {
-    group: GGroup;
+    group: IGroup;
     shapes: MindNodeShapes;
     name: string;
     id: string;
@@ -406,15 +406,6 @@ export interface ContextMenuFeatures {
     menuItemMarkEdit (evt: MouseEvent): void;
     // 菜单项：删除标记
     menuItemMarkDelete (): void;
-}
-export interface NodeFeatures {
-    removeNode (nodeIds: NodeIds, _refresh: boolean): this;
-    insertSubNode (
-        nodeId: NodeId,
-        datas: MindmapDatas,
-        index: number,
-        _refresh: boolean,
-    ): string | string[];
 }
 
 // Features
@@ -634,9 +625,27 @@ export namespace ZoomFeatures {
     }
 }
 
+// Data Features
+export namespace DataFeatures {
+    export namespace FO {
+        export type ReadData = FeatureOptions<{
+            data: MindmapDataItem;
+        }>;
+    }
+
+    export type ReadData = FeatureFn<FO.ReadData>;
+
+    export enum Commands {
+        ReadData = 'readData',
+    }
+
+    export interface Mixins {
+        readData (data: MindmapDataItem): this;
+    }
+}
+
 // Get Features
 export namespace GetFeatures {
-
     export interface Mixins {
         // 获取节点数据
         getNodeData (nodeIds: NodeIds): MindmapDataItems|MindmapDataItem;
@@ -646,6 +655,8 @@ export namespace GetFeatures {
         getAllSelectedNodeIds (): NodeId[];
         // 获取第一个选中节点的id
         getSelectedNodeId (): NodeId;
+        // 获取最后一个选中节点的id
+        getSelectedLastNodeId (): NodeId;
         // 获取所有选中节点的数据
         getAllSelectedNodeDatas (): MindmapDataItems;
         // 获取第一个选中节点的数据
@@ -662,12 +673,65 @@ export namespace GetFeatures {
         getAllNodes (): MindmapNodeItems;
         // 获取根节点id
         getRootNodeId (): NodeId;
+        // 获取根节点数据
+        getRootData (): MindmapDataItem;
         // 获取根节点信息
         getRootNode (): MindmapNodeItem;
         // 获取当前编辑状态
         getEdittingState (): boolean;
     }
+}
 
+// Node Features
+export namespace NodeFeatures {
+    export interface Mixins {
+        // 聚焦节点内容编辑器
+        focusNodeTextEditor (nodeId: NodeId, clean: boolean): this;
+        // 失焦节点内容编辑器
+        blurNodeTextEditor (nodeId: NodeId): this;
+        // 选中节点
+        selectNode (nodeIds: NodeIds): this;
+        // 取消选中节点
+        unselectNode (nodeIds: NodeIds): this;
+        // 取消选中所有被选中的节点
+        clearAllSelectedNode (): this;
+        // 选中上一个节点
+        selectMoveUp (): this;
+        // 选中下一个节点
+        selectMoveDown (): this;
+        // 选中前一个节点
+        selectMoveBefore (): this;
+        // 选中后一个节点
+        selectMoveAfter (): this;
+        // 移除节点
+        removeNode (nodeIds: NodeIds, _refresh: boolean): this;
+        // 为节点插入子节点
+        insertSubNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems, index: number, _refresh: boolean): NodeIds;
+        // 为节点插入同级节点(前)
+        insertUpwardNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems): NodeIds;
+        // 为节点插入同级节点(后)
+        insertDownwardNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems): NodeIds;
+        // 为节点插入同级节点(最前)
+        insertFirstNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems): NodeIds;
+        // 为节点插入同级节点(最后)
+        insertLastNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems): NodeIds;
+        // TODO 向后插入唯一节点(所有子节点向后平移)
+        appendUniqueNode (nodeId: NodeId, datas: MindmapDataItem): NodeId;
+        // TODO 向前插入唯一节点(当前节点向后平移)
+        prependUniqueNode (nodeId: NodeId, datas: MindmapDataItem): NodeId;
+        // 节点向上平移
+        nodeMoveUp (nodeId: NodeId): this;
+        // 节点向下平移
+        nodeMoveDown (nodeId: NodeId): this;
+        // TODO 拷贝节点样式
+        copyNodeStyle (nodeId: NodeId): this;
+        // TODO 粘贴节点样式
+        pasteNodeStyle (nodeIds: NodeIds): this;
+        // TODO 拷贝节点
+        copyNodes (nodeIds: NodeIds): this;
+        // TODO 粘贴节点
+        pasteNodes (parentNodeId: NodeId, nodeIds: nodeIds): this;
+    }
 }
 
 // Commander
@@ -677,7 +741,8 @@ export type AllCommands
     | MarkFeatures.Commands
     | NoteFeatures.Commands
     | TagFeatures.Commands
-    | ZoomFeatures.Commands;
+    | ZoomFeatures.Commands
+    | DataFeatures.Commands;
 
 export type AllCommandFOMap = {
     [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
@@ -693,6 +758,7 @@ export type AllCommandFOMap = {
     [ZoomFeatures.Commands.Zoom]: ZoomFeatures.FO.Zoom;
     [ZoomFeatures.Commands.FitZoom]: ZoomFeatures.FO.FitZoom;
     [ZoomFeatures.Commands.MoveCanvas]: ZoomFeatures.FO.MoveCanvas;
+    [DataFeatures.Commands.ReadData]: DataFeatures.FO.ReadData;
 };
 export type CommandExecRes = {
     note: string;
@@ -703,15 +769,13 @@ export type CommandExecRes = {
 export type Command<CMD extends AllCommands> = {
     cmd: CMD;
     opts?: CommandOptions<CMD>;
+    _record: boolean;
 }
 export type CommandOptions<CMD extends AllCommands> = {
     [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
 }
 export type CommandHistory = CommandExecRes;
 
-export interface ReadDataFeatures {
-    readData (data: MindmapDataItem): this;
-}
 export interface ExportFeatures {
     _screenshotting (shotting: boolean): void;
     exportToObject (nodeId: NodeId): MindmapNodeItems;
@@ -744,8 +808,8 @@ export type MindmapCoreL2Type =
     MindmapCoreL1Type
     & ContextMenuFeatures
     & ClipboardFeatures
-    & NodeFeatures
-    & ReadDataFeatures;
+    & NodeFeatures.Mixins
+    & DataFeatures.Mixins;
 
 export type MindmapCoreL3Type =
     MindmapCoreL2Type

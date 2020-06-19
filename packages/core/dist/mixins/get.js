@@ -58,6 +58,10 @@ export default (function (Base) {
         class_1.prototype.getSelectedNodeId = function () {
             return this.getAllSelectedNodeIds()[0];
         };
+        class_1.prototype.getSelectedLastNodeId = function () {
+            var ids = this.getAllSelectedNodeIds();
+            return ids[ids.length - 1];
+        };
         class_1.prototype.getAllSelectedNodeDatas = function () {
             var ids = this.getAllSelectedNodeIds();
             if (ids.length <= 1) {
@@ -103,6 +107,9 @@ export default (function (Base) {
                 return nodes[0];
             }
             return undefined;
+        };
+        class_1.prototype.getRootData = function () {
+            return this.getNodeData(this.getRootNodeId());
         };
         class_1.prototype.getRootNode = function () {
             return this.getNode(this.getRootNodeId());
