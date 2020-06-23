@@ -247,7 +247,7 @@ const downloadFile = (dataUrl: string, suffix: string): void => {
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL2Ctor> (Base: TBase) =>
-    class extends Base implements ExportFeatures {
+    class extends Base implements ExportFeatures.Mixins {
 
         _screenshotting (shotting: boolean): void {
 

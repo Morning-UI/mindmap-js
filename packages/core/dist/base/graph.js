@@ -30,6 +30,7 @@ import bindTagHover from '../events/tagHover';
 import bindNodeDrag from '../events/nodeDrag';
 import bindFoldBtnHover from '../events/foldBtnHover';
 import bindFoldBtnClick from '../events/foldBtnClick';
+import bindHotkey from '../events/hotkey';
 var convertSize = function (type, value, $con) {
     var size;
     if (typeof value === 'string') {
@@ -311,6 +312,12 @@ export var bindEvent = function (mindmap) {
     graph.on('click', function (evt) {
         bindNodeEdit.cancel(evt, {
             mindmap: mindmap,
+        });
+    });
+    graph.on('keydown', function (evt) {
+        bindHotkey.keydown(evt, {
+            mindmap: mindmap,
+            graph: graph,
         });
     });
     global.document.addEventListener('keydown', function (evt) {

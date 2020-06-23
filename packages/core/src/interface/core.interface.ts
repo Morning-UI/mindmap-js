@@ -436,7 +436,7 @@ export namespace FoldFeatures {
 
     export interface Mixins {
         // 切换节点折叠状态
-        foldToggle (nodeIds: NodeIds, fold: boolean): this;
+        foldToggle (nodeIds: NodeIds, fold?: boolean): this;
         // 折叠节点
         fold (nodeIds: NodeIds): this;
         // 展开节点
@@ -704,9 +704,9 @@ export namespace NodeFeatures {
         // 选中后一个节点
         selectMoveAfter (): this;
         // 移除节点
-        removeNode (nodeIds: NodeIds, _refresh: boolean): this;
+        removeNode (nodeIds: NodeIds, _refresh?: boolean): this;
         // 为节点插入子节点
-        insertSubNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems, index: number, _refresh: boolean): NodeIds;
+        insertSubNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems, index: number, _refresh?: boolean): NodeIds;
         // 为节点插入同级节点(前)
         insertUpwardNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems): NodeIds;
         // 为节点插入同级节点(后)
@@ -715,10 +715,10 @@ export namespace NodeFeatures {
         insertFirstNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems): NodeIds;
         // 为节点插入同级节点(最后)
         insertLastNode (nodeId: NodeId, datas: MindmapDataItem|MindmapDataItems): NodeIds;
-        // TODO 向后插入唯一节点(所有子节点向后平移)
-        appendUniqueNode (nodeId: NodeId, datas: MindmapDataItem): NodeId;
-        // TODO 向前插入唯一节点(当前节点向后平移)
-        prependUniqueNode (nodeId: NodeId, datas: MindmapDataItem): NodeId;
+        // 向后插入唯一节点(所有子节点向后平移)
+        appendUniqueNode (nodeId: NodeId, data: MindmapDataItem): NodeId;
+        // 向前插入父节点(当前节点向后平移)
+        prependParentNode (nodeIds: NodeIds, data: MindmapDataItem): NodeId;
         // 节点向上平移
         nodeMoveUp (nodeId: NodeId): this;
         // 节点向下平移
@@ -727,10 +727,34 @@ export namespace NodeFeatures {
         copyNodeStyle (nodeId: NodeId): this;
         // TODO 粘贴节点样式
         pasteNodeStyle (nodeIds: NodeIds): this;
-        // TODO 拷贝节点
-        copyNodes (nodeIds: NodeIds): this;
-        // TODO 粘贴节点
-        pasteNodes (parentNodeId: NodeId, nodeIds: nodeIds): this;
+        // 拷贝节点
+        copyNodes (nodeIds: NodeIds): MindmapDataItems;
+        // 剪切节点
+        cutNodes (nodeIds: NodeIds): MindmapDataItems;
+        // 粘贴节点
+        pasteNodes (parentNodeIds: NodeIds, datas: MindmapDataItems): NodeIds;
+        // TODO 是否有节点被选中
+        hasSelectedNode (): boolean;
+    }
+}
+
+// Export Features
+export namespace ExportFeatures {
+    export interface Mixins {
+        _screenshotting (shotting: boolean): void;
+        exportToObject (nodeId: NodeId): MindmapNodeItems;
+        downloadPng (nodeId: NodeId): this;
+        downloadWebp (nodeId: NodeId): this;
+        downloadJpeg (nodeId: NodeId): this;
+        downloadBmp (nodeId: NodeId): this;
+        downloadFile (nodeId: NodeId | DownloadType, type: DownloadType): this;
+    }
+}
+
+// Import Features
+export namespace ImportFeatures {
+    export interface Mixins {
+        importFromObject (data: MindmapNodeItems): this;
     }
 }
 
@@ -776,21 +800,9 @@ export type CommandOptions<CMD extends AllCommands> = {
 }
 export type CommandHistory = CommandExecRes;
 
-export interface ExportFeatures {
-    _screenshotting (shotting: boolean): void;
-    exportToObject (nodeId: NodeId): MindmapNodeItems;
-    downloadPng (nodeId: NodeId): this;
-    downloadWebp (nodeId: NodeId): this;
-    downloadJpeg (nodeId: NodeId): this;
-    downloadBmp (nodeId: NodeId): this;
-    downloadFile (nodeId: NodeId | DownloadType, type: DownloadType): this;
-}
-export interface ImportFeatures {
-
-}
 export interface ClipboardFeatures {
     copyNodeToClipboard (nodeIds: NodeIds): string;
-    copyNode (nodeIds: NodeIds): MindmapNodeItem|MindmapNodeItems;
+    cutNodeToClipboard (nodeIds: NodeIds): string;
     getClipboard (): string;
 }
 export type MindmapCoreL0Type = MindmapCoreBase;
@@ -807,14 +819,14 @@ export type MindmapCoreL1Type =
 export type MindmapCoreL2Type =
     MindmapCoreL1Type
     & ContextMenuFeatures
-    & ClipboardFeatures
     & NodeFeatures.Mixins
     & DataFeatures.Mixins;
 
 export type MindmapCoreL3Type =
     MindmapCoreL2Type
-    & ImportFeatures
-    & ExportFeatures;
+    & ClipboardFeatures
+    & ImportFeatures.Mixins
+    & ExportFeatures.Mixins;
 
 export type MindmapCoreType = MindmapCoreL3Type;
 
@@ -976,4 +988,8 @@ export enum XmindMarkerMethods {
     Star = 'star',
     Flag = 'flag',
     Person = 'people',
+}
+
+export type HotkeyMap = {
+    [key: string]: (mindmap: MindmapCoreType) => void;
 }

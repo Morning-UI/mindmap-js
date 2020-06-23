@@ -49,6 +49,7 @@ import bindTagHover                             from '../events/tagHover';
 import bindNodeDrag                             from '../events/nodeDrag';
 import bindFoldBtnHover                         from '../events/foldBtnHover';
 import bindFoldBtnClick                         from '../events/foldBtnClick';
+import bindHotkey                               from '../events/hotkey';
 
 const convertSize = (type: 'width' | 'height', value: number | string, $con: HTMLElement): number => {
 
@@ -507,6 +508,15 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
 
         bindNodeEdit.cancel(evt, {
             mindmap,
+        });
+
+    });
+
+    graph.on('keydown', (evt: KeyboardEvent): void => {
+
+        bindHotkey.keydown(evt, {
+            mindmap,
+            graph,
         });
 
     });

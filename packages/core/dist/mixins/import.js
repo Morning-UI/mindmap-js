@@ -19,6 +19,12 @@ export default (function (Base) {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         class_1.prototype.importFromObject = function (data) {
+            var _nodeId = nodeId;
+            if (_nodeId === undefined) {
+                _nodeId = this.getRootNodeId();
+            }
+            var data = [this.graph.findById(String(_nodeId)).getModel()];
+            return exportProcesser.jsonObj(data, this);
             return this;
         };
         return class_1;

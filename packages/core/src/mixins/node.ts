@@ -32,6 +32,11 @@ import {
 import {
     refreshTextEditorPosition,
 }                                               from '../base/editor';
+import {
+    pluckDataFromModels,
+    dataItemGetter,
+}                                               from '../utils/dataGetter';
+import Node from '@antv/g6/lib/item/node';
 
 const getUDNodeId = (mindmap: MindmapCoreL1Type, nodeId: NodeId, type: 'up'|'down'): NodeId => {
 
@@ -233,15 +238,14 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         selectMoveUp (): this {
 
-            const id: NodeId = this.getSelectedLastNodeId();
-
             // 未选中节点
-            if (!id) {
+            if (!this.hasSelectedNode()) {
 
                 return this;
 
             }
 
+            const id: NodeId = this.getSelectedNodeId();
             const upwardNodeId: NodeId = getUDNodeId(this, id, 'up');
 
             if (upwardNodeId !== null) {
@@ -257,15 +261,14 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         selectMoveDown (): this {
 
-            const id: NodeId = this.getSelectedLastNodeId();
-
             // 未选中节点
-            if (!id) {
+            if (!this.hasSelectedNode()) {
 
                 return this;
 
             }
 
+            const id: NodeId = this.getSelectedLastNodeId();
             const downwardNodeId: NodeId = getUDNodeId(this, id, 'down');
 
             if (downwardNodeId !== null) {
@@ -281,15 +284,14 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         selectMoveBefore (): this {
 
-            const id: NodeId = this.getSelectedNodeId();
-
             // 未选中节点
-            if (!id) {
+            if (!this.hasSelectedNode()) {
 
                 return this;
 
             }
 
+            const id: NodeId = this.getSelectedNodeId();
             const node = findNodeById(this.graph, id);
             const inEdges = node.getInEdges();
 
@@ -312,15 +314,14 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         selectMoveAfter (): this {
 
-            const id: NodeId = this.getSelectedLastNodeId();
-
             // 未选中节点
-            if (!id) {
+            if (!this.hasSelectedNode()) {
 
                 return this;
 
             }
 
+            const id: NodeId = this.getSelectedLastNodeId();
             const node = findNodeById(this.graph, id);
             const outEdges = node.getOutEdges();
 
@@ -534,9 +535,87 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         }
 
-        appendUniqueNode (nodeId: NodeId, datas: MindmapDataItem): NodeId {}
+        appendUniqueNode (nodeId: NodeId, data: MindmapDataItem): NodeId {
 
-        prependUniqueNode (nodeId: NodeId, datas: MindmapDataItem): NodeId {}
+            const node = findNodeById(this.graph, nodeId);
+            const model = getModel(node);
+
+            if (model._isRoot) {
+
+                return null;
+
+            }
+
+            data.children = pluckDataFromModels<MindmapDataItem>(model.children, dataItemGetter, this);
+
+            const nodeItem = traverseData(data);
+
+            model.children = [nodeItem];
+            node.draw();
+            this.graph.changeData();
+            this.graph.refreshLayout();
+
+            return nodeItem.id;
+
+        }
+
+        prependParentNode (nodeIds: NodeIds, data: MindmapDataItem): NodeId {
+
+            const ids = fillNodeIds(nodeIds);
+            const nodes: INode[] = [];
+            const models: MindmapNodeItems = [];
+            const parentNodes: INode[] = [];
+            const parentModels: MindmapNodeItems = [];
+
+            let hasSameParent = true;
+            let hasRoot = false;
+
+            for (const id of ids) {
+
+                const node = findNodeById(this.graph, id);
+                const model = getModel(node);
+                const parentNode = node.getInEdges()[0].getSource();
+                const parentModel = getModel(parentNode);
+
+                if (parentNodes.length > 0 && parentNodes.indexOf(parentNode) === -1) {
+
+                    hasSameParent = false;
+
+                }
+
+                nodes.push(node);
+                models.push(model);
+                parentNodes.push(parentNode);
+                parentModels.push(parentModel);
+
+                if (model._isRoot) {
+
+                    hasRoot = true;
+
+                }
+
+            }
+
+            if (hasRoot || !hasSameParent) {
+
+                return null;
+
+            }
+
+            const indexOfParent = parentModels[0].children.indexOf(models[0]);
+
+            data.children = pluckDataFromModels<MindmapDataItem>(models, dataItemGetter, this);
+
+            const nodeItem = traverseData(data);
+
+            parentModels[0].children.splice(indexOfParent, models.length, nodeItem);
+            parentNodes[0].draw();
+            this.graph.changeData();
+            this.graph.refreshLayout();
+
+            return nodeItem.id;
+
+        }
 
         nodeMoveUp (nodeId: NodeId): this {
 
@@ -593,6 +672,65 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             this.graph.refreshLayout();
 
             return this;
+
+        }
+
+        copyNodes (nodeIds: NodeIds): MindmapDataItems {
+
+            const ids = fillNodeIds(nodeIds);
+            const datas: MindmapDataItems = [];
+
+            for (const id of ids) {
+
+                const model = getModel(findNodeById(this.graph, id));
+
+                datas.push(pluckDataFromModels<MindmapDataItem>([model], dataItemGetter, this)[0]);
+
+            }
+
+            return datas;
+
+        }
+
+        cutNodes (nodeIds: NodeIds): MindmapDataItems {
+
+            const datas = this.copyNodes(nodeIds);
+
+            this.removeNode(nodeIds);
+
+            return datas;
+
+        }
+
+        pasteNodes (parentNodeIds: NodeIds, datas: MindmapDataItems): NodeIds {
+
+            const ids = fillNodeIds(parentNodeIds);
+
+            let insertIds: NodeIds = [];
+
+            for (const id of ids) {
+
+                const insertId: NodeIds = this.insertSubNode(id, datas, -1);
+
+                if (typeof insertId === 'string') {
+
+                    insertIds.push(insertId);
+
+                } else {
+
+                    insertIds = insertIds.concat(insertId);
+
+                }
+
+            }
+
+            return insertIds;
+
+        }
+
+        hasSelectedNode (): boolean {
+
+            return !(this.getSelectedNodeId() === null);
 
         }
 

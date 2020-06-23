@@ -1,8 +1,8 @@
-import { MindmapCoreL1Ctor, MindmapNodeItem, NodeIds, MindmapNodeItems } from '../interface';
-declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").MindmapCoreL1Type>>(Base: TBase) => {
+import { MindmapNodeItem, NodeIds, MindmapNodeItems, MindmapCoreL2Ctor } from '../interface';
+declare const _default: <TBase extends MindmapCoreL2Ctor<import("../interface").MindmapCoreL2Type>>(Base: TBase) => {
     new (...args: any[]): {
         copyNodeToClipboard(nodeIds: NodeIds): string;
-        copyNode(nodeIds: NodeIds): MindmapNodeItems;
+        cutNodeToClipboard(nodeIds: NodeIds): string;
         getClipboard(): string;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
@@ -60,7 +60,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getRootData(): import("../interface").MindmapDataItem;
         getRootNode(): MindmapNodeItem;
         getEdittingState(): boolean;
-        foldToggle(nodeIds: NodeIds, fold: boolean): any;
+        foldToggle(nodeIds: NodeIds, fold?: boolean): any;
         fold(nodeIds: NodeIds): any;
         unfold(nodeIds: NodeIds): any;
         showEditLink(nodeIds: NodeIds): any;
@@ -85,6 +85,46 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getCurrentEditMarkValue(): import("../interface").MindMark;
         mark(nodeIds: NodeIds, mark: import("../interface").MindMark): any;
         unmark(nodeIds: NodeIds, mark: import("../interface").MindMark): any;
+        showContextMenu(options: import("../interface").ShowContextMenuOptions): any;
+        hideContextMenu(): any;
+        hideAllContextMenu(): any;
+        getContextNodeId(): string;
+        getContextType(): import("../interface").ContextMenuTypes;
+        getContextData(): any;
+        menuItemLinkEdit(): void;
+        menuItemLinkDelete(): void;
+        menuItemNoteEdit(): void;
+        menuItemNoteDelete(): void;
+        menuItemTagEdit(): void;
+        menuItemTagDelete(): void;
+        menuItemMarkEdit(evt: MouseEvent): void;
+        menuItemMarkDelete(): void;
+        focusNodeTextEditor(nodeId: string, clean: boolean): any;
+        blurNodeTextEditor(nodeId: string): any;
+        selectNode(nodeIds: NodeIds): any;
+        unselectNode(nodeIds: NodeIds): any;
+        clearAllSelectedNode(): any;
+        selectMoveUp(): any;
+        selectMoveDown(): any;
+        selectMoveBefore(): any;
+        selectMoveAfter(): any;
+        removeNode(nodeIds: NodeIds, _refresh?: boolean): any;
+        insertSubNode(nodeId: string, datas: import("../interface").MindmapDataItems | import("../interface").MindmapDataItem, index: number, _refresh?: boolean): NodeIds;
+        insertUpwardNode(nodeId: string, datas: import("../interface").MindmapDataItems | import("../interface").MindmapDataItem): NodeIds;
+        insertDownwardNode(nodeId: string, datas: import("../interface").MindmapDataItems | import("../interface").MindmapDataItem): NodeIds;
+        insertFirstNode(nodeId: string, datas: import("../interface").MindmapDataItems | import("../interface").MindmapDataItem): NodeIds;
+        insertLastNode(nodeId: string, datas: import("../interface").MindmapDataItems | import("../interface").MindmapDataItem): NodeIds;
+        appendUniqueNode(nodeId: string, data: import("../interface").MindmapDataItem): string;
+        prependParentNode(nodeIds: NodeIds, data: import("../interface").MindmapDataItem): string;
+        nodeMoveUp(nodeId: string): any;
+        nodeMoveDown(nodeId: string): any;
+        copyNodeStyle(nodeId: string): any;
+        pasteNodeStyle(nodeIds: NodeIds): any;
+        copyNodes(nodeIds: NodeIds): import("../interface").MindmapDataItems;
+        cutNodes(nodeIds: NodeIds): import("../interface").MindmapDataItems;
+        pasteNodes(parentNodeIds: NodeIds, datas: import("../interface").MindmapDataItems): NodeIds;
+        hasSelectedNode(): boolean;
+        readData(data: import("../interface").MindmapDataItem): any;
     };
 } & TBase;
 export default _default;

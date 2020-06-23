@@ -52,7 +52,7 @@ export declare type MindmapDataItem = {
     note?: string;
     tag?: string[];
     mark?: MarkSet;
-    children?: MindmapDataItem[];
+    children?: MindmapDataItems;
     folded?: boolean;
 };
 export declare type MindmapDataItems = MindmapDataItem[];
@@ -319,7 +319,7 @@ export declare namespace FoldFeatures {
         FoldToggle = "foldToggle"
     }
     interface Mixins {
-        foldToggle(nodeIds: NodeIds, fold: boolean): this;
+        foldToggle(nodeIds: NodeIds, fold?: boolean): this;
         fold(nodeIds: NodeIds): this;
         unfold(nodeIds: NodeIds): this;
     }
@@ -481,6 +481,7 @@ export declare namespace GetFeatures {
         getNode(nodeIds: NodeIds): MindmapNodeItem[] | MindmapNodeItem;
         getAllSelectedNodeIds(): NodeId[];
         getSelectedNodeId(): NodeId;
+        getSelectedLastNodeId(): NodeId;
         getAllSelectedNodeDatas(): MindmapDataItems;
         getSelectedNodeData(): MindmapDataItem;
         getAllSelectedNodes(): MindmapNodeItems;
@@ -505,17 +506,38 @@ export declare namespace NodeFeatures {
         selectMoveDown(): this;
         selectMoveBefore(): this;
         selectMoveAfter(): this;
-        removeNode(nodeIds: NodeIds, _refresh: boolean): this;
-        insertSubNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems, index: number, _refresh: boolean): NodeIds;
+        removeNode(nodeIds: NodeIds, _refresh?: boolean): this;
+        insertSubNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems, index: number, _refresh?: boolean): NodeIds;
         insertUpwardNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
         insertDownwardNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
-        insertNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
-        appendUniqueNode(nodeId: NodeId, datas: MindmapDataItem): NodeId;
-        prependUniqueNode(nodeId: NodeId, datas: MindmapDataItem): NodeId;
-        moveUp(nodeId: NodeId): this;
-        moveDown(nodeId: NodeId): this;
+        insertFirstNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
+        insertLastNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
+        appendUniqueNode(nodeId: NodeId, data: MindmapDataItem): NodeId;
+        prependParentNode(nodeIds: NodeIds, data: MindmapDataItem): NodeId;
+        nodeMoveUp(nodeId: NodeId): this;
+        nodeMoveDown(nodeId: NodeId): this;
         copyNodeStyle(nodeId: NodeId): this;
         pasteNodeStyle(nodeIds: NodeIds): this;
+        copyNodes(nodeIds: NodeIds): MindmapDataItems;
+        cutNodes(nodeIds: NodeIds): MindmapDataItems;
+        pasteNodes(parentNodeIds: NodeIds, datas: MindmapDataItems): NodeIds;
+        hasSelectedNode(): boolean;
+    }
+}
+export declare namespace ExportFeatures {
+    interface Mixins {
+        _screenshotting(shotting: boolean): void;
+        exportToObject(nodeId: NodeId): MindmapNodeItems;
+        downloadPng(nodeId: NodeId): this;
+        downloadWebp(nodeId: NodeId): this;
+        downloadJpeg(nodeId: NodeId): this;
+        downloadBmp(nodeId: NodeId): this;
+        downloadFile(nodeId: NodeId | DownloadType, type: DownloadType): this;
+    }
+}
+export declare namespace ImportFeatures {
+    interface Mixins {
+        importFromObject(data: MindmapNodeItems): this;
     }
 }
 export declare type AllCommands = FoldFeatures.Commands | LinkFeatures.Commands | MarkFeatures.Commands | NoteFeatures.Commands | TagFeatures.Commands | ZoomFeatures.Commands | DataFeatures.Commands;
@@ -550,26 +572,15 @@ export declare type CommandOptions<CMD extends AllCommands> = {
     [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
 };
 export declare type CommandHistory = CommandExecRes;
-export interface ExportFeatures {
-    _screenshotting(shotting: boolean): void;
-    exportToObject(nodeId: NodeId): MindmapNodeItems;
-    downloadPng(nodeId: NodeId): this;
-    downloadWebp(nodeId: NodeId): this;
-    downloadJpeg(nodeId: NodeId): this;
-    downloadBmp(nodeId: NodeId): this;
-    downloadFile(nodeId: NodeId | DownloadType, type: DownloadType): this;
-}
-export interface ImportFeatures {
-}
 export interface ClipboardFeatures {
     copyNodeToClipboard(nodeIds: NodeIds): string;
-    copyNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItems;
+    cutNodeToClipboard(nodeIds: NodeIds): string;
     getClipboard(): string;
 }
 export declare type MindmapCoreL0Type = MindmapCoreBase;
 export declare type MindmapCoreL1Type = MindmapCoreL0Type & ZoomFeatures.Mixins & GetFeatures.Mixins & FoldFeatures.Mixins & LinkFeatures.Mixins & NoteFeatures.Mixins & TagFeatures.Mixins & MarkFeatures.Mixins;
-export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & ClipboardFeatures & NodeFeatures.Mixins & DataFeatures.Mixins;
-export declare type MindmapCoreL3Type = MindmapCoreL2Type & ImportFeatures & ExportFeatures;
+export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures.Mixins & DataFeatures.Mixins;
+export declare type MindmapCoreL3Type = MindmapCoreL2Type & ClipboardFeatures & ImportFeatures.Mixins & ExportFeatures.Mixins;
 export declare type MindmapCoreType = MindmapCoreL3Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;
 export declare enum MindMarksTag {
@@ -723,3 +734,6 @@ export declare enum XmindMarkerMethods {
     Flag = "flag",
     Person = "people"
 }
+export declare type HotkeyMap = {
+    [key: string]: (mindmap: MindmapCoreType) => void;
+};

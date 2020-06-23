@@ -16,10 +16,14 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<MindmapCoreL1Type>>(Bas
         insertDownwardNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
         insertFirstNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
         insertLastNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
-        appendUniqueNode(nodeId: NodeId, datas: MindmapDataItem): NodeId;
-        prependUniqueNode(nodeId: NodeId, datas: MindmapDataItem): NodeId;
+        appendUniqueNode(nodeId: NodeId, data: MindmapDataItem): NodeId;
+        prependParentNode(nodeIds: NodeIds, data: MindmapDataItem): NodeId;
         nodeMoveUp(nodeId: NodeId): this;
         nodeMoveDown(nodeId: NodeId): this;
+        copyNodes(nodeIds: NodeIds): MindmapDataItems;
+        cutNodes(nodeIds: NodeIds): MindmapDataItems;
+        pasteNodes(parentNodeIds: NodeIds, datas: MindmapDataItems): NodeIds;
+        hasSelectedNode(): boolean;
         graph: import("@antv/g6").TreeGraph;
         G6: typeof import("@antv/g6");
         data: MindmapNodeItem;
@@ -60,7 +64,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<MindmapCoreL1Type>>(Bas
             x: number;
             y: number;
         };
-        getNodeData(nodeIds: NodeIds): MindmapDataItem | MindmapDataItems;
+        getNodeData(nodeIds: NodeIds): MindmapDataItems | MindmapDataItem;
         getNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
         getAllSelectedNodeIds(): string[];
         getSelectedNodeId(): string;
@@ -76,7 +80,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<MindmapCoreL1Type>>(Bas
         getRootData(): MindmapDataItem;
         getRootNode(): MindmapNodeItem;
         getEdittingState(): boolean;
-        foldToggle(nodeIds: NodeIds, fold: boolean): any;
+        foldToggle(nodeIds: NodeIds, fold?: boolean): any;
         fold(nodeIds: NodeIds): any;
         unfold(nodeIds: NodeIds): any;
         showEditLink(nodeIds: NodeIds): any;

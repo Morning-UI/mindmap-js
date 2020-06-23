@@ -12,9 +12,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 import copy from 'clipboard-copy';
-import { pluckDataFromModels, nodeItemGetter, } from '../utils/dataGetter';
-import { fillNodeIds, } from '../base/utils';
-import { getModel, } from '../utils/G6Ext';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
@@ -23,29 +20,36 @@ export default (function (Base) {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         class_1.prototype.copyNodeToClipboard = function (nodeIds) {
-            var data = JSON.stringify(this.copyNode(nodeIds));
+            var data = JSON.stringify(this.copyNodes(nodeIds));
             window.__MINDMAP_CLIPBOARD = data;
             copy(data).catch(function () {
                 // do not handle errors.
             });
             return data;
         };
-        class_1.prototype.copyNode = function (nodeIds) {
-            var ids = fillNodeIds(nodeIds);
-            var isSingle = (typeof nodeIds === 'string' || nodeIds.length === 1);
-            var nodes = [];
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                var node = this.graph.findById(id);
-                var model = getModel(node);
-                var data = pluckDataFromModels([model], nodeItemGetter, this);
-                nodes.push(data[0]);
-            }
-            if (isSingle) {
-                return nodes[0];
-            }
-            return nodes;
+        class_1.prototype.cutNodeToClipboard = function (nodeIds) {
+            var data = JSON.stringify(this.cutNodes(nodeIds));
+            window.__MINDMAP_CLIPBOARD = data;
+            copy(data).catch(function () {
+                // do not handle errors.
+            });
+            return data;
         };
+        // copyNode (nodeIds: NodeIds): MindmapNodeItems {
+        //     const ids = fillNodeIds(nodeIds);
+        //     const isSingle = (typeof nodeIds === 'string' || nodeIds.length === 1);
+        //     const nodes = [];
+        //     for (const id of ids) {
+        //         const node = this.graph.findById(id);
+        //         const model = getModel(node);
+        //         const data = pluckDataFromModels([model], nodeItemGetter, this);
+        //         nodes.push(data[0]);
+        //     }
+        //     if (isSingle) {
+        //         return nodes[0];
+        //     }
+        //     return nodes;
+        // }
         // eslint-disable-next-line class-methods-use-this
         class_1.prototype.getClipboard = function () {
             return window.__MINDMAP_CLIPBOARD;

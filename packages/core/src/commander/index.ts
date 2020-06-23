@@ -224,7 +224,7 @@ export class Commander {
 
     }
 
-    addExec (command: Command<AllCommands>, record: boolean): this {
+    addExec (command: Command<AllCommands>, record?: boolean): this {
 
         this.add(command, record).exec();
 

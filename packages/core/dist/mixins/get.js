@@ -42,7 +42,7 @@ export default (function (Base) {
                 nodeModels.push(getModel(this.graph.findById(id)));
             }
             if (nodeModels.length <= 1) {
-                return nodeModels[0];
+                return nodeModels[0] || null;
             }
             return nodeModels;
         };
@@ -56,11 +56,11 @@ export default (function (Base) {
             return nodeIds;
         };
         class_1.prototype.getSelectedNodeId = function () {
-            return this.getAllSelectedNodeIds()[0];
+            return this.getAllSelectedNodeIds()[0] || null;
         };
         class_1.prototype.getSelectedLastNodeId = function () {
             var ids = this.getAllSelectedNodeIds();
-            return ids[ids.length - 1];
+            return ids[ids.length - 1] || null;
         };
         class_1.prototype.getAllSelectedNodeDatas = function () {
             var ids = this.getAllSelectedNodeIds();
@@ -70,7 +70,7 @@ export default (function (Base) {
             return this.getNodeData(ids);
         };
         class_1.prototype.getSelectedNodeData = function () {
-            return this.getAllSelectedNodeDatas()[0];
+            return this.getAllSelectedNodeDatas()[0] || null;
         };
         class_1.prototype.getAllSelectedNodes = function () {
             var ids = this.getAllSelectedNodeIds();
@@ -80,7 +80,7 @@ export default (function (Base) {
             return this.getNode(ids);
         };
         class_1.prototype.getSelectedNode = function () {
-            return this.getAllSelectedNodes()[0];
+            return this.getAllSelectedNodes()[0] || null;
         };
         class_1.prototype.getAllNodeIds = function () {
             var nodes = this.graph.getNodes();
@@ -106,7 +106,7 @@ export default (function (Base) {
             if (nodes && nodes[0]) {
                 return nodes[0];
             }
-            return undefined;
+            return null;
         };
         class_1.prototype.getRootData = function () {
             return this.getNodeData(this.getRootNodeId());

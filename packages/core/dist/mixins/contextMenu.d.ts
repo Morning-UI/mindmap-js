@@ -71,7 +71,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         getRootData(): import("../interface").MindmapDataItem;
         getRootNode(): import("../interface").MindmapNodeItem;
         getEdittingState(): boolean;
-        foldToggle(nodeIds: import("../interface").NodeIds, fold: boolean): any;
+        foldToggle(nodeIds: import("../interface").NodeIds, fold?: boolean): any;
         fold(nodeIds: import("../interface").NodeIds): any;
         unfold(nodeIds: import("../interface").NodeIds): any;
         showEditLink(nodeIds: import("../interface").NodeIds): any;

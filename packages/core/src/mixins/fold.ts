@@ -12,7 +12,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
         foldToggle (nodeIds: NodeIds, fold: boolean|undefined): this {
 
             this.commander.addExec({
-                cmd: FoldFeatures.Commands.FoldToggle,
+                cmd : FoldFeatures.Commands.FoldToggle,
                 opts : {
                     nodeIds,
                     fold,

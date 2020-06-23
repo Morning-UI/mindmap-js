@@ -8,7 +8,7 @@ export declare class Commander {
     execCommand(commands: Command<AllCommands> | Command<AllCommands>[]): CommandExecRes;
     exec(): this;
     add(command: Command<AllCommands>, record?: boolean): this;
-    addExec(command: Command<AllCommands>, record: boolean): this;
+    addExec(command: Command<AllCommands>, record?: boolean): this;
     hasUndo(): boolean;
     hasRedo(): boolean;
     undo(): number;

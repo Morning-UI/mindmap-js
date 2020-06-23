@@ -62,7 +62,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             if (nodeModels.length <= 1) {
 
-                return nodeModels[0];
+                return nodeModels[0] || null;
 
             }
 
@@ -87,7 +87,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         getSelectedNodeId (): NodeId {
 
-            return this.getAllSelectedNodeIds()[0];
+            return this.getAllSelectedNodeIds()[0] || null;
 
         }
 
@@ -95,7 +95,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             const ids = this.getAllSelectedNodeIds();
 
-            return ids[ids.length - 1];
+            return ids[ids.length - 1] || null;
 
         }
 
@@ -115,7 +115,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         getSelectedNodeData (): MindmapDataItem {
 
-            return this.getAllSelectedNodeDatas()[0];
+            return this.getAllSelectedNodeDatas()[0] || null;
 
         }
 
@@ -135,7 +135,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         getSelectedNode (): MindmapNodeItem {
 
-            return this.getAllSelectedNodes()[0];
+            return this.getAllSelectedNodes()[0] || null;
 
         }
 
@@ -162,7 +162,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             const datas = this.getNodeData(this.getAllNodeIds());
 
-            return Array.isArray(datas) ? datas : [datas] ;
+            return Array.isArray(datas) ? datas : [datas];
 
         }
 
@@ -170,7 +170,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             const nodes = this.getNode(this.getAllNodeIds());
 
-            return Array.isArray(nodes) ? nodes : [nodes] ;
+            return Array.isArray(nodes) ? nodes : [nodes];
 
         }
 
@@ -184,7 +184,7 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             }
 
-            return undefined;
+            return null;
 
         }
 
