@@ -16,6 +16,7 @@ import mixinZoom from './mixins/zoom';
 import mixinExport from './mixins/export';
 import mixinReadData from './mixins/readData';
 import mixinClipboard from './mixins/clipboard';
+import mixinCommand from './mixins/command';
 var MindmapCoreBase = /** @class */ (function () {
     function MindmapCoreBase() {
         var args = [];
@@ -87,7 +88,7 @@ var MindmapCoreBase = /** @class */ (function () {
         }
         return this;
     };
-    MindmapCoreBase.prototype.showLink = function (nodeId) {
+    MindmapCoreBase.prototype.openLink = function (nodeId) {
         var node = this.graph.findById(nodeId);
         var model = node.getModel();
         if (model.link) {
@@ -114,8 +115,8 @@ export { MindmapCoreBase };
 // L1(base function) includes : link/note/tag.
 // L2(advance function) includes : contextmenu/node, L2 which is public core.
 var MindmapCoreL1 = mixinZoom(mixinTag(mixinMark(mixinNote(mixinLink(mixinGet(mixinFold(MindmapCoreBase)))))));
-var MindmapCoreL2 = mixinClipboard(mixinReadData(mixinNode(mixinContextMenu(MindmapCoreL1))));
-var MindmapCoreL3 = mixinExport(MindmapCoreL2);
+var MindmapCoreL2 = mixinReadData(mixinNode(mixinContextMenu(MindmapCoreL1)));
+var MindmapCoreL3 = mixinExport(mixinClipboard(mixinCommand(MindmapCoreL2)));
 var MindmapCore = mixinConstructor(MindmapCoreL3);
 /* eslint-enable */
 export default MindmapCore;

@@ -8,7 +8,7 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
-    class extends Base implements ContextMenuFeatures {
+    class extends Base implements ContextMenuFeatures.Mixins {
 
         showContextMenu (options: ShowContextMenuOptions): this {
 

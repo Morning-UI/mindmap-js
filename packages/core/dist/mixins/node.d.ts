@@ -11,7 +11,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<MindmapCoreL1Type>>(Bas
         selectMoveBefore(): this;
         selectMoveAfter(): this;
         removeNode(nodeIds: NodeIds, _refresh?: boolean): this;
-        insertSubNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems, index?: number, _refresh?: boolean): string | string[];
+        insertSubNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems, index?: number, _refresh?: boolean): NodeId | NodeId[];
         insertUpwardNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
         insertDownwardNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
         insertFirstNode(nodeId: NodeId, datas: MindmapDataItem | MindmapDataItems): NodeIds;
@@ -53,7 +53,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<MindmapCoreL1Type>>(Bas
         editorInput(content: string): any;
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;
-        showLink(nodeId: string): any;
+        openLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
         _updateZoomValue(): any;
         zoom(zoom: number): any;
@@ -64,7 +64,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<MindmapCoreL1Type>>(Bas
             x: number;
             y: number;
         };
-        getNodeData(nodeIds: NodeIds): MindmapDataItems | MindmapDataItem;
+        getNodeData(nodeIds: NodeIds): MindmapDataItem | MindmapDataItems;
         getNode(nodeIds: NodeIds): MindmapNodeItem | MindmapNodeItem[];
         getAllSelectedNodeIds(): string[];
         getSelectedNodeId(): string;

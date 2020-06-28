@@ -32,7 +32,7 @@ export default {
 
             if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
 
-                options.mindmap.showLink(model.id);
+                options.mindmap.openLink(model.id);
 
             }
 

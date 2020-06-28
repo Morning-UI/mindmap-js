@@ -32,11 +32,18 @@ export var traverseOneItem = function (item, options) {
     // TODO : type diff when node is root
     // TODO : root 计算不能按照id
     if (options === void 0) { options = {}; }
-    var id = String(globalData.id++);
+    var id = null;
+    if ('id' in item) {
+        id = item.id;
+    }
+    else {
+        id = String(globalData.id++);
+    }
     var nodeItem = {
         id: id,
         type: options.type || 'mind-node',
         // eslint-disable-next-line no-magic-numbers
+        depth: null,
         anchorPoints: [[0, 0.5], [1, 0.5]],
         style: {},
         text: item.text || '新的节点',

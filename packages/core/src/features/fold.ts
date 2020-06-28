@@ -79,7 +79,7 @@ export const foldToggle: FoldFeatures.FoldToggle = (options) => {
             cmd : FoldFeatures.Commands.FoldToggle,
             opts : {
                 nodeIds,
-                fold : !fold,
+                fold : fold === undefined ? fold : !fold,
             },
         } as Command<FoldFeatures.Commands.FoldToggle>,
     };

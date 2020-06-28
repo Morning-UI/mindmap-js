@@ -11,7 +11,6 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import copy from 'clipboard-copy';
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
@@ -19,25 +18,19 @@ export default (function (Base) {
         function class_1() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
-        class_1.prototype.copyNodeToClipboard = function (nodeIds) {
-            var data = JSON.stringify(this.copyNodes(nodeIds));
-            window.__MINDMAP_CLIPBOARD = data;
-            copy(data).catch(function () {
-                // do not handle errors.
-            });
+        class_1.prototype.redo = function () {
+            return this.commander.redo();
+        };
+        class_1.prototype.undo = function () {
+            return this.commander.undo();
+        };
+        class_1.prototype.commandNewGroup = function () {
+            this.commander.commandNewGroup();
             return this;
         };
-        class_1.prototype.cutNodeToClipboard = function (nodeIds) {
-            var data = JSON.stringify(this.cutNodes(nodeIds));
-            window.__MINDMAP_CLIPBOARD = data;
-            copy(data).catch(function () {
-                // do not handle errors.
-            });
+        class_1.prototype.commandExecGroup = function () {
+            this.commander.commandExecGroup();
             return this;
-        };
-        // eslint-disable-next-line class-methods-use-this
-        class_1.prototype.getClipboard = function () {
-            return window.__MINDMAP_CLIPBOARD;
         };
         return class_1;
     }(Base));

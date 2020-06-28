@@ -15,9 +15,12 @@ import {
     MindmapDataItem,
     MindmapCoreL2Ctor,
     MindmapCoreL1Type,
+    Command,
+    FeatureRes,
 }                                               from '../interface';
 import {
-    fillNodeIds, getNodeElements,
+    fillNodeIds,
+    getNodeElements,
 }                                               from '../base/utils';
 import {
     traverseData,
@@ -35,8 +38,11 @@ import {
 import {
     pluckDataFromModels,
     dataItemGetter,
+    nodeItemGetter,
 }                                               from '../utils/dataGetter';
-import Node from '@antv/g6/lib/item/node';
+import {
+    mindNodeAdjustPosition,
+}                                               from '../nodes/mindNode';
 
 const getUDNodeId = (mindmap: MindmapCoreL1Type, nodeId: NodeId, type: 'up'|'down'): NodeId => {
 
@@ -192,13 +198,12 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         selectNode (nodeIds: NodeIds): this {
 
-            const ids = fillNodeIds(nodeIds);
-
-            for (const id of ids) {
-
-                setItemState(this.graph, id, 'selected', true);
-
-            }
+            this.commander.addExec({
+                cmd : NodeFeatures.Commands.SelectNode,
+                opts : {
+                    nodeIds,
+                },
+            });
 
             return this;
 
@@ -206,13 +211,12 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         unselectNode (nodeIds: NodeIds): this {
 
-            const ids = fillNodeIds(nodeIds);
-
-            for (const id of ids) {
-
-                setItemState(this.graph, id, 'selected', false);
-
-            }
+            this.commander.addExec({
+                cmd : NodeFeatures.Commands.UnselectNode,
+                opts : {
+                    nodeIds,
+                },
+            } as Command<NodeFeatures.Commands.UnselectNode>);
 
             return this;
 
@@ -220,17 +224,16 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         clearAllSelectedNode (): this {
 
-            const selectedState = 'selected';
-            const graph = this.graph;
-            const autoPaint: boolean = graph.get('autoPaint');
-            const nodeItems = graph.findAllByState<INode>('node', selectedState);
-            const edgeItems = graph.findAllByState<IEdge>('edge', selectedState);
+            if (!this.hasSelectedNode()) {
 
-            graph.setAutoPaint(false);
-            nodeItems.forEach((node) => setItemState(graph, node.get('id'), selectedState, false));
-            edgeItems.forEach((edge) => setItemState(graph, edge.get('id'), selectedState, false));
-            graph.paint();
-            graph.setAutoPaint(autoPaint);
+                return this;
+
+            }
+
+            this.commander.addExec({
+                cmd : NodeFeatures.Commands.ClearAllSelectedNode,
+                opts : {},
+            });
 
             return this;
 
@@ -248,12 +251,16 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             const id: NodeId = this.getSelectedNodeId();
             const upwardNodeId: NodeId = getUDNodeId(this, id, 'up');
 
+            this.commander.commandNewGroup();
+
             if (upwardNodeId !== null) {
 
                 this.clearAllSelectedNode();
                 this.selectNode(upwardNodeId);
 
             }
+
+            this.commander.commandExecGroup();
 
             return this;
 
@@ -271,12 +278,16 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             const id: NodeId = this.getSelectedLastNodeId();
             const downwardNodeId: NodeId = getUDNodeId(this, id, 'down');
 
+            this.commander.commandNewGroup();
+
             if (downwardNodeId !== null) {
 
                 this.clearAllSelectedNode();
                 this.selectNode(downwardNodeId);
 
             }
+
+            this.commander.commandExecGroup();
 
             return this;
 
@@ -305,8 +316,10 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             const parentNode = inEdges[0].getSource();
             const parentModel = getModel(parentNode);
 
+            this.commander.commandNewGroup();
             this.clearAllSelectedNode();
             this.selectNode(parentModel.id);
+            this.commander.commandExecGroup();
 
             return this;
 
@@ -325,18 +338,22 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             const node = findNodeById(this.graph, id);
             const outEdges = node.getOutEdges();
 
-            // 无父节点
+            // 无子节点
             if (!outEdges[0]) {
 
                 return this;
 
             }
 
-            const childNode = outEdges[0].getTarget();
+            // 移动到中间的节点
+            const index = Math.ceil((outEdges.length - 1) / 2);
+            const childNode = outEdges[index].getTarget();
             const childModel = getModel(childNode);
 
+            this.commander.commandNewGroup();
             this.clearAllSelectedNode();
             this.selectNode(childModel.id);
+            this.commander.commandExecGroup();
 
             return this;
 
@@ -344,34 +361,13 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         removeNode (nodeIds: NodeIds, _refresh = true): this {
 
-            const ids = fillNodeIds(nodeIds);
-
-            for (const id of ids) {
-
-                const node = findNodeById(this.graph, id);
-
-                if (!node) {
-
-                    return this;
-
-                }
-
-                const model = getModel(node);
-                const parent = node.getInEdges()[0].getSource();
-                const parentModel = getModel(parent);
-                const parentChildren = parentModel.folded ? parentModel._foldedChildren : parentModel.children;
-                const indexOfParent = parentChildren.indexOf(model);
-
-                parentChildren.splice(indexOfParent, 1);
-
-            }
-
-            if (_refresh) {
-
-                this.graph.changeData();
-                this.graph.layout();
-
-            }
+            this.commander.addExec({
+                cmd : NodeFeatures.Commands.RemoveNode,
+                opts : {
+                    nodeIds,
+                    _refresh,
+                },
+            });
 
             return this;
 
@@ -382,14 +378,13 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
             datas: MindmapDataItem|MindmapDataItems,
             index = -1,
             _refresh = true,
-        ): string | string[] {
+        ): NodeId | NodeId[] {
 
             const node = findNodeById(this.graph, nodeId);
             const model = getModel(node);
-            // let parent = node.getInEdges()[0].getSource();
-            let children = model.folded ? model._foldedChildren : model.children;
             const isSingle = !Array.isArray(datas);
 
+            let children = model.folded ? model._foldedChildren : model.children;
             let _datas = datas;
 
             if (children === undefined) {
@@ -414,50 +409,25 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             }
 
-            const _nodeItems: MindmapNodeItems = [];
+            const models: MindmapNodeItems = [];
 
             for (const _index in _datas) {
 
-                _nodeItems[_index] = traverseData(_datas[_index]);
+                models[_index] = traverseData(_datas[_index]);
 
             }
 
-            if (index > -1) {
+            this.commander.addExec({
+                cmd : NodeFeatures.Commands.InsertSubNode,
+                opts : {
+                    nodeId,
+                    models,
+                    index,
+                    _refresh,
+                },
+            });
 
-                _nodeItems.reverse();
-
-                for (const item of _nodeItems) {
-
-                    children.splice(index, 0, item);
-
-                }
-
-            } else {
-
-                for (const item of _nodeItems) {
-
-                    children.push(item);
-
-                }
-
-            }
-
-            if (_refresh) {
-
-                // 刷新当前节点的展开按钮
-                node.draw();
-                this.graph.changeData();
-                this.graph.layout();
-
-            }
-
-            if (isSingle) {
-
-                return _nodeItems[0].id;
-
-            }
-
-            return map(_nodeItems, 'id');
+            return isSingle ? models[0].id : map(models, 'id');
 
         }
 
@@ -546,16 +516,17 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             }
 
-            data.children = pluckDataFromModels<MindmapDataItem>(model.children, dataItemGetter, this);
+            data.children = pluckDataFromModels<MindmapDataItem>(model.children, nodeItemGetter, this);
 
-            const nodeItem = traverseData(data);
+            const appendModel = traverseData(data);
+            const childrenIds = map(data.children, 'id');
 
-            model.children = [nodeItem];
-            node.draw();
-            this.graph.changeData();
-            this.graph.refreshLayout();
+            this.commander.commandNewGroup();
+            this.removeNode(childrenIds);
+            const newId = this.insertSubNode(nodeId, appendModel, 0) as NodeId;
+            this.commander.commandExecGroup();
 
-            return nodeItem.id;
+            return newId;
 
         }
 
@@ -574,6 +545,14 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
                 const node = findNodeById(this.graph, id);
                 const model = getModel(node);
+
+                if (model._isRoot) {
+
+                    hasRoot = true;
+                    break;
+
+                }
+
                 const parentNode = node.getInEdges()[0].getSource();
                 const parentModel = getModel(parentNode);
 
@@ -588,12 +567,6 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
                 parentNodes.push(parentNode);
                 parentModels.push(parentModel);
 
-                if (model._isRoot) {
-
-                    hasRoot = true;
-
-                }
-
             }
 
             if (hasRoot || !hasSameParent) {
@@ -602,18 +575,17 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             }
 
-            const indexOfParent = parentModels[0].children.indexOf(models[0]);
-
             data.children = pluckDataFromModels<MindmapDataItem>(models, dataItemGetter, this);
 
-            const nodeItem = traverseData(data);
+            const indexOfParent = parentModels[0].children.indexOf(models[0]);
+            const appendModel = traverseData(data);
 
-            parentModels[0].children.splice(indexOfParent, models.length, nodeItem);
-            parentNodes[0].draw();
-            this.graph.changeData();
-            this.graph.refreshLayout();
+            this.commander.commandNewGroup();
+            this.removeNode(nodeIds);
+            const newId = this.insertSubNode(parentModels[0].id, appendModel, indexOfParent) as NodeId;
+            this.commander.commandExecGroup();
 
-            return nodeItem.id;
+            return newId;
 
         }
 
@@ -638,9 +610,10 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             }
 
-            swapArr(parentModel.children, indexOfParent, indexOfParent - 1);
-            this.graph.changeData();
-            this.graph.refreshLayout();
+            this.commander.commandNewGroup();
+            this.removeNode(nodeId);
+            this.insertSubNode(parentModel.id, model, indexOfParent - 1);
+            this.commander.commandExecGroup();
 
             return this;
 
@@ -667,9 +640,10 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             }
 
-            swapArr(parentModel.children, indexOfParent, indexOfParent + 1);
-            this.graph.changeData();
-            this.graph.refreshLayout();
+            this.commander.commandNewGroup();
+            this.removeNode(nodeId);
+            this.insertSubNode(parentModel.id, model, indexOfParent + 1);
+            this.commander.commandExecGroup();
 
             return this;
 
@@ -708,6 +682,8 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
             let insertIds: NodeIds = [];
 
+            this.commander.commandNewGroup();
+
             for (const id of ids) {
 
                 const insertId: NodeIds = this.insertSubNode(id, datas, -1);
@@ -723,6 +699,8 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
                 }
 
             }
+
+            this.commander.commandExecGroup();
 
             return insertIds;
 

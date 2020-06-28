@@ -377,36 +377,6 @@ export type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]) => T;
 export type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
 export type MindmapCoreL3Ctor<T = MindmapCoreL3Type> = new (...args: any[]) => T;
-export interface ContextMenuFeatures {
-    // 显示右键菜单
-    showContextMenu (options: ShowContextMenuOptions): this;
-    // 隐藏右键菜单
-    hideContextMenu (): this;
-    // 隐藏所有菜单(包含右键和各功能菜单)
-    hideAllContextMenu (): this;
-    // 获取当前菜单对应的NodeId
-    getContextNodeId (): string;
-    // 获取当前右键菜单的类型
-    getContextType (): ContextMenuTypes;
-    // 获取右键菜单附加数据
-    getContextData (): any;
-    // 菜单项：修改链接
-    menuItemLinkEdit (): void;
-    // 菜单项：删除链接
-    menuItemLinkDelete (): void;
-    // 菜单项：修改备注
-    menuItemNoteEdit (): void;
-    // 菜单项：删除备注
-    menuItemNoteDelete (): void;
-    // 菜单项：修改标签
-    menuItemTagEdit (): void;
-    // 菜单项：删除标签
-    menuItemTagDelete (): void;
-    // 菜单项：选择标记
-    menuItemMarkEdit (evt: MouseEvent): void;
-    // 菜单项：删除标记
-    menuItemMarkDelete (): void;
-}
 
 // Features
 export type FeatureOptions<FO> = {
@@ -419,11 +389,12 @@ export type FeatureFn<FO> = (options: FO) => {
 };
 
 // Fold Features
+// Undo/Redo Ready
 export namespace FoldFeatures {
 
     export namespace FO {
         export type FoldToggle = FeatureOptions<{
-        nodeIds: NodeIds;
+            nodeIds: NodeIds;
             fold?: boolean;
         }>;
     }
@@ -446,6 +417,7 @@ export namespace FoldFeatures {
 }
 
 // Link Features
+// Undo/Redo Ready
 export namespace LinkFeatures {
     export namespace FO {
         export type Link = FeatureOptions<{
@@ -476,6 +448,7 @@ export namespace LinkFeatures {
 }
 
 // Mark Features
+// Undo/Redo Ready
 export namespace MarkFeatures {
     export namespace FO {
         export type Mark = FeatureOptions<{
@@ -508,6 +481,7 @@ export namespace MarkFeatures {
 }
 
 // Note Features
+// Undo/Redo Ready
 export namespace NoteFeatures {
     export namespace FO {
         export type Note = FeatureOptions<{
@@ -538,6 +512,7 @@ export namespace NoteFeatures {
 }
 
 // Tag Features
+// Undo/Redo Ready
 export namespace TagFeatures {
     export namespace FO {
         export type Tag = FeatureOptions<{
@@ -583,6 +558,7 @@ export namespace TagFeatures {
 }
 
 // Zoom Features
+// Undo/Redo Ready
 export namespace ZoomFeatures {
     export namespace FO {
         export type Zoom = FeatureOptions<{
@@ -626,6 +602,7 @@ export namespace ZoomFeatures {
 }
 
 // Data Features
+// Undo/Redo Ready
 export namespace DataFeatures {
     export namespace FO {
         export type ReadData = FeatureOptions<{
@@ -644,46 +621,43 @@ export namespace DataFeatures {
     }
 }
 
-// Get Features
-export namespace GetFeatures {
-    export interface Mixins {
-        // 获取节点数据
-        getNodeData (nodeIds: NodeIds): MindmapDataItems|MindmapDataItem;
-        // 获取节点信息
-        getNode (nodeIds: NodeIds): MindmapNodeItem[]|MindmapNodeItem;
-        // 获取所有选中节点的id
-        getAllSelectedNodeIds (): NodeId[];
-        // 获取第一个选中节点的id
-        getSelectedNodeId (): NodeId;
-        // 获取最后一个选中节点的id
-        getSelectedLastNodeId (): NodeId;
-        // 获取所有选中节点的数据
-        getAllSelectedNodeDatas (): MindmapDataItems;
-        // 获取第一个选中节点的数据
-        getSelectedNodeData (): MindmapDataItem;
-        // 获取所有选中节点的信息
-        getAllSelectedNodes (): MindmapNodeItems;
-        // 获取第一个选中节点的信息
-        getSelectedNode (): MindmapNodeItem;
-        // 获取所有节点id
-        getAllNodeIds (): NodeId[];
-        // 获取所有节点数据
-        getAllNodeDatas (): MindmapDataItems;
-        // 获取所有节点信息
-        getAllNodes (): MindmapNodeItems;
-        // 获取根节点id
-        getRootNodeId (): NodeId;
-        // 获取根节点数据
-        getRootData (): MindmapDataItem;
-        // 获取根节点信息
-        getRootNode (): MindmapNodeItem;
-        // 获取当前编辑状态
-        getEdittingState (): boolean;
-    }
-}
-
 // Node Features
+// Undo/Redo Ready
 export namespace NodeFeatures {
+    export namespace FO {
+        export type SelectNode = FeatureOptions<{
+            nodeIds: NodeIds;
+        }>;
+        export type UnselectNode = FeatureOptions<{
+            nodeIds: NodeIds;
+        }>;
+        export type ClearAllSelectedNode = FeatureOptions<{}>;
+        export type RemoveNode = FeatureOptions<{
+            nodeIds: NodeIds;
+            _refresh: boolean;
+        }>;
+        export type InsertSubNode = FeatureOptions<{
+            nodeId: NodeId;
+            models: MindmapNodeItems;
+            index: number;
+            _refresh: boolean;
+        }>;
+    }
+
+    export type SelectNode = FeatureFn<FO.SelectNode>;
+    export type UnselectNode = FeatureFn<FO.UnselectNode>;
+    export type ClearAllSelectedNode = FeatureFn<FO.ClearAllSelectedNode>;
+    export type RemoveNode = FeatureFn<FO.RemoveNode>;
+    export type InsertSubNode = FeatureFn<FO.InsertSubNode>;
+
+    export enum Commands {
+        SelectNode = 'selectNode',
+        UnselectNode = 'unselectNode',
+        ClearAllSelectedNode = 'clearAllSelectedNode',
+        RemoveNode = 'removeNode',
+        InsertSubNode = 'insertSubNode',
+    }
+
     export interface Mixins {
         // 聚焦节点内容编辑器
         focusNodeTextEditor (nodeId: NodeId, clean: boolean): this;
@@ -733,12 +707,52 @@ export namespace NodeFeatures {
         cutNodes (nodeIds: NodeIds): MindmapDataItems;
         // 粘贴节点
         pasteNodes (parentNodeIds: NodeIds, datas: MindmapDataItems): NodeIds;
-        // TODO 是否有节点被选中
+        // 是否有节点被选中
         hasSelectedNode (): boolean;
     }
 }
 
+// Get Features
+// Undo/Redo Not support
+export namespace GetFeatures {
+    export interface Mixins {
+        // 获取节点数据
+        getNodeData (nodeIds: NodeIds): MindmapDataItems|MindmapDataItem;
+        // 获取节点信息
+        getNode (nodeIds: NodeIds): MindmapNodeItem[]|MindmapNodeItem;
+        // 获取所有选中节点的id
+        getAllSelectedNodeIds (): NodeId[];
+        // 获取第一个选中节点的id
+        getSelectedNodeId (): NodeId;
+        // 获取最后一个选中节点的id
+        getSelectedLastNodeId (): NodeId;
+        // 获取所有选中节点的数据
+        getAllSelectedNodeDatas (): MindmapDataItems;
+        // 获取第一个选中节点的数据
+        getSelectedNodeData (): MindmapDataItem;
+        // 获取所有选中节点的信息
+        getAllSelectedNodes (): MindmapNodeItems;
+        // 获取第一个选中节点的信息
+        getSelectedNode (): MindmapNodeItem;
+        // 获取所有节点id
+        getAllNodeIds (): NodeId[];
+        // 获取所有节点数据
+        getAllNodeDatas (): MindmapDataItems;
+        // 获取所有节点信息
+        getAllNodes (): MindmapNodeItems;
+        // 获取根节点id
+        getRootNodeId (): NodeId;
+        // 获取根节点数据
+        getRootData (): MindmapDataItem;
+        // 获取根节点信息
+        getRootNode (): MindmapNodeItem;
+        // 获取当前编辑状态
+        getEdittingState (): boolean;
+    }
+}
+
 // Export Features
+// Undo/Redo Not support
 export namespace ExportFeatures {
     export interface Mixins {
         _screenshotting (shotting: boolean): void;
@@ -758,6 +772,61 @@ export namespace ImportFeatures {
     }
 }
 
+// Clipboard Features
+// Undo/Redo Ready
+export namespace ClipboardFeatures {
+    export interface Mixins {
+        copyNodeToClipboard (nodeIds: NodeIds): this;
+        cutNodeToClipboard (nodeIds: NodeIds): this;
+        getClipboard (): string;
+    }
+}
+
+// Clipboard Features
+// Undo/Redo Ready??
+export namespace ContextMenuFeatures {
+    export interface Mixins {
+        // 显示右键菜单
+        showContextMenu (options: ShowContextMenuOptions): this;
+        // 隐藏右键菜单
+        hideContextMenu (): this;
+        // 隐藏所有菜单(包含右键和各功能菜单)
+        hideAllContextMenu (): this;
+        // 获取当前菜单对应的NodeId
+        getContextNodeId (): string;
+        // 获取当前右键菜单的类型
+        getContextType (): ContextMenuTypes;
+        // 获取右键菜单附加数据
+        getContextData (): any;
+        // 菜单项：修改链接
+        menuItemLinkEdit (): void;
+        // 菜单项：删除链接
+        menuItemLinkDelete (): void;
+        // 菜单项：修改备注
+        menuItemNoteEdit (): void;
+        // 菜单项：删除备注
+        menuItemNoteDelete (): void;
+        // 菜单项：修改标签
+        menuItemTagEdit (): void;
+        // 菜单项：删除标签
+        menuItemTagDelete (): void;
+        // 菜单项：选择标记
+        menuItemMarkEdit (evt: MouseEvent): void;
+        // 菜单项：删除标记
+        menuItemMarkDelete (): void;
+    }
+}
+
+// Command Features
+export namespace CommandFeatures {
+    export interface Mixins {
+        redo (): number;
+        undo (): number;
+        commandNewGroup (): this;
+        commandExecGroup (): this;
+    }
+}
+
 // Commander
 export type AllCommands
     = FoldFeatures.Commands
@@ -766,7 +835,8 @@ export type AllCommands
     | NoteFeatures.Commands
     | TagFeatures.Commands
     | ZoomFeatures.Commands
-    | DataFeatures.Commands;
+    | DataFeatures.Commands
+    | NodeFeatures.Commands;
 
 export type AllCommandFOMap = {
     [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
@@ -783,6 +853,11 @@ export type AllCommandFOMap = {
     [ZoomFeatures.Commands.FitZoom]: ZoomFeatures.FO.FitZoom;
     [ZoomFeatures.Commands.MoveCanvas]: ZoomFeatures.FO.MoveCanvas;
     [DataFeatures.Commands.ReadData]: DataFeatures.FO.ReadData;
+    [NodeFeatures.Commands.SelectNode]: NodeFeatures.FO.SelectNode;
+    [NodeFeatures.Commands.UnselectNode]: NodeFeatures.FO.UnselectNode;
+    [NodeFeatures.Commands.ClearAllSelectedNode]: NodeFeatures.FO.ClearAllSelectedNode;
+    [NodeFeatures.Commands.RemoveNode]: NodeFeatures.FO.RemoveNode;
+    [NodeFeatures.Commands.InsertSubNode]: NodeFeatures.FO.InsertSubNode;
 };
 export type CommandExecRes = {
     note: string;
@@ -793,18 +868,16 @@ export type CommandExecRes = {
 export type Command<CMD extends AllCommands> = {
     cmd: CMD;
     opts?: CommandOptions<CMD>;
-    _record: boolean;
+}
+export type CommandGroup<CMD extends AllCommands> = {
+    commands: Command<CMD>[];
+    _record?: boolean;
 }
 export type CommandOptions<CMD extends AllCommands> = {
     [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
 }
-export type CommandHistory = CommandExecRes;
+export type CommandHistory = CommandExecRes[];
 
-export interface ClipboardFeatures {
-    copyNodeToClipboard (nodeIds: NodeIds): string;
-    cutNodeToClipboard (nodeIds: NodeIds): string;
-    getClipboard (): string;
-}
 export type MindmapCoreL0Type = MindmapCoreBase;
 export type MindmapCoreL1Type =
     MindmapCoreL0Type
@@ -824,9 +897,10 @@ export type MindmapCoreL2Type =
 
 export type MindmapCoreL3Type =
     MindmapCoreL2Type
-    & ClipboardFeatures
+    & ClipboardFeatures.Mixins
     & ImportFeatures.Mixins
-    & ExportFeatures.Mixins;
+    & ExportFeatures.Mixins
+    & CommandFeatures.Mixins;
 
 export type MindmapCoreType = MindmapCoreL3Type;
 

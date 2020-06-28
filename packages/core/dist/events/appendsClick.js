@@ -10,7 +10,7 @@ export default {
         }
         if (model.link !== null) {
             if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
-                options.mindmap.showLink(model.id);
+                options.mindmap.openLink(model.id);
             }
         }
         if (model.note !== null) {

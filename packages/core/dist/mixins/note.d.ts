@@ -35,7 +35,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         editorInput(content: string): any;
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;
-        showLink(nodeId: string): any;
+        openLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
     };
 } & TBase;

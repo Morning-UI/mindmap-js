@@ -475,27 +475,38 @@ export declare namespace DataFeatures {
         readData(data: MindmapDataItem): this;
     }
 }
-export declare namespace GetFeatures {
-    interface Mixins {
-        getNodeData(nodeIds: NodeIds): MindmapDataItems | MindmapDataItem;
-        getNode(nodeIds: NodeIds): MindmapNodeItem[] | MindmapNodeItem;
-        getAllSelectedNodeIds(): NodeId[];
-        getSelectedNodeId(): NodeId;
-        getSelectedLastNodeId(): NodeId;
-        getAllSelectedNodeDatas(): MindmapDataItems;
-        getSelectedNodeData(): MindmapDataItem;
-        getAllSelectedNodes(): MindmapNodeItems;
-        getSelectedNode(): MindmapNodeItem;
-        getAllNodeIds(): NodeId[];
-        getAllNodeDatas(): MindmapDataItems;
-        getAllNodes(): MindmapNodeItems;
-        getRootNodeId(): NodeId;
-        getRootData(): MindmapDataItem;
-        getRootNode(): MindmapNodeItem;
-        getEdittingState(): boolean;
-    }
-}
 export declare namespace NodeFeatures {
+    namespace FO {
+        type SelectNode = FeatureOptions<{
+            nodeIds: NodeIds;
+        }>;
+        type UnselectNode = FeatureOptions<{
+            nodeIds: NodeIds;
+        }>;
+        type ClearAllSelectedNode = FeatureOptions<{}>;
+        type RemoveNode = FeatureOptions<{
+            nodeIds: NodeIds;
+            _refresh: boolean;
+        }>;
+        type InsertSubNode = FeatureOptions<{
+            nodeId: NodeId;
+            models: MindmapNodeItems;
+            index: number;
+            _refresh: boolean;
+        }>;
+    }
+    type SelectNode = FeatureFn<FO.SelectNode>;
+    type UnselectNode = FeatureFn<FO.UnselectNode>;
+    type ClearAllSelectedNode = FeatureFn<FO.ClearAllSelectedNode>;
+    type RemoveNode = FeatureFn<FO.RemoveNode>;
+    type InsertSubNode = FeatureFn<FO.InsertSubNode>;
+    enum Commands {
+        SelectNode = "selectNode",
+        UnselectNode = "unselectNode",
+        ClearAllSelectedNode = "clearAllSelectedNode",
+        RemoveNode = "removeNode",
+        InsertSubNode = "insertSubNode"
+    }
     interface Mixins {
         focusNodeTextEditor(nodeId: NodeId, clean: boolean): this;
         blurNodeTextEditor(nodeId: NodeId): this;
@@ -524,6 +535,26 @@ export declare namespace NodeFeatures {
         hasSelectedNode(): boolean;
     }
 }
+export declare namespace GetFeatures {
+    interface Mixins {
+        getNodeData(nodeIds: NodeIds): MindmapDataItems | MindmapDataItem;
+        getNode(nodeIds: NodeIds): MindmapNodeItem[] | MindmapNodeItem;
+        getAllSelectedNodeIds(): NodeId[];
+        getSelectedNodeId(): NodeId;
+        getSelectedLastNodeId(): NodeId;
+        getAllSelectedNodeDatas(): MindmapDataItems;
+        getSelectedNodeData(): MindmapDataItem;
+        getAllSelectedNodes(): MindmapNodeItems;
+        getSelectedNode(): MindmapNodeItem;
+        getAllNodeIds(): NodeId[];
+        getAllNodeDatas(): MindmapDataItems;
+        getAllNodes(): MindmapNodeItems;
+        getRootNodeId(): NodeId;
+        getRootData(): MindmapDataItem;
+        getRootNode(): MindmapNodeItem;
+        getEdittingState(): boolean;
+    }
+}
 export declare namespace ExportFeatures {
     interface Mixins {
         _screenshotting(shotting: boolean): void;
@@ -540,7 +571,15 @@ export declare namespace ImportFeatures {
         importFromObject(data: MindmapNodeItems): this;
     }
 }
-export declare type AllCommands = FoldFeatures.Commands | LinkFeatures.Commands | MarkFeatures.Commands | NoteFeatures.Commands | TagFeatures.Commands | ZoomFeatures.Commands | DataFeatures.Commands;
+export declare namespace CommandFeatures {
+    interface Mixins {
+        redo(): number;
+        undo(): number;
+        commandNewGroup(): this;
+        commandExecGroup(): this;
+    }
+}
+export declare type AllCommands = FoldFeatures.Commands | LinkFeatures.Commands | MarkFeatures.Commands | NoteFeatures.Commands | TagFeatures.Commands | ZoomFeatures.Commands | DataFeatures.Commands | NodeFeatures.Commands;
 export declare type AllCommandFOMap = {
     [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
     [LinkFeatures.Commands.Link]: LinkFeatures.FO.Link;
@@ -556,6 +595,11 @@ export declare type AllCommandFOMap = {
     [ZoomFeatures.Commands.FitZoom]: ZoomFeatures.FO.FitZoom;
     [ZoomFeatures.Commands.MoveCanvas]: ZoomFeatures.FO.MoveCanvas;
     [DataFeatures.Commands.ReadData]: DataFeatures.FO.ReadData;
+    [NodeFeatures.Commands.SelectNode]: NodeFeatures.FO.SelectNode;
+    [NodeFeatures.Commands.UnselectNode]: NodeFeatures.FO.UnselectNode;
+    [NodeFeatures.Commands.ClearAllSelectedNode]: NodeFeatures.FO.ClearAllSelectedNode;
+    [NodeFeatures.Commands.RemoveNode]: NodeFeatures.FO.RemoveNode;
+    [NodeFeatures.Commands.InsertSubNode]: NodeFeatures.FO.InsertSubNode;
 };
 export declare type CommandExecRes = {
     note: string;
@@ -566,12 +610,15 @@ export declare type CommandExecRes = {
 export declare type Command<CMD extends AllCommands> = {
     cmd: CMD;
     opts?: CommandOptions<CMD>;
-    _record: boolean;
+};
+export declare type CommandGroup<CMD extends AllCommands> = {
+    commands: Command<CMD>[];
+    _record?: boolean;
 };
 export declare type CommandOptions<CMD extends AllCommands> = {
     [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
 };
-export declare type CommandHistory = CommandExecRes;
+export declare type CommandHistory = CommandExecRes[];
 export interface ClipboardFeatures {
     copyNodeToClipboard(nodeIds: NodeIds): string;
     cutNodeToClipboard(nodeIds: NodeIds): string;
@@ -580,7 +627,7 @@ export interface ClipboardFeatures {
 export declare type MindmapCoreL0Type = MindmapCoreBase;
 export declare type MindmapCoreL1Type = MindmapCoreL0Type & ZoomFeatures.Mixins & GetFeatures.Mixins & FoldFeatures.Mixins & LinkFeatures.Mixins & NoteFeatures.Mixins & TagFeatures.Mixins & MarkFeatures.Mixins;
 export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures.Mixins & DataFeatures.Mixins;
-export declare type MindmapCoreL3Type = MindmapCoreL2Type & ClipboardFeatures & ImportFeatures.Mixins & ExportFeatures.Mixins;
+export declare type MindmapCoreL3Type = MindmapCoreL2Type & ClipboardFeatures & ImportFeatures.Mixins & ExportFeatures.Mixins & CommandFeatures.Mixins;
 export declare type MindmapCoreType = MindmapCoreL3Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;
 export declare enum MindMarksTag {

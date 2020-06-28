@@ -21,6 +21,7 @@ export var ContextMenuTypes;
     ContextMenuTypes[ContextMenuTypes["Tag"] = 2] = "Tag";
 })(ContextMenuTypes || (ContextMenuTypes = {}));
 // Fold Features
+// Undo/Redo Ready
 export var FoldFeatures;
 (function (FoldFeatures) {
     var Commands;
@@ -29,6 +30,7 @@ export var FoldFeatures;
     })(Commands = FoldFeatures.Commands || (FoldFeatures.Commands = {}));
 })(FoldFeatures || (FoldFeatures = {}));
 // Link Features
+// Undo/Redo Ready
 export var LinkFeatures;
 (function (LinkFeatures) {
     var Commands;
@@ -38,6 +40,7 @@ export var LinkFeatures;
     })(Commands = LinkFeatures.Commands || (LinkFeatures.Commands = {}));
 })(LinkFeatures || (LinkFeatures = {}));
 // Mark Features
+// Undo/Redo Ready
 export var MarkFeatures;
 (function (MarkFeatures) {
     var Commands;
@@ -47,6 +50,7 @@ export var MarkFeatures;
     })(Commands = MarkFeatures.Commands || (MarkFeatures.Commands = {}));
 })(MarkFeatures || (MarkFeatures = {}));
 // Note Features
+// Undo/Redo Ready
 export var NoteFeatures;
 (function (NoteFeatures) {
     var Commands;
@@ -56,6 +60,7 @@ export var NoteFeatures;
     })(Commands = NoteFeatures.Commands || (NoteFeatures.Commands = {}));
 })(NoteFeatures || (NoteFeatures = {}));
 // Tag Features
+// Undo/Redo Ready
 export var TagFeatures;
 (function (TagFeatures) {
     var Commands;
@@ -66,6 +71,7 @@ export var TagFeatures;
     })(Commands = TagFeatures.Commands || (TagFeatures.Commands = {}));
 })(TagFeatures || (TagFeatures = {}));
 // Zoom Features
+// Undo/Redo Ready
 export var ZoomFeatures;
 (function (ZoomFeatures) {
     var Commands;
@@ -76,6 +82,7 @@ export var ZoomFeatures;
     })(Commands = ZoomFeatures.Commands || (ZoomFeatures.Commands = {}));
 })(ZoomFeatures || (ZoomFeatures = {}));
 // Data Features
+// Undo/Redo Ready
 export var DataFeatures;
 (function (DataFeatures) {
     var Commands;
@@ -83,6 +90,19 @@ export var DataFeatures;
         Commands["ReadData"] = "readData";
     })(Commands = DataFeatures.Commands || (DataFeatures.Commands = {}));
 })(DataFeatures || (DataFeatures = {}));
+// Node Features
+// Undo/Redo Ready
+export var NodeFeatures;
+(function (NodeFeatures) {
+    var Commands;
+    (function (Commands) {
+        Commands["SelectNode"] = "selectNode";
+        Commands["UnselectNode"] = "unselectNode";
+        Commands["ClearAllSelectedNode"] = "clearAllSelectedNode";
+        Commands["RemoveNode"] = "removeNode";
+        Commands["InsertSubNode"] = "insertSubNode";
+    })(Commands = NodeFeatures.Commands || (NodeFeatures.Commands = {}));
+})(NodeFeatures || (NodeFeatures = {}));
 export var MindMarksTag;
 (function (MindMarksTag) {
     MindMarksTag["Red"] = "red";

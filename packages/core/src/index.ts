@@ -46,6 +46,7 @@ import mixinZoom                                from './mixins/zoom';
 import mixinExport                              from './mixins/export';
 import mixinReadData                            from './mixins/readData';
 import mixinClipboard                           from './mixins/clipboard';
+import mixinCommand                             from './mixins/command';
 import {
     Commander,
 }                                               from './commander';
@@ -176,7 +177,7 @@ export class MindmapCoreBase {
 
     }
 
-    showLink (nodeId: string): this {
+    openLink (nodeId: string): this {
 
         const node = this.graph.findById(nodeId);
         const model = node.getModel() as MindmapNodeItem;
@@ -229,17 +230,18 @@ const MindmapCoreL1 =
     )))))));
 
 const MindmapCoreL2 =
-    mixinClipboard(
     mixinReadData( 
     mixinNode(
     mixinContextMenu(
         MindmapCoreL1
-    ))));
+    )));
 
 const MindmapCoreL3 = 
     mixinExport(
+    mixinClipboard(
+    mixinCommand(
         MindmapCoreL2
-    );
+    )));
 
 const MindmapCore =
     mixinConstructor(

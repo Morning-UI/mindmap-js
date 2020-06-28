@@ -21,11 +21,12 @@ export default {
                 }
             }
         }
-        else {
-            options.mindmap.clearAllSelectedNode();
-            if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
-                options.mindmap.selectNode(evt.item.get('id'));
-            }
+        else if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
+            options.mindmap
+                .commandNewGroup()
+                .clearAllSelectedNode()
+                .selectNode(evt.item.get('id'))
+                .commandExecGroup();
         }
     },
     clear: function (evt, options) {

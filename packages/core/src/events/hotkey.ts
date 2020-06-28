@@ -1,32 +1,14 @@
 import isHotkey                                 from 'is-hotkey';
 import {
-    IG6GraphEvent,
-}                                               from '@antv/g6/lib/types';
-import {
-    IGroup,
-}                                               from '@antv/g-base/lib/interfaces';
-import {
     EventOptions,
-    Command,
-    FoldFeatures,
-    CommandOptions,
-    MindmapCoreType,
     HotkeyMap,
-    NodeIds,
     NodeId,
+    MindmapNodeItems,
 }                                               from '../interface';
-import {
-    inNodeShape,
-}                                               from '../base/utils';
-import {
-    NODE_SHAPE_INDEX,
-}                                               from '../nodes/mindNode';
-import {
-    getModel,
-}                                               from '../utils/G6Ext';
 
 const systemHotkeyMap: HotkeyMap = {
-    backspace : (mindmap) => {
+    // Undo/Redo Ready
+    'backspace mod+backspace' : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
 
@@ -34,20 +16,11 @@ const systemHotkeyMap: HotkeyMap = {
 
         }
 
-        mindmap.removeNode(mindmap.getAllSelectedNodeIds());
-
-        // TODO: 删除后选中最近的节点
-
-    },
-    'mod+backspace' : (mindmap) => {
-
-        if (!mindmap.hasSelectedNode()) {
-
-            return;
-
-        }
-
-        mindmap.removeNode(mindmap.getAllSelectedNodeIds());
+        mindmap
+            .commandNewGroup()
+            .clearAllSelectedNode()
+            .removeNode(mindmap.getAllSelectedNodeIds())
+            .commandExecGroup();
 
         // TODO: 删除后选中最近的节点
 
@@ -63,6 +36,7 @@ const systemHotkeyMap: HotkeyMap = {
         mindmap.copyNodeToClipboard(mindmap.getAllSelectedNodeIds());
 
     },
+    // Undo/Redo Ready
     'mod+x' : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -71,9 +45,14 @@ const systemHotkeyMap: HotkeyMap = {
 
         }
 
-        mindmap.cutNodeToClipboard(mindmap.getAllSelectedNodeIds());
+        mindmap
+            .commandNewGroup()
+            .clearAllSelectedNode()
+            .cutNodeToClipboard(mindmap.getAllSelectedNodeIds())
+            .commandExecGroup();
 
     },
+    // Undo/Redo Ready
     'mod+v' : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -82,9 +61,16 @@ const systemHotkeyMap: HotkeyMap = {
 
         }
 
-        mindmap.pasteNodes(mindmap.getAllSelectedNodeIds(), JSON.parse(mindmap.getClipboard()));
+        const clipboardModels = JSON.parse(mindmap.getClipboard()) as MindmapNodeItems;
+
+        mindmap.commandNewGroup();
+        mindmap.clearAllSelectedNode();
+        const pastedIds = mindmap.pasteNodes(mindmap.getAllSelectedNodeIds(), clipboardModels);
+        mindmap.selectNode(pastedIds[pastedIds.length - 1]);
+        mindmap.commandExecGroup();
 
     },
+    // Undo/Redo Ready
     'mod+/' : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -96,6 +82,7 @@ const systemHotkeyMap: HotkeyMap = {
         mindmap.foldToggle(mindmap.getAllSelectedNodeIds());
 
     },
+    // Undo/Redo Ready
     enter : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -111,14 +98,16 @@ const systemHotkeyMap: HotkeyMap = {
 
         }
 
-        const id = mindmap.insertDownwardNode(mindmap.getSelectedNodeId(), {
+        mindmap.commandNewGroup();
+        mindmap.clearAllSelectedNode();
+        const insertId = mindmap.insertDownwardNode(mindmap.getSelectedNodeId(), {
             text : '新的节点',
         });
-
-        mindmap.clearAllSelectedNode();
-        mindmap.selectNode(id);
+        mindmap.selectNode(insertId);
+        mindmap.commandExecGroup();
 
     },
+    // Undo/Redo Ready
     'shift+enter' : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -134,14 +123,16 @@ const systemHotkeyMap: HotkeyMap = {
 
         }
 
-        const id = mindmap.insertUpwardNode(mindmap.getSelectedNodeId(), {
+        mindmap.commandNewGroup();
+        mindmap.clearAllSelectedNode();
+        const insertId = mindmap.insertUpwardNode(mindmap.getSelectedNodeId(), {
             text : '新的节点',
         });
-
-        mindmap.clearAllSelectedNode();
-        mindmap.selectNode(id);
+        mindmap.selectNode(insertId);
+        mindmap.commandExecGroup();
 
     },
+    // Undo/Redo Ready
     tab : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -150,22 +141,25 @@ const systemHotkeyMap: HotkeyMap = {
 
         }
 
+        let insertId: NodeId;
+
         const ids = mindmap.getAllSelectedNodeIds();
 
-        let newId: NodeId;
-
+        mindmap.commandNewGroup();
+        mindmap.clearAllSelectedNode();
         for (const id of ids) {
 
-            newId = mindmap.insertSubNode(id, {
+            insertId = mindmap.insertSubNode(id, {
                 text : '新的节点',
             }, -1) as NodeId;
 
         }
 
-        mindmap.clearAllSelectedNode();
-        mindmap.selectNode(newId);
+        mindmap.selectNode(insertId);
+        mindmap.commandExecGroup();
 
     },
+    // Undo/Redo Ready
     'mod+enter' : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -174,18 +168,23 @@ const systemHotkeyMap: HotkeyMap = {
 
         }
 
-        const id = mindmap.prependParentNode(mindmap.getAllSelectedNodeIds(), {
+        mindmap.commandNewGroup();
+        mindmap.clearAllSelectedNode();
+
+        const insertId = mindmap.prependParentNode(mindmap.getAllSelectedNodeIds(), {
             text : '新的节点',
         });
 
-        if (id !== null) {
+        if (insertId !== null) {
 
-            mindmap.clearAllSelectedNode();
-            mindmap.selectNode(id);
+            mindmap.selectNode(insertId);
 
         }
 
+        mindmap.commandExecGroup();
+
     },
+    // Undo/Redo Ready
     ArrowUp : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -197,6 +196,7 @@ const systemHotkeyMap: HotkeyMap = {
         mindmap.selectMoveUp();
 
     },
+    // Undo/Redo Ready
     ArrowDown : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -208,6 +208,7 @@ const systemHotkeyMap: HotkeyMap = {
         mindmap.selectMoveDown();
 
     },
+    // Undo/Redo Ready
     ArrowLeft : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -219,6 +220,7 @@ const systemHotkeyMap: HotkeyMap = {
         mindmap.selectMoveBefore();
 
     },
+    // Undo/Redo Ready
     ArrowRight : (mindmap) => {
 
         if (!mindmap.hasSelectedNode()) {
@@ -266,24 +268,39 @@ const systemHotkeyMap: HotkeyMap = {
         mindmap.showEditLink(mindmap.getSelectedNodeId());
 
     },
+    // Undo/Redo Ready
     'mod+=' : (mindmap) => {
 
         // eslint-disable-next-line no-magic-numbers
         mindmap.zoom(mindmap.getZoom() * 1.25);
 
     },
+    // Undo/Redo Ready
     'mod+-' : (mindmap) => {
 
         // eslint-disable-next-line no-magic-numbers
         mindmap.zoom(mindmap.getZoom() / 1.25);
 
     },
+    // Undo/Redo Ready
     'mod+0' : (mindmap) => {
 
         mindmap.zoom(1);
 
     },
+    'mod+z' : (mindmap) => {
+
+        mindmap.commander.undo();
+
+    },
+    'mod+y mod+shift+z' : (mindmap) => {
+
+        mindmap.commander.redo();
+
+    },
     esc : (mindmap) => {
+
+        mindmap.hideAllContextMenu();
 
     },
 };
@@ -295,20 +312,17 @@ const hotkeyMap = {
 export default {
     keydown : (evt: KeyboardEvent, options: EventOptions): void => {
 
-      
-
         evt.preventDefault();
 
         for (const key in hotkeyMap) {
 
-            if (isHotkey(key, evt) && typeof hotkeyMap[key] === 'function') {
+            if (isHotkey(key.split(' '), evt) && typeof hotkeyMap[key] === 'function') {
 
                 hotkeyMap[key](options.mindmap);
 
             }
 
         }
-
 
     },
 };

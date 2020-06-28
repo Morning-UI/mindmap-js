@@ -12,6 +12,8 @@ import {
     TagFeatures,
     ZoomFeatures,
     DataFeatures,
+    NodeFeatures,
+    CommandGroup,
 }                                               from '../interface';
 import * as foldFeatures                        from '../features/fold';
 import * as linkFeatures                        from '../features/link';
@@ -20,6 +22,7 @@ import * as noteFeatures                        from '../features/note';
 import * as tagFeatures                         from '../features/tag';
 import * as zoomFeatures                        from '../features/zoom';
 import * as dataFeatures                        from '../features/data';
+import * as nodeFeatures                        from '../features/node';
 
 const Commands = {
     ...foldFeatures,
@@ -29,19 +32,24 @@ const Commands = {
     ...tagFeatures,
     ...zoomFeatures,
     ...dataFeatures,
+    ...nodeFeatures,
 };
 
 export class Commander {
 
     history: CommandHistory[] = [];
-    todo: Command<AllCommands>[] = [];
+    todo: CommandGroup<AllCommands>[] = [];
     current: number = null;
     options: CommanderOptions;
+    groupMode = false;
+    groupDeep = 0;
+    currentGroupCommands: CommandGroup<AllCommands>;
 
     constructor (options: CommanderOptions) {
 
         const _options: CommanderOptions = {
-            maxRecordNums : 100,
+            // eslint-disable-next-line no-magic-numbers
+            maxRecordNums : 500,
             ...options,
         };
 
@@ -49,6 +57,7 @@ export class Commander {
 
     }
 
+    // eslint-disable-next-line complexity
     execCommand (commands: Command<AllCommands>|Command<AllCommands>[]): CommandExecRes {
 
         const mindmap = this.options.mindmap;
@@ -168,6 +177,48 @@ export class Commander {
                     });
                     break;
 
+                case NodeFeatures.Commands.SelectNode:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...command.opts as CommandOptions<NodeFeatures.Commands.SelectNode>,
+                    });
+                    break;
+
+                case NodeFeatures.Commands.UnselectNode:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...command.opts as CommandOptions<NodeFeatures.Commands.UnselectNode>,
+                    });
+                    break;
+
+                case NodeFeatures.Commands.ClearAllSelectedNode:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...command.opts as CommandOptions<NodeFeatures.Commands.ClearAllSelectedNode>,
+                    });
+                    break;
+
+                case NodeFeatures.Commands.RemoveNode:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...command.opts as CommandOptions<NodeFeatures.Commands.RemoveNode>,
+                    });
+                    break;
+
+                case NodeFeatures.Commands.InsertSubNode:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...command.opts as CommandOptions<NodeFeatures.Commands.InsertSubNode>,
+                    });
+                    break;
+
+                // case NodeFeatures.Commands.RemoveNode:
+                //     execRes = Commands[cmdName]({
+                //         mindmap,
+                //         ...command.opts as CommandOptions<NodeFeatures.Commands.RemoveNode>,
+                //     });
+                //     break;
+
                 default:
                     break;
 
@@ -185,10 +236,16 @@ export class Commander {
 
     exec (): this {
 
-        const command = this.todo.shift();
-        const cmdRes = this.execCommand(command);
+        const commands = this.todo.shift();
+        const cmdRes: CommandExecRes[] = [];
 
-        if (command._record) {
+        for (const command of commands.commands) {
+
+            cmdRes.unshift(this.execCommand(command));
+
+        }
+
+        if (commands._record) {
 
             this.history.splice(this.current + 1);
             this.history.push(cmdRes);
@@ -215,18 +272,91 @@ export class Commander {
 
     add (command: Command<AllCommands>, record = true): this {
 
-        this.todo.push({
-            _record : record,
-            ...command,
-        });
+        if (this.groupMode === true) {
+
+            this.currentGroupCommands.commands.push(command);
+
+        } else {
+
+            this.todo.push({
+                _record : record,
+                commands : [command],
+            });
+
+        }
 
         return this;
 
     }
 
+    // addGroup (commands: Command<AllCommands>[], record = true): this {
+
+    //     this.todo.push({
+    //         _record : record,
+    //         commands,
+    //     });
+
+    //     return this;
+
+    // }
+
     addExec (command: Command<AllCommands>, record?: boolean): this {
 
-        this.add(command, record).exec();
+        this.add(command, record);
+
+        if (this.groupMode === false) {
+
+            this.exec();
+
+        }
+
+        return this;
+
+    }
+
+    commandNewGroup (record = true): this {
+
+        this.groupDeep++;
+
+        // 同一时间只能记录一组group
+        if (this.groupMode) {
+
+            return this;
+
+        }
+
+        this.groupMode = true;
+        this.currentGroupCommands = {
+            _record : record,
+            commands : [],
+        };
+
+        return this;
+
+    }
+
+    commandExecGroup (): this {
+
+        this.groupDeep--;
+
+        if (this.groupDeep > 0) {
+
+            return this;
+
+        }
+
+        const hasCommand = this.currentGroupCommands.commands.length > 0;
+
+        this.groupMode = false;
+
+        if (hasCommand) {
+
+            this.todo.push(this.currentGroupCommands);
+            this.exec();
+
+        }
+
+        this.currentGroupCommands = null;
 
         return this;
 
@@ -265,9 +395,14 @@ export class Commander {
 
         }
 
-        const command = this.history[this.current];
+        const commands = this.history[this.current];
 
-        this.execCommand(command.undoCmd);
+        for (const command of commands) {
+
+            this.execCommand(command.undoCmd);
+
+        }
+
         this.current -= 1;
 
         return this.current + 1;
@@ -285,8 +420,15 @@ export class Commander {
 
         this.current += 1;
 
-        const command = this.history[this.current];
-        this.execCommand(command.redoCmd);
+        const commands = Object.assign([], this.history[this.current]);
+
+        commands.reverse();
+
+        for (const command of commands) {
+
+            this.execCommand(command.redoCmd);
+
+        }
 
         return this.history.length - this.current - 1;
 

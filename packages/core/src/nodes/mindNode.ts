@@ -240,21 +240,6 @@ const initFoldBtn = (options: InitFoldBtnOptions): void => {
         },
     });
 
-    // 如果没有子节点不显示按钮
-    const children = cfg.folded ? cfg._foldedChildren : cfg.children;
-
-    if (!children || children.length === 0) {
-
-        shapes['foldBtnGroup.circle'].attr({
-            fillOpacity : 0,
-            strokeOpacity : 0,
-        });
-        shapes['foldBtnGroup.icon'].attr({
-            fillOpacity : 0,
-        });
-
-    }
-
 };
 
 const initNodeAppends = (options: InitNodeAppendsOptions): void => {
@@ -865,8 +850,6 @@ export const mindNodeAdjustPosition = (
 
     if (cfg.children.length > 0 || cfg._foldedChildren.length > 0) {
 
-        console.log(elements);
-
         elements['foldBtnGroup.circle'].attr({
             x : boxBBox.maxX,
             y : (textBBox.height / 2) + style.paddingY,
@@ -877,6 +860,17 @@ export const mindNodeAdjustPosition = (
         elements['foldBtnGroup.icon'].attr({
             x : foldBtnBBox.maxX - (foldBtnBBox.width / 2),
             y : foldBtnBBox.maxY - (foldBtnBBox.height / 2),
+        });
+
+    } else {
+
+        // 如果没有子节点不显示按钮
+        elements['foldBtnGroup.circle'].attr({
+            fillOpacity : 0,
+            strokeOpacity : 0,
+        });
+        elements['foldBtnGroup.icon'].attr({
+            fillOpacity : 0,
         });
 
     }

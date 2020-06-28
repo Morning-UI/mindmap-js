@@ -2,6 +2,7 @@ import {
     MindmapNodeItem,
     MindmapDataItem,
     TraverseItemOptions,
+    NodeId,
 }                                               from '../interface';
 import globalData                               from '../base/globalData';
 
@@ -36,16 +37,28 @@ import globalData                               from '../base/globalData';
 // for TODO :
 // shapeStyle : 使用的图形样式（用户设置）；未启用；
 
-export const traverseOneItem = (item: MindmapDataItem, options: TraverseItemOptions = {}): MindmapNodeItem => {
+export const traverseOneItem = (item: MindmapDataItem|MindmapNodeItem, options: TraverseItemOptions = {}): MindmapNodeItem => {
 
     // TODO : type diff when node is root
     // TODO : root 计算不能按照id
 
-    const id = String(globalData.id++);
+    let id: NodeId = null;
+
+    if ('id' in item) {
+
+        id = item.id;
+
+    } else {
+
+        id = String(globalData.id++);
+
+    }
+
     const nodeItem: MindmapNodeItem = {
         id,
         type : options.type || 'mind-node',
         // eslint-disable-next-line no-magic-numbers
+        depth : null,
         anchorPoints : [[0, 0.5], [1, 0.5]],
 
         style : {},
@@ -77,7 +90,7 @@ export const traverseOneItem = (item: MindmapDataItem, options: TraverseItemOpti
 
 };
 
-export const traverseData = (data: MindmapDataItem): MindmapNodeItem => {
+export const traverseData = (data: MindmapDataItem|MindmapNodeItem): MindmapNodeItem => {
 
     const nodeData: MindmapNodeItem = traverseOneItem(data);
 

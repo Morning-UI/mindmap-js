@@ -37,7 +37,7 @@ export var foldToggle = function (options) {
             cmd: FoldFeatures.Commands.FoldToggle,
             opts: {
                 nodeIds: nodeIds,
-                fold: !fold,
+                fold: fold === undefined ? fold : !fold,
             },
         },
     };

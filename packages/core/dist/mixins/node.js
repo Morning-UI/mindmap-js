@@ -12,12 +12,12 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 import map from 'lodash.map';
+import { NodeFeatures, } from '../interface';
 import { fillNodeIds, getNodeElements, } from '../base/utils';
 import { traverseData, } from '../utils/traverseData';
 import { findNodeById, getModel, } from '../utils/G6Ext';
-import { setItemState, } from '../utils/setItemState';
 import { refreshTextEditorPosition, } from '../base/editor';
-import { pluckDataFromModels, dataItemGetter, } from '../utils/dataGetter';
+import { pluckDataFromModels, dataItemGetter, nodeItemGetter, } from '../utils/dataGetter';
 var getUDNodeId = function (mindmap, nodeId, type) {
     var model = mindmap.getNode(nodeId);
     var node = findNodeById(mindmap.graph, nodeId);
@@ -126,32 +126,31 @@ export default (function (Base) {
             return this;
         };
         class_1.prototype.selectNode = function (nodeIds) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
-                var id = ids_1[_i];
-                setItemState(this.graph, id, 'selected', true);
-            }
+            this.commander.addExec({
+                cmd: NodeFeatures.Commands.SelectNode,
+                opts: {
+                    nodeIds: nodeIds,
+                },
+            });
             return this;
         };
         class_1.prototype.unselectNode = function (nodeIds) {
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
-                var id = ids_2[_i];
-                setItemState(this.graph, id, 'selected', false);
-            }
+            this.commander.addExec({
+                cmd: NodeFeatures.Commands.UnselectNode,
+                opts: {
+                    nodeIds: nodeIds,
+                },
+            });
             return this;
         };
         class_1.prototype.clearAllSelectedNode = function () {
-            var selectedState = 'selected';
-            var graph = this.graph;
-            var autoPaint = graph.get('autoPaint');
-            var nodeItems = graph.findAllByState('node', selectedState);
-            var edgeItems = graph.findAllByState('edge', selectedState);
-            graph.setAutoPaint(false);
-            nodeItems.forEach(function (node) { return setItemState(graph, node.get('id'), selectedState, false); });
-            edgeItems.forEach(function (edge) { return setItemState(graph, edge.get('id'), selectedState, false); });
-            graph.paint();
-            graph.setAutoPaint(autoPaint);
+            if (!this.hasSelectedNode()) {
+                return this;
+            }
+            this.commander.addExec({
+                cmd: NodeFeatures.Commands.ClearAllSelectedNode,
+                opts: {},
+            });
             return this;
         };
         class_1.prototype.selectMoveUp = function () {
@@ -161,10 +160,12 @@ export default (function (Base) {
             }
             var id = this.getSelectedNodeId();
             var upwardNodeId = getUDNodeId(this, id, 'up');
+            this.commander.commandNewGroup();
             if (upwardNodeId !== null) {
                 this.clearAllSelectedNode();
                 this.selectNode(upwardNodeId);
             }
+            this.commander.commandExecGroup();
             return this;
         };
         class_1.prototype.selectMoveDown = function () {
@@ -174,10 +175,12 @@ export default (function (Base) {
             }
             var id = this.getSelectedLastNodeId();
             var downwardNodeId = getUDNodeId(this, id, 'down');
+            this.commander.commandNewGroup();
             if (downwardNodeId !== null) {
                 this.clearAllSelectedNode();
                 this.selectNode(downwardNodeId);
             }
+            this.commander.commandExecGroup();
             return this;
         };
         class_1.prototype.selectMoveBefore = function () {
@@ -194,8 +197,10 @@ export default (function (Base) {
             }
             var parentNode = inEdges[0].getSource();
             var parentModel = getModel(parentNode);
+            this.commander.commandNewGroup();
             this.clearAllSelectedNode();
             this.selectNode(parentModel.id);
+            this.commander.commandExecGroup();
             return this;
         };
         class_1.prototype.selectMoveAfter = function () {
@@ -206,36 +211,29 @@ export default (function (Base) {
             var id = this.getSelectedLastNodeId();
             var node = findNodeById(this.graph, id);
             var outEdges = node.getOutEdges();
-            // 无父节点
+            // 无子节点
             if (!outEdges[0]) {
                 return this;
             }
-            var childNode = outEdges[0].getTarget();
+            // 移动到中间的节点
+            var index = Math.ceil((outEdges.length - 1) / 2);
+            var childNode = outEdges[index].getTarget();
             var childModel = getModel(childNode);
+            this.commander.commandNewGroup();
             this.clearAllSelectedNode();
             this.selectNode(childModel.id);
+            this.commander.commandExecGroup();
             return this;
         };
         class_1.prototype.removeNode = function (nodeIds, _refresh) {
             if (_refresh === void 0) { _refresh = true; }
-            var ids = fillNodeIds(nodeIds);
-            for (var _i = 0, ids_3 = ids; _i < ids_3.length; _i++) {
-                var id = ids_3[_i];
-                var node = findNodeById(this.graph, id);
-                if (!node) {
-                    return this;
-                }
-                var model = getModel(node);
-                var parent_1 = node.getInEdges()[0].getSource();
-                var parentModel = getModel(parent_1);
-                var parentChildren = parentModel.folded ? parentModel._foldedChildren : parentModel.children;
-                var indexOfParent = parentChildren.indexOf(model);
-                parentChildren.splice(indexOfParent, 1);
-            }
-            if (_refresh) {
-                this.graph.changeData();
-                this.graph.layout();
-            }
+            this.commander.addExec({
+                cmd: NodeFeatures.Commands.RemoveNode,
+                opts: {
+                    nodeIds: nodeIds,
+                    _refresh: _refresh,
+                },
+            });
             return this;
         };
         class_1.prototype.insertSubNode = function (nodeId, datas, index, _refresh) {
@@ -243,9 +241,8 @@ export default (function (Base) {
             if (_refresh === void 0) { _refresh = true; }
             var node = findNodeById(this.graph, nodeId);
             var model = getModel(node);
-            // let parent = node.getInEdges()[0].getSource();
-            var children = model.folded ? model._foldedChildren : model.children;
             var isSingle = !Array.isArray(datas);
+            var children = model.folded ? model._foldedChildren : model.children;
             var _datas = datas;
             if (children === undefined) {
                 if (model.folded) {
@@ -260,33 +257,20 @@ export default (function (Base) {
             if (!Array.isArray(_datas)) {
                 _datas = [_datas];
             }
-            var _nodeItems = [];
+            var models = [];
             for (var _index in _datas) {
-                _nodeItems[_index] = traverseData(_datas[_index]);
+                models[_index] = traverseData(_datas[_index]);
             }
-            if (index > -1) {
-                _nodeItems.reverse();
-                for (var _i = 0, _nodeItems_1 = _nodeItems; _i < _nodeItems_1.length; _i++) {
-                    var item = _nodeItems_1[_i];
-                    children.splice(index, 0, item);
-                }
-            }
-            else {
-                for (var _a = 0, _nodeItems_2 = _nodeItems; _a < _nodeItems_2.length; _a++) {
-                    var item = _nodeItems_2[_a];
-                    children.push(item);
-                }
-            }
-            if (_refresh) {
-                // 刷新当前节点的展开按钮
-                node.draw();
-                this.graph.changeData();
-                this.graph.layout();
-            }
-            if (isSingle) {
-                return _nodeItems[0].id;
-            }
-            return map(_nodeItems, 'id');
+            this.commander.addExec({
+                cmd: NodeFeatures.Commands.InsertSubNode,
+                opts: {
+                    nodeId: nodeId,
+                    models: models,
+                    index: index,
+                    _refresh: _refresh,
+                },
+            });
+            return isSingle ? models[0].id : map(models, 'id');
         };
         class_1.prototype.insertUpwardNode = function (nodeId, datas) {
             var node = findNodeById(this.graph, nodeId);
@@ -336,13 +320,14 @@ export default (function (Base) {
             if (model._isRoot) {
                 return null;
             }
-            data.children = pluckDataFromModels(model.children, dataItemGetter, this);
-            var nodeItem = traverseData(data);
-            model.children = [nodeItem];
-            node.draw();
-            this.graph.changeData();
-            this.graph.refreshLayout();
-            return nodeItem.id;
+            data.children = pluckDataFromModels(model.children, nodeItemGetter, this);
+            var appendModel = traverseData(data);
+            var childrenIds = map(data.children, 'id');
+            this.commander.commandNewGroup();
+            this.removeNode(childrenIds);
+            var newId = this.insertSubNode(nodeId, appendModel, 0);
+            this.commander.commandExecGroup();
+            return newId;
         };
         class_1.prototype.prependParentNode = function (nodeIds, data) {
             var ids = fillNodeIds(nodeIds);
@@ -352,10 +337,14 @@ export default (function (Base) {
             var parentModels = [];
             var hasSameParent = true;
             var hasRoot = false;
-            for (var _i = 0, ids_4 = ids; _i < ids_4.length; _i++) {
-                var id = ids_4[_i];
+            for (var _i = 0, ids_1 = ids; _i < ids_1.length; _i++) {
+                var id = ids_1[_i];
                 var node = findNodeById(this.graph, id);
                 var model = getModel(node);
+                if (model._isRoot) {
+                    hasRoot = true;
+                    break;
+                }
                 var parentNode = node.getInEdges()[0].getSource();
                 var parentModel = getModel(parentNode);
                 if (parentNodes.length > 0 && parentNodes.indexOf(parentNode) === -1) {
@@ -365,21 +354,18 @@ export default (function (Base) {
                 models.push(model);
                 parentNodes.push(parentNode);
                 parentModels.push(parentModel);
-                if (model._isRoot) {
-                    hasRoot = true;
-                }
             }
             if (hasRoot || !hasSameParent) {
                 return null;
             }
-            var indexOfParent = parentModels[0].children.indexOf(models[0]);
             data.children = pluckDataFromModels(models, dataItemGetter, this);
-            var nodeItem = traverseData(data);
-            parentModels[0].children.splice(indexOfParent, models.length, nodeItem);
-            parentNodes[0].draw();
-            this.graph.changeData();
-            this.graph.refreshLayout();
-            return nodeItem.id;
+            var indexOfParent = parentModels[0].children.indexOf(models[0]);
+            var appendModel = traverseData(data);
+            this.commander.commandNewGroup();
+            this.removeNode(nodeIds);
+            var newId = this.insertSubNode(parentModels[0].id, appendModel, indexOfParent);
+            this.commander.commandExecGroup();
+            return newId;
         };
         class_1.prototype.nodeMoveUp = function (nodeId) {
             var node = findNodeById(this.graph, nodeId);
@@ -393,9 +379,10 @@ export default (function (Base) {
             if (indexOfParent === 0) {
                 return this;
             }
-            swapArr(parentModel.children, indexOfParent, indexOfParent - 1);
-            this.graph.changeData();
-            this.graph.refreshLayout();
+            this.commander.commandNewGroup();
+            this.removeNode(nodeId);
+            this.insertSubNode(parentModel.id, model, indexOfParent - 1);
+            this.commander.commandExecGroup();
             return this;
         };
         class_1.prototype.nodeMoveDown = function (nodeId) {
@@ -410,16 +397,17 @@ export default (function (Base) {
             if (indexOfParent === parentModel.children.length - 1) {
                 return this;
             }
-            swapArr(parentModel.children, indexOfParent, indexOfParent + 1);
-            this.graph.changeData();
-            this.graph.refreshLayout();
+            this.commander.commandNewGroup();
+            this.removeNode(nodeId);
+            this.insertSubNode(parentModel.id, model, indexOfParent + 1);
+            this.commander.commandExecGroup();
             return this;
         };
         class_1.prototype.copyNodes = function (nodeIds) {
             var ids = fillNodeIds(nodeIds);
             var datas = [];
-            for (var _i = 0, ids_5 = ids; _i < ids_5.length; _i++) {
-                var id = ids_5[_i];
+            for (var _i = 0, ids_2 = ids; _i < ids_2.length; _i++) {
+                var id = ids_2[_i];
                 var model = getModel(findNodeById(this.graph, id));
                 datas.push(pluckDataFromModels([model], dataItemGetter, this)[0]);
             }
@@ -433,8 +421,9 @@ export default (function (Base) {
         class_1.prototype.pasteNodes = function (parentNodeIds, datas) {
             var ids = fillNodeIds(parentNodeIds);
             var insertIds = [];
-            for (var _i = 0, ids_6 = ids; _i < ids_6.length; _i++) {
-                var id = ids_6[_i];
+            this.commander.commandNewGroup();
+            for (var _i = 0, ids_3 = ids; _i < ids_3.length; _i++) {
+                var id = ids_3[_i];
                 var insertId = this.insertSubNode(id, datas, -1);
                 if (typeof insertId === 'string') {
                     insertIds.push(insertId);
@@ -443,6 +432,7 @@ export default (function (Base) {
                     insertIds = insertIds.concat(insertId);
                 }
             }
+            this.commander.commandExecGroup();
             return insertIds;
         };
         class_1.prototype.hasSelectedNode = function () {

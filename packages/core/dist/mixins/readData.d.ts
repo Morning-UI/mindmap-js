@@ -31,7 +31,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
         editorInput(content: string): any;
         on(eventName: import("../interface").EventNames, callback: import("../interface").EventCallbacks): any;
         emit(eventName: import("../interface").EventNames): any;
-        showLink(nodeId: string): any;
+        openLink(nodeId: string): any;
         getNodeBBox(nodeId: string): object;
         _updateZoomValue(): any;
         zoom(zoom: number): any;
@@ -42,7 +42,7 @@ declare const _default: <TBase extends MindmapCoreL1Ctor<import("../interface").
             x: number;
             y: number;
         };
-        getNodeData(nodeIds: import("../interface").NodeIds): import("../interface").MindmapDataItems | MindmapDataItem;
+        getNodeData(nodeIds: import("../interface").NodeIds): MindmapDataItem | import("../interface").MindmapDataItems;
         getNode(nodeIds: import("../interface").NodeIds): import("../interface").MindmapNodeItem | import("../interface").MindmapNodeItem[];
         getAllSelectedNodeIds(): string[];
         getSelectedNodeId(): string;
