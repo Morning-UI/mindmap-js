@@ -73,6 +73,36 @@ export const fitZoom: ZoomFeatures.FitZoom = (options) => {
 
 };
 
+export const fitCenter: ZoomFeatures.FitCenter = (options) => {
+
+    const {mindmap} = options;
+    const originZoom = mindmap.getZoom();
+    const originPos = mindmap.getCanvasPos();
+
+    mindmap.graph.fitCenter();
+    mindmap._updateZoomValue();
+
+    return {
+        note : '适配至中心',
+        undoCmd : [
+            {
+                cmd : ZoomFeatures.Commands.Zoom,
+                opts : {
+                    zoom : originZoom,
+                },
+            } as Command<ZoomFeatures.Commands.Zoom>,
+            {
+                cmd : ZoomFeatures.Commands.MoveCanvas,
+                opts : {
+                    x : originPos.x,
+                    y : originPos.y,
+                },
+            } as Command<ZoomFeatures.Commands.MoveCanvas>,
+        ],
+    };
+
+};
+
 export const moveCanvas: ZoomFeatures.MoveCanvas = (options) => {
 
     const {

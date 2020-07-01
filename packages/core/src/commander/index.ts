@@ -73,7 +73,7 @@ export class Commander {
 
         for (const command of _commands) {
 
-            console.log('EXEC', command);
+            console.log('EXEC CMD:', command.cmd);
 
             const cmdName = command.cmd;
 
@@ -90,13 +90,6 @@ export class Commander {
                     execRes = Commands[cmdName]({
                         mindmap,
                         ...command.opts as CommandOptions<LinkFeatures.Commands.Link>,
-                    });
-                    break;
-
-                case LinkFeatures.Commands.Unlink:
-                    execRes = Commands[cmdName]({
-                        mindmap,
-                        ...command.opts as CommandOptions<LinkFeatures.Commands.Unlink>,
                     });
                     break;
 
@@ -121,31 +114,10 @@ export class Commander {
                     });
                     break;
 
-                case NoteFeatures.Commands.Unnote:
-                    execRes = Commands[cmdName]({
-                        mindmap,
-                        ...command.opts as CommandOptions<NoteFeatures.Commands.Unnote>,
-                    });
-                    break;
-
-                case TagFeatures.Commands.Tag:
-                    execRes = Commands[cmdName]({
-                        mindmap,
-                        ...command.opts as CommandOptions<TagFeatures.Commands.Tag>,
-                    });
-                    break;
-
                 case TagFeatures.Commands.TagAll:
                     execRes = Commands[cmdName]({
                         mindmap,
                         ...command.opts as CommandOptions<TagFeatures.Commands.TagAll>,
-                    });
-                    break;
-
-                case TagFeatures.Commands.Untag:
-                    execRes = Commands[cmdName]({
-                        mindmap,
-                        ...command.opts as CommandOptions<TagFeatures.Commands.Untag>,
                     });
                     break;
 
@@ -160,6 +132,13 @@ export class Commander {
                     execRes = Commands[cmdName]({
                         mindmap,
                         ...command.opts as CommandOptions<ZoomFeatures.Commands.FitZoom>,
+                    });
+                    break;
+
+                case ZoomFeatures.Commands.FitCenter:
+                    execRes = Commands[cmdName]({
+                        mindmap,
+                        ...command.opts as CommandOptions<ZoomFeatures.Commands.FitCenter>,
                     });
                     break;
 

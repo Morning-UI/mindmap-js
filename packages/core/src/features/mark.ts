@@ -89,8 +89,6 @@ export const mark: MarkFeatures.Mark = (options) => {
 
         }
 
-        // model.mark = arrayUniq(model.mark);
-        // traverseNodeUpdateMark(model);
         node.draw();
 
     }
@@ -98,7 +96,7 @@ export const mark: MarkFeatures.Mark = (options) => {
     mindmap.graph.layout();
 
     return {
-        note : '添加标签',
+        note : '设置标签',
         undoCmd : {
             cmd : MarkFeatures.Commands.Unmark,
             opts : {

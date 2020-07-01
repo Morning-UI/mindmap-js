@@ -195,12 +195,16 @@ var systemHotkeyMap = {
         mindmap.commander.redo();
     },
     esc: function (mindmap) {
-        mindmap.hideAllContextMenu();
+        mindmap.hideContextMenu();
     },
 };
 var hotkeyMap = __assign({}, systemHotkeyMap);
 export default {
     keydown: function (evt, options) {
+        if (options.mindmap.focus === false) {
+            return;
+        }
+        console.log(evt);
         evt.preventDefault();
         for (var key in hotkeyMap) {
             if (isHotkey(key.split(' '), evt) && typeof hotkeyMap[key] === 'function') {

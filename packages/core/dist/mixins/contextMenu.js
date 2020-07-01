@@ -11,7 +11,17 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { ContextMenuTypes, } from '../interface';
+var _a;
+import { ContextMenuTypes, ContextMenuElementSelector, } from '../interface';
+var contextMenuMap = (_a = {},
+    _a[ContextMenuTypes.Link] = ContextMenuElementSelector.Link,
+    _a[ContextMenuTypes.Note] = ContextMenuElementSelector.Note,
+    _a[ContextMenuTypes.Tag] = ContextMenuElementSelector.Tag,
+    _a[ContextMenuTypes.LinkEditor] = ContextMenuElementSelector.LinkEditor,
+    _a[ContextMenuTypes.NoteEditor] = ContextMenuElementSelector.NoteEditor,
+    _a[ContextMenuTypes.TagEditor] = ContextMenuElementSelector.TagEditor,
+    _a[ContextMenuTypes.MarkEditor] = ContextMenuElementSelector.MarkEditor,
+    _a);
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default (function (Base) {
     return /** @class */ (function (_super) {
@@ -21,103 +31,75 @@ export default (function (Base) {
         }
         class_1.prototype.showContextMenu = function (options) {
             var $menu;
-            this.hideAllContextMenu();
-            if (options.type === ContextMenuTypes.Link) {
-                $menu = this._options.$contextMenuLink;
-                $menu.style.left = options.x + "px";
-                $menu.style.top = options.y + "px";
-                $menu.style.display = 'flex';
-                this.contextType = ContextMenuTypes.Link;
+            var $menuInput;
+            this.hideContextMenu();
+            switch (options.type) {
+                case ContextMenuTypes.Link:
+                case ContextMenuTypes.Note:
+                case ContextMenuTypes.Tag:
+                    $menu = this._options[contextMenuMap[options.type]];
+                    $menu.style.left = options.x + "px";
+                    $menu.style.top = options.y + "px";
+                    $menu.style.display = 'flex';
+                    this.$contextEle = $menu;
+                    break;
+                case ContextMenuTypes.LinkEditor:
+                case ContextMenuTypes.NoteEditor:
+                case ContextMenuTypes.TagEditor:
+                case ContextMenuTypes.MarkEditor:
+                    $menu = this._options[contextMenuMap[options.type]];
+                    $menu.style.display = 'block';
+                    $menu.style.left = options.x - ($menu.clientWidth / 2) + "px";
+                    $menu.style.top = options.y + "px";
+                    $menuInput = $menu.querySelector('textarea');
+                    if ($menuInput) {
+                        $menuInput.value = options.data;
+                    }
+                    this.$contextEle = $menu;
+                    this.contextHiddenCallback = options.hiddenCallback;
+                    break;
+                default:
+                    break;
             }
-            else if (options.type === ContextMenuTypes.Note) {
-                $menu = this._options.$contextMenuNote;
-                $menu.style.left = options.x + "px";
-                $menu.style.top = options.y + "px";
-                $menu.style.display = 'flex';
-                this.contextType = ContextMenuTypes.Note;
-            }
-            else if (options.type === ContextMenuTypes.Tag) {
-                $menu = this._options.$contextMenuTag;
-                $menu.style.left = options.x + "px";
-                $menu.style.top = options.y + "px";
-                $menu.style.display = 'flex';
-                this.contextType = ContextMenuTypes.Tag;
-                this.contextData = options.data;
-            }
-            this.contextNodeId = options.nodeId;
+            this.contextType = options.type;
+            this.contextData = options.data;
+            this.contextNodeIds = options.nodeIds;
             return this;
         };
         class_1.prototype.hideContextMenu = function () {
-            var $menu;
-            var type = this.contextType;
-            if (type === ContextMenuTypes.Link) {
-                $menu = this._options.$contextMenuLink;
-                $menu.style.display = 'none';
+            switch (this.contextType) {
+                case ContextMenuTypes.Link:
+                case ContextMenuTypes.Note:
+                case ContextMenuTypes.Tag:
+                    this.$contextEle.style.display = 'none';
+                    break;
+                case ContextMenuTypes.LinkEditor:
+                case ContextMenuTypes.NoteEditor:
+                case ContextMenuTypes.TagEditor:
+                case ContextMenuTypes.MarkEditor:
+                    this.$contextEle.style.display = 'none';
+                    if (typeof this.contextHiddenCallback === 'function') {
+                        this.contextHiddenCallback(this.contextNodeIds, this.$contextEle.querySelector('textarea').value);
+                    }
+                    break;
+                default:
+                    break;
             }
-            else if (type === ContextMenuTypes.Note) {
-                $menu = this._options.$contextMenuNote;
-                $menu.style.display = 'none';
-            }
-            else if (type === ContextMenuTypes.Tag) {
-                $menu = this._options.$contextMenuTag;
-                $menu.style.display = 'none';
-            }
-            this.contextNodeId = null;
+            this.$contextEle = null;
+            this.contextNodeIds = null;
             this.contextType = null;
             this.contextData = null;
+            this.contextHiddenCallback = null;
             return this;
         };
-        class_1.prototype.hideAllContextMenu = function () {
-            this.hideContextMenu();
-            this.hideEditLink();
-            this.hideEditNote();
-            this.hideEditTag();
-            this.hideEditMark();
-            return this;
-        };
-        class_1.prototype.getContextNodeId = function () {
-            return this.contextNodeId;
+        class_1.prototype.getContextNodeIds = function () {
+            return this.contextNodeIds;
         };
         class_1.prototype.getContextType = function () {
             return this.contextType;
         };
         class_1.prototype.getContextData = function () {
             return this.contextData;
-        };
-        class_1.prototype.menuItemLinkEdit = function () {
-            this.showEditLink(this.getContextNodeId());
-            this.hideContextMenu();
-        };
-        class_1.prototype.menuItemLinkDelete = function () {
-            this.unlink(this.getContextNodeId());
-            this.hideContextMenu();
-        };
-        class_1.prototype.menuItemNoteEdit = function () {
-            this.showEditNote(this.getContextNodeId());
-            this.hideContextMenu();
-        };
-        class_1.prototype.menuItemNoteDelete = function () {
-            this.unnote(this.getContextNodeId());
-            this.hideContextMenu();
-        };
-        class_1.prototype.menuItemTagEdit = function () {
-            this.showEditTag(this.getContextNodeId());
-            this.hideContextMenu();
-        };
-        class_1.prototype.menuItemTagDelete = function () {
-            this.untag(this.getContextNodeId(), this.getContextData().tag);
-            this.hideContextMenu();
-        };
-        class_1.prototype.menuItemMarkEdit = function (evt) {
-            var $target = evt.target;
-            var markValue = $target.getAttribute('mark-value');
-            this.mark(this.getCurrentEditMarkNodeIds(), markValue);
-        };
-        class_1.prototype.menuItemMarkDelete = function () {
-            // const $target = evt.target as HTMLElement;
-            // const markValue = $target.getAttribute('mark-value') as MindMark;
-            this.unmark(this.getCurrentEditMarkNodeIds(), this.getCurrentEditMarkValue());
-            this.hideAllContextMenu();
         };
         return class_1;
     }(Base));

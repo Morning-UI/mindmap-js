@@ -239,6 +239,24 @@ export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
 
         }
 
+        clearAndSelectNode (nodeIds: NodeIds): this {
+
+            // 节点未发生变化
+            if ([].concat(nodeIds).join(',') === this.getAllSelectedNodeIds().join(',')) {
+
+                return this;
+
+            }
+
+            this.commander.commandNewGroup();
+            this.clearAllSelectedNode();
+            this.selectNode(nodeIds);
+            this.commander.commandExecGroup();
+
+            return this;
+
+        }
+
         selectMoveUp (): this {
 
             // 未选中节点

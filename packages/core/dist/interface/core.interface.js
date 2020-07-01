@@ -17,9 +17,23 @@ export var EventNames;
 export var ContextMenuTypes;
 (function (ContextMenuTypes) {
     ContextMenuTypes[ContextMenuTypes["Link"] = 0] = "Link";
-    ContextMenuTypes[ContextMenuTypes["Note"] = 1] = "Note";
-    ContextMenuTypes[ContextMenuTypes["Tag"] = 2] = "Tag";
+    ContextMenuTypes[ContextMenuTypes["LinkEditor"] = 1] = "LinkEditor";
+    ContextMenuTypes[ContextMenuTypes["Note"] = 2] = "Note";
+    ContextMenuTypes[ContextMenuTypes["NoteEditor"] = 3] = "NoteEditor";
+    ContextMenuTypes[ContextMenuTypes["Tag"] = 4] = "Tag";
+    ContextMenuTypes[ContextMenuTypes["TagEditor"] = 5] = "TagEditor";
+    ContextMenuTypes[ContextMenuTypes["MarkEditor"] = 6] = "MarkEditor";
 })(ContextMenuTypes || (ContextMenuTypes = {}));
+export var ContextMenuElementSelector;
+(function (ContextMenuElementSelector) {
+    ContextMenuElementSelector["Link"] = "$contextMenuLink";
+    ContextMenuElementSelector["LinkEditor"] = "$boxEditLink";
+    ContextMenuElementSelector["Note"] = "$contextMenuNote";
+    ContextMenuElementSelector["NoteEditor"] = "$boxEditNote";
+    ContextMenuElementSelector["Tag"] = "$contextMenuTag";
+    ContextMenuElementSelector["TagEditor"] = "$boxEditTag";
+    ContextMenuElementSelector["MarkEditor"] = "$boxEditMark";
+})(ContextMenuElementSelector || (ContextMenuElementSelector = {}));
 // Fold Features
 // Undo/Redo Ready
 export var FoldFeatures;
@@ -36,7 +50,6 @@ export var LinkFeatures;
     var Commands;
     (function (Commands) {
         Commands["Link"] = "link";
-        Commands["Unlink"] = "unlink";
     })(Commands = LinkFeatures.Commands || (LinkFeatures.Commands = {}));
 })(LinkFeatures || (LinkFeatures = {}));
 // Mark Features
@@ -56,7 +69,6 @@ export var NoteFeatures;
     var Commands;
     (function (Commands) {
         Commands["Note"] = "note";
-        Commands["Unnote"] = "unnote";
     })(Commands = NoteFeatures.Commands || (NoteFeatures.Commands = {}));
 })(NoteFeatures || (NoteFeatures = {}));
 // Tag Features
@@ -65,9 +77,7 @@ export var TagFeatures;
 (function (TagFeatures) {
     var Commands;
     (function (Commands) {
-        Commands["Tag"] = "tag";
         Commands["TagAll"] = "tagAll";
-        Commands["Untag"] = "untag";
     })(Commands = TagFeatures.Commands || (TagFeatures.Commands = {}));
 })(TagFeatures || (TagFeatures = {}));
 // Zoom Features
@@ -78,6 +88,7 @@ export var ZoomFeatures;
     (function (Commands) {
         Commands["Zoom"] = "zoom";
         Commands["FitZoom"] = "fitZoom";
+        Commands["FitCenter"] = "fitCenter";
         Commands["MoveCanvas"] = "moveCanvas";
     })(Commands = ZoomFeatures.Commands || (ZoomFeatures.Commands = {}));
 })(ZoomFeatures || (ZoomFeatures = {}));

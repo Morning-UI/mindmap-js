@@ -45,7 +45,7 @@ export default {
 
                     options.mindmap.showContextMenu({
                         type : ContextMenuTypes.Link,
-                        nodeId : model.id,
+                        nodeIds : model.id,
                         x : canvasX,
                         y : canvasY,
                     });
@@ -64,7 +64,7 @@ export default {
 
                     options.mindmap.showContextMenu({
                         type : ContextMenuTypes.Note,
-                        nodeId : model.id,
+                        nodeIds : model.id,
                         x : canvasX,
                         y : canvasY,
                     });
@@ -85,7 +85,7 @@ export default {
 
                         options.mindmap.showContextMenu({
                             type : ContextMenuTypes.Tag,
-                            nodeId : model.id,
+                            nodeIds : model.id,
                             x : canvasX,
                             y : canvasY,
                             data : {

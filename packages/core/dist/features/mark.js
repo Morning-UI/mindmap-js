@@ -51,13 +51,11 @@ export var mark = function (options) {
                     break;
             }
         }
-        // model.mark = arrayUniq(model.mark);
-        // traverseNodeUpdateMark(model);
         node.draw();
     }
     mindmap.graph.layout();
     return {
-        note: '添加标签',
+        note: '设置标签',
         undoCmd: {
             cmd: MarkFeatures.Commands.Unmark,
             opts: {

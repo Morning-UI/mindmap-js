@@ -11,7 +11,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-import { MarkFeatures, MindMarksTag, MindMarksTask, MindMarksStar, MindMarksFlag, MindMarksPerson, MindMarksPriority, MindMarkTypes, } from '../interface';
+import { MarkFeatures, MindMarksTag, MindMarksTask, MindMarksStar, MindMarksFlag, MindMarksPerson, MindMarksPriority, MindMarkTypes, ContextMenuTypes, } from '../interface';
 import { fillNodeIds, } from '../base/utils';
 import { markElementBuilder, } from '../utils/markBuilder';
 import { getModel, } from '../utils/G6Ext';
@@ -35,6 +35,15 @@ export default (function (Base) {
         function class_1() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
+        class_1.prototype.boxActionMarkEdit = function (evt) {
+            var $target = evt.target;
+            var markValue = $target.getAttribute('mark-value');
+            this.mark(this.getContextNodeIds(), markValue);
+        };
+        class_1.prototype.boxActionMarkDelete = function () {
+            this.unmark(this.getContextNodeIds(), this.getContextData());
+            this.hideContextMenu();
+        };
         class_1.prototype.showEditMark = function (nodeIds, markType) {
             var _a;
             var ids = fillNodeIds(nodeIds);
@@ -66,14 +75,15 @@ export default (function (Base) {
                 default:
                     break;
             }
-            var boxEditMarkWidth = 0;
-            this.currentEditMarkNodeIds = nodeIds;
-            this.currentEditMarkValue = model.mark[markType];
+            $boxEditMark.querySelector('ul').innerHTML = '';
             (_a = $boxEditMark.querySelector('ul')).append.apply(_a, $elements);
-            $boxEditMark.style.display = 'block';
-            boxEditMarkWidth = $boxEditMark.clientWidth;
-            $boxEditMark.style.left = x - (boxEditMarkWidth / 2) + "px";
-            $boxEditMark.style.top = y + "px";
+            this.showContextMenu({
+                type: ContextMenuTypes.MarkEditor,
+                nodeIds: nodeIds,
+                x: x,
+                y: y,
+                data: model.mark[markType],
+            });
             return this;
         };
         class_1.prototype.hideEditMark = function () {
@@ -83,12 +93,6 @@ export default (function (Base) {
             $boxEditMark.querySelector('ul').innerHTML = '';
             $boxEditMark.style.display = 'none';
             return this;
-        };
-        class_1.prototype.getCurrentEditMarkNodeIds = function () {
-            return this.currentEditMarkNodeIds;
-        };
-        class_1.prototype.getCurrentEditMarkValue = function () {
-            return this.currentEditMarkValue;
         };
         class_1.prototype.mark = function (nodeIds, mark) {
             this.commander.addExec({

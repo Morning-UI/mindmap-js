@@ -49,6 +49,31 @@ export var fitZoom = function (options) {
         ],
     };
 };
+export var fitCenter = function (options) {
+    var mindmap = options.mindmap;
+    var originZoom = mindmap.getZoom();
+    var originPos = mindmap.getCanvasPos();
+    mindmap.graph.fitCenter();
+    mindmap._updateZoomValue();
+    return {
+        note: '适配至中心',
+        undoCmd: [
+            {
+                cmd: ZoomFeatures.Commands.Zoom,
+                opts: {
+                    zoom: originZoom,
+                },
+            },
+            {
+                cmd: ZoomFeatures.Commands.MoveCanvas,
+                opts: {
+                    x: originPos.x,
+                    y: originPos.y,
+                },
+            },
+        ],
+    };
+};
 export var moveCanvas = function (options) {
     var mindmap = options.mindmap, x = options.x, y = options.y;
     var originPos = mindmap.getCanvasPos();

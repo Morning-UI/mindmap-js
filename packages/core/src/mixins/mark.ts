@@ -6,7 +6,6 @@ import {
 }                                               from '@antv/g6/lib/types';
 import {
     NodeIds,
-    MindmapCoreL0Ctor,
     MarkFeatures,
     MindMarksTag,
     MindMarksTask,
@@ -17,6 +16,8 @@ import {
     MindMarksPriority,
     MindMarkTypes,
     Command,
+    ContextMenuTypes,
+    MindmapCoreL1Ctor,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -49,8 +50,24 @@ genMindMarkTypeMap(MindMarkTypes.Flag, Object.values(MindMarksFlag));
 genMindMarkTypeMap(MindMarkTypes.Person, Object.values(MindMarksPerson));
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
+export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
     class extends Base implements MarkFeatures.Mixins {
+
+        boxActionMarkEdit (evt: MouseEvent): void {
+
+            const $target = evt.target as HTMLElement;
+            const markValue = $target.getAttribute('mark-value') as MindMark;
+
+            this.mark(this.getContextNodeIds(), markValue);
+
+        }
+
+        boxActionMarkDelete (): void {
+
+            this.unmark(this.getContextNodeIds(), this.getContextData());
+            this.hideContextMenu();
+
+        }
 
         showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this {
 
@@ -91,15 +108,16 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
             }
 
-            let boxEditMarkWidth = 0;
-
-            this.currentEditMarkNodeIds = nodeIds;
-            this.currentEditMarkValue = model.mark[markType];
+            $boxEditMark.querySelector('ul').innerHTML = '';
             $boxEditMark.querySelector('ul').append(...$elements);
-            $boxEditMark.style.display = 'block';
-            boxEditMarkWidth = $boxEditMark.clientWidth;
-            $boxEditMark.style.left = `${x - (boxEditMarkWidth / 2)}px`;
-            $boxEditMark.style.top = `${y}px`;
+
+            this.showContextMenu({
+                type : ContextMenuTypes.MarkEditor,
+                nodeIds,
+                x,
+                y,
+                data : model.mark[markType],
+            });
 
             return this;
 
@@ -115,18 +133,6 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             $boxEditMark.style.display = 'none';
 
             return this;
-
-        }
-
-        getCurrentEditMarkNodeIds (): NodeIds {
-
-            return this.currentEditMarkNodeIds;
-
-        }
-
-        getCurrentEditMarkValue (): MindMark {
-
-            return this.currentEditMarkValue;
 
         }
 

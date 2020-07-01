@@ -1,8 +1,9 @@
 import {
     NodeIds,
-    MindmapCoreL0Ctor,
     NoteFeatures,
     Command,
+    MindmapCoreL1Ctor,
+    ContextMenuTypes,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -12,8 +13,21 @@ import {
 }                                               from '../utils/G6Ext';
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
+export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
     class extends Base implements NoteFeatures.Mixins {
+
+        menuItemNoteEdit (): void {
+
+            this.showEditNote(this.getContextNodeIds());
+
+        }
+
+        menuItemNoteDelete (): void {
+
+            this.unnote(this.getContextNodeIds());
+            this.hideContextMenu();
+
+        }
 
         showEditNote (nodeIds: NodeIds): this {
 
@@ -25,37 +39,23 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
                 x,
                 y,
             } = this.graph.getCanvasByPoint(bbox.centerX, bbox.maxY);
-            const $boxEditNote = this._options.$boxEditNote;
-            const $boxEditNoteInput = $boxEditNote.querySelector('textarea');
 
-            let boxEditNoteWidth = 0;
+            this.showContextMenu({
+                type : ContextMenuTypes.NoteEditor,
+                nodeIds,
+                x,
+                y,
+                data : model.note,
+                hiddenCallback : this.note,
+            });
 
-            this.currentEditNoteNodeIds = nodeIds;
-            $boxEditNote.style.display = 'block';
-            boxEditNoteWidth = $boxEditNote.clientWidth;
-            $boxEditNote.style.left = `${x - (boxEditNoteWidth / 2)}px`;
-            $boxEditNote.style.top = `${y}px`;
-            $boxEditNoteInput.value = model.note;
-            // this.data.currentEditLinkValue = model.link;
-            // this.data.$editLinkDialog.toggle(true);
-            // this.data.mouseOnCanvas = false;
             return this;
 
         }
 
         hideEditNote (): this {
 
-            const $boxEditNote = this._options.$boxEditNote;
-
-            this.currentEditNoteNodeIds = [];
-            $boxEditNote.style.display = 'none';
-            return this;
-
-        }
-
-        getCurrentEditNoteNodeIds (): NodeIds {
-
-            return this.currentEditNoteNodeIds;
+            return this.hideContextMenu();
 
         }
 
@@ -76,11 +76,12 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
         unnote (nodeIds: NodeIds): this {
 
             this.commander.addExec({
-                cmd : NoteFeatures.Commands.Unnote,
+                cmd : NoteFeatures.Commands.Note,
                 opts : {
                     nodeIds,
+                    note : null,
                 },
-            } as Command<NoteFeatures.Commands.Unnote>);
+            } as Command<NoteFeatures.Commands.Note>);
 
             return this;
 

@@ -4,6 +4,7 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         zoom(zoom: number): this;
         getZoom(): number;
         fitZoom(): this;
+        fitCenter(): this;
         moveCanvas(x: number, y: number): this;
         getCanvasPos(): ({
             x: number;
@@ -19,15 +20,15 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         editNode: import("@antv/g6/lib/types").Item;
         editContent: string;
         editZoom: number;
-        contextNodeId: string;
+        $contextEle: HTMLElement;
+        contextNodeIds: import("../interface").NodeIds;
         contextType: import("../interface").ContextMenuTypes;
         contextData: any;
-        currentEditLinkNodeIds: import("../interface").NodeIds;
-        currentEditNoteNodeIds: import("../interface").NodeIds;
-        currentEditTagNodeIds: import("../interface").NodeIds;
+        contextHiddenCallback: Function;
         currentEditMarkNodeIds: import("../interface").NodeIds;
         currentEditMarkValue: import("../interface").MindMark;
         zoomValue: number;
+        focus: boolean;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {

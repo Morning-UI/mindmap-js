@@ -41,16 +41,13 @@ var Commander = /** @class */ (function () {
         }
         for (var _i = 0, _commands_1 = _commands; _i < _commands_1.length; _i++) {
             var command = _commands_1[_i];
-            console.log('EXEC', command);
+            console.log('EXEC CMD:', command.cmd);
             var cmdName = command.cmd;
             switch (cmdName) {
                 case FoldFeatures.Commands.FoldToggle:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
                 case LinkFeatures.Commands.Link:
-                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
-                    break;
-                case LinkFeatures.Commands.Unlink:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
                 case MarkFeatures.Commands.Mark:
@@ -62,22 +59,16 @@ var Commander = /** @class */ (function () {
                 case NoteFeatures.Commands.Note:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
-                case NoteFeatures.Commands.Unnote:
-                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
-                    break;
-                case TagFeatures.Commands.Tag:
-                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
-                    break;
                 case TagFeatures.Commands.TagAll:
-                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
-                    break;
-                case TagFeatures.Commands.Untag:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
                 case ZoomFeatures.Commands.Zoom:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
                 case ZoomFeatures.Commands.FitZoom:
+                    execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
+                    break;
+                case ZoomFeatures.Commands.FitCenter:
                     execRes = Commands[cmdName](__assign({ mindmap: mindmap }, command.opts));
                     break;
                 case ZoomFeatures.Commands.MoveCanvas:

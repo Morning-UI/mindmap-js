@@ -26,15 +26,15 @@ declare const _default: <TBase extends MindmapCoreL0Ctor<import("..").MindmapCor
         editNode: import("@antv/g6/lib/types").Item;
         editContent: string;
         editZoom: number;
-        contextNodeId: string;
+        $contextEle: HTMLElement;
+        contextNodeIds: NodeIds;
         contextType: import("../interface").ContextMenuTypes;
         contextData: any;
-        currentEditLinkNodeIds: NodeIds;
-        currentEditNoteNodeIds: NodeIds;
-        currentEditTagNodeIds: NodeIds;
+        contextHiddenCallback: Function;
         currentEditMarkNodeIds: NodeIds;
         currentEditMarkValue: import("../interface").MindMark;
         zoomValue: number;
+        focus: boolean;
         isMindmap: boolean;
         eventList: import("../interface").EventList;
         keydownState: {

@@ -1,8 +1,16 @@
+import difference                               from 'lodash.difference';
+import {
+    TreeGraph,
+}                                               from '@antv/g6';
+import {
+    Item,
+}                                               from '@antv/g6/lib/types';
 import {
     NodeIds,
-    MindmapCoreL0Ctor,
     TagFeatures,
     Command,
+    MindmapCoreL1Ctor,
+    ContextMenuTypes,
 }                                               from '../interface';
 import {
     fillNodeIds,
@@ -11,9 +19,38 @@ import {
     getModel,
 }                                               from '../utils/G6Ext';
 
+const cleanTagHoverState = (graph: TreeGraph, node: Item): void => {
+
+    const states = node.getStates();
+
+    for (const state of states) {
+
+        if ((/^tag-hover/u).test(state)) {
+
+            setItemState(graph, node.get('id'), state, false);
+
+        }
+
+    }
+
+};
+
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
+export default <TBase extends MindmapCoreL1Ctor> (Base: TBase) =>
     class extends Base implements TagFeatures.Mixins {
+
+        menuItemTagEdit (): void {
+
+            this.showEditTag(this.getContextNodeIds());
+
+        }
+
+        menuItemTagDelete (): void {
+
+            this.untag(this.getContextNodeIds(), this.getContextData().tag);
+            this.hideContextMenu();
+
+        }
 
         showEditTag (nodeIds: NodeIds): this {
 
@@ -29,14 +66,16 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
             const $boxEditTagInput = $boxEditTag.querySelector('textarea');
             const tag = model.tag || [];
 
-            let boxEditTagWidth = 0;
-
-            this.currentEditTagNodeIds = nodeIds;
-            $boxEditTag.style.display = 'block';
-            boxEditTagWidth = $boxEditTag.clientWidth;
-            $boxEditTag.style.left = `${x - (boxEditTagWidth / 2)}px`;
-            $boxEditTag.style.top = `${y}px`;
             $boxEditTagInput.value = tag.join(',');
+
+            this.showContextMenu({
+                type : ContextMenuTypes.TagEditor,
+                nodeIds,
+                x,
+                y,
+                data : tag.join(','),
+                hiddenCallback : (_nodeIds: NodeIds, value: string) => this.tagAll(_nodeIds, value.split(',')),
+            });
 
             return this;
 
@@ -44,29 +83,39 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         hideEditTag (): this {
 
-            const $boxEditTag = this._options.$boxEditTag;
+            this.hideContextMenu();
 
-            this.currentEditTagNodeIds = [];
-            $boxEditTag.style.display = 'none';
             return this;
-
-        }
-
-        getCurrentEditTagNodeIds (): NodeIds {
-
-            return this.currentEditTagNodeIds;
 
         }
 
         tag (nodeIds: NodeIds, tags: string[]|string): this {
 
-            this.commander.addExec({
-                cmd : TagFeatures.Commands.Tag,
-                opts : {
-                    nodeIds,
-                    tags,
-                },
-            } as Command<TagFeatures.Commands.Tag>);
+            const ids = fillNodeIds(nodeIds);
+
+            let _tags = typeof tags === 'string' ? [tags] : tags;
+
+            _tags = difference(_tags, ['']);
+
+            this.commander.commandNewGroup();
+
+            for (const id of ids) {
+
+                const node = this.graph.findById(id);
+                const model = getModel(node);
+                const modelTag = Object.assign([], model.tag).concat(_tags);
+
+                this.commander.addExec({
+                    cmd : TagFeatures.Commands.TagAll,
+                    opts : {
+                        nodeIds : id,
+                        tags : modelTag,
+                    },
+                } as Command<TagFeatures.Commands.TagAll>);
+
+            }
+
+            this.commander.commandExecGroup();
 
             return this;
 
@@ -88,13 +137,47 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         untag (nodeIds: NodeIds, tags: string[]|string): this {
 
-            this.commander.addExec({
-                cmd : TagFeatures.Commands.Untag,
-                opts : {
-                    nodeIds,
-                    tags,
-                },
-            } as Command<TagFeatures.Commands.Untag>);
+            const ids = fillNodeIds(nodeIds);
+
+            let _untags = typeof tags === 'string' ? [tags] : tags;
+
+            _untags = difference(_untags, ['']);
+
+            this.commander.commandNewGroup();
+
+            for (const id of ids) {
+
+                const node = this.graph.findById(id);
+                const model = getModel(node);
+
+                if (tags === undefined) {
+
+                    // 若tags没有入参，则清除所有tags
+                    this.commander.addExec({
+                        cmd : TagFeatures.Commands.TagAll,
+                        opts : {
+                            nodeIds : id,
+                            tags : null,
+                        },
+                    } as Command<TagFeatures.Commands.TagAll>);
+
+                } else {
+
+                    this.commander.addExec({
+                        cmd : TagFeatures.Commands.TagAll,
+                        opts : {
+                            nodeIds : id,
+                            tags : difference(model.tag, _untags),
+                        },
+                    } as Command<TagFeatures.Commands.TagAll>);
+
+                }
+
+                cleanTagHoverState(this.graph, node);
+
+            }
+
+            this.commander.commandExecGroup();
 
             return this;
 

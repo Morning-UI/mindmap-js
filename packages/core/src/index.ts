@@ -62,15 +62,20 @@ export class MindmapCoreBase {
     editNode: G6Types.Item;
     editContent: string;
     editZoom: number;
-    contextNodeId: string;
+
+    $contextEle: HTMLElement;
+    contextNodeIds: NodeIds;
     contextType: ContextMenuTypes;
     contextData: any;
-    currentEditLinkNodeIds: NodeIds;
-    currentEditNoteNodeIds: NodeIds;
-    currentEditTagNodeIds: NodeIds;
+    contextHiddenCallback: Function;
+
+    // currentEditLinkNodeIds: NodeIds;
+    // currentEditNoteNodeIds: NodeIds;
+    // currentEditTagNodeIds: NodeIds;
     currentEditMarkNodeIds: NodeIds;
     currentEditMarkValue: MindMark;
     zoomValue: number;
+    focus = false;
 
     isMindmap = true;
     eventList: EventList = {};

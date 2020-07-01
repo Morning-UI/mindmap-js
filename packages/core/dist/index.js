@@ -25,6 +25,7 @@ var MindmapCoreBase = /** @class */ (function () {
         }
         this.dragging = false;
         this.editting = false;
+        this.focus = false;
         this.isMindmap = true;
         this.eventList = {};
         this.keydownState = {

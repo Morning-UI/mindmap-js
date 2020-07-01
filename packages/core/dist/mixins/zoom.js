@@ -37,6 +37,12 @@ export default (function (Base) {
             });
             return this;
         };
+        class_1.prototype.fitCenter = function () {
+            this.commander.addExec({
+                cmd: ZoomFeatures.Commands.FitCenter,
+            });
+            return this;
+        };
         class_1.prototype.moveCanvas = function (x, y) {
             this.commander.addExec({
                 cmd: ZoomFeatures.Commands.MoveCanvas,

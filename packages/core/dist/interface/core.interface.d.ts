@@ -223,14 +223,28 @@ export declare type NodeAppendItem = {
 };
 export declare enum ContextMenuTypes {
     Link = 0,
-    Note = 1,
-    Tag = 2
+    LinkEditor = 1,
+    Note = 2,
+    NoteEditor = 3,
+    Tag = 4,
+    TagEditor = 5,
+    MarkEditor = 6
+}
+export declare enum ContextMenuElementSelector {
+    Link = "$contextMenuLink",
+    LinkEditor = "$boxEditLink",
+    Note = "$contextMenuNote",
+    NoteEditor = "$boxEditNote",
+    Tag = "$contextMenuTag",
+    TagEditor = "$boxEditTag",
+    MarkEditor = "$boxEditMark"
 }
 export interface ShowContextMenuOptions {
     type: ContextMenuTypes;
-    nodeId: string;
+    nodeIds: NodeIds;
     x: number;
     y: number;
+    hiddenCallback?: Function;
     data?: any;
 }
 export declare type NodeId = string;
@@ -283,22 +297,6 @@ export declare type MindmapCoreL0Ctor<T = MindmapCoreBase> = new (...args: any[]
 export declare type MindmapCoreL1Ctor<T = MindmapCoreL1Type> = new (...args: any[]) => T;
 export declare type MindmapCoreL2Ctor<T = MindmapCoreL2Type> = new (...args: any[]) => T;
 export declare type MindmapCoreL3Ctor<T = MindmapCoreL3Type> = new (...args: any[]) => T;
-export interface ContextMenuFeatures {
-    showContextMenu(options: ShowContextMenuOptions): this;
-    hideContextMenu(): this;
-    hideAllContextMenu(): this;
-    getContextNodeId(): string;
-    getContextType(): ContextMenuTypes;
-    getContextData(): any;
-    menuItemLinkEdit(): void;
-    menuItemLinkDelete(): void;
-    menuItemNoteEdit(): void;
-    menuItemNoteDelete(): void;
-    menuItemTagEdit(): void;
-    menuItemTagDelete(): void;
-    menuItemMarkEdit(evt: MouseEvent): void;
-    menuItemMarkDelete(): void;
-}
 export declare type FeatureOptions<FO> = {
     [key in keyof FO]: FO[key];
 } & {
@@ -330,20 +328,14 @@ export declare namespace LinkFeatures {
             nodeIds: NodeIds;
             link: string;
         }>;
-        type Unlink = FeatureOptions<{
-            nodeIds: NodeIds;
-        }>;
     }
     type Link = FeatureFn<FO.Link>;
-    type Unlink = FeatureFn<FO.Unlink>;
     enum Commands {
-        Link = "link",
-        Unlink = "unlink"
+        Link = "link"
     }
     interface Mixins {
         showEditLink(nodeIds: NodeIds): this;
         hideEditLink(): this;
-        getCurrentEditLinkNodeIds(): NodeIds;
         link(nodeIds: NodeIds, link: string): this;
         unlink(nodeIds: NodeIds): this;
     }
@@ -369,7 +361,6 @@ export declare namespace MarkFeatures {
         showEditMark(nodeIds: NodeIds, markType: MindMarkTypes): this;
         hideEditMark(): this;
         getCurrentEditMarkNodeIds(): NodeIds;
-        getCurrentEditMarkValue(): MindMark;
         mark(nodeIds: NodeIds, mark: MindMark): this;
         unmark(nodeIds: NodeIds, mark: MindMark): this;
     }
@@ -380,51 +371,32 @@ export declare namespace NoteFeatures {
             nodeIds: NodeIds;
             note: string;
         }>;
-        type Unote = FeatureOptions<{
-            nodeIds: NodeIds;
-        }>;
     }
     type Note = FeatureFn<FO.Note>;
-    type Unnote = FeatureFn<FO.Unote>;
     enum Commands {
-        Note = "note",
-        Unnote = "unnote"
+        Note = "note"
     }
     interface Mixins {
         showEditNote(nodeIds: NodeIds): this;
         hideEditNote(): this;
-        getCurrentEditNoteNodeIds(): NodeIds;
         note(nodeIds: NodeIds, note: string): this;
         unnote(nodeIds: NodeIds): this;
     }
 }
 export declare namespace TagFeatures {
     namespace FO {
-        type Tag = FeatureOptions<{
-            nodeIds: NodeIds;
-            tags: string[] | string;
-        }>;
         type TagAll = FeatureOptions<{
             nodeIds: NodeIds;
             tags: string[] | string;
         }>;
-        type Untag = FeatureOptions<{
-            nodeIds: NodeIds;
-            tags?: string[] | string;
-        }>;
     }
-    type Tag = FeatureFn<FO.Tag>;
     type TagAll = FeatureFn<FO.TagAll>;
-    type Untag = FeatureFn<FO.Untag>;
     enum Commands {
-        Tag = "tag",
-        TagAll = "tagAll",
-        Untag = "untag"
+        TagAll = "tagAll"
     }
     interface Mixins {
         showEditTag(nodeIds: NodeIds): this;
         hideEditTag(): this;
-        getCurrentEditTagNodeIds(): NodeIds;
         tag(nodeIds: NodeIds, tags: string[] | string): this;
         tagAll(nodeIds: NodeIds, tags: string[] | string): this;
         untag(nodeIds: NodeIds, untags: string[] | string): this;
@@ -436,6 +408,7 @@ export declare namespace ZoomFeatures {
             zoom: number;
         }>;
         type FitZoom = FeatureOptions<{}>;
+        type FitCenter = FeatureOptions<{}>;
         type MoveCanvas = FeatureOptions<{
             x: number;
             y: number;
@@ -443,10 +416,12 @@ export declare namespace ZoomFeatures {
     }
     type Zoom = FeatureFn<FO.Zoom>;
     type FitZoom = FeatureFn<FO.FitZoom>;
+    type FitCenter = FeatureFn<FO.FitCenter>;
     type MoveCanvas = FeatureFn<FO.MoveCanvas>;
     enum Commands {
         Zoom = "zoom",
         FitZoom = "fitZoom",
+        FitCenter = "fitCenter",
         MoveCanvas = "moveCanvas"
     }
     interface Mixins {
@@ -454,6 +429,7 @@ export declare namespace ZoomFeatures {
         zoom(zoom: number): this;
         getZoom(): number;
         fitZoom(): this;
+        fitCenter(): this;
         moveCanvas(x: number, y: number): this;
         getCanvasPos(): {
             x: number;
@@ -512,6 +488,7 @@ export declare namespace NodeFeatures {
         blurNodeTextEditor(nodeId: NodeId): this;
         selectNode(nodeIds: NodeIds): this;
         unselectNode(nodeIds: NodeIds): this;
+        clearAndSelectNode(nodeIds: NodeIds): this;
         clearAllSelectedNode(): this;
         selectMoveUp(): this;
         selectMoveDown(): this;
@@ -571,6 +548,30 @@ export declare namespace ImportFeatures {
         importFromObject(data: MindmapNodeItems): this;
     }
 }
+export declare namespace ClipboardFeatures {
+    interface Mixins {
+        copyNodeToClipboard(nodeIds: NodeIds): this;
+        cutNodeToClipboard(nodeIds: NodeIds): this;
+        getClipboard(): string;
+    }
+}
+export declare namespace ContextMenuFeatures {
+    interface Mixins {
+        showContextMenu(options: ShowContextMenuOptions): this;
+        hideContextMenu(): this;
+        getContextNodeIds(): NodeIds;
+        getContextType(): ContextMenuTypes;
+        getContextData(): any;
+        menuItemLinkEdit(): void;
+        menuItemLinkDelete(): void;
+        menuItemNoteEdit(): void;
+        menuItemNoteDelete(): void;
+        menuItemTagEdit(): void;
+        menuItemTagDelete(): void;
+        menuItemMarkEdit(evt: MouseEvent): void;
+        menuItemMarkDelete(): void;
+    }
+}
 export declare namespace CommandFeatures {
     interface Mixins {
         redo(): number;
@@ -583,14 +584,10 @@ export declare type AllCommands = FoldFeatures.Commands | LinkFeatures.Commands 
 export declare type AllCommandFOMap = {
     [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
     [LinkFeatures.Commands.Link]: LinkFeatures.FO.Link;
-    [LinkFeatures.Commands.Unlink]: LinkFeatures.FO.Unlink;
     [MarkFeatures.Commands.Mark]: MarkFeatures.FO.Mark;
     [MarkFeatures.Commands.Unmark]: MarkFeatures.FO.Unmark;
     [NoteFeatures.Commands.Note]: NoteFeatures.FO.Note;
-    [NoteFeatures.Commands.Unnote]: NoteFeatures.FO.Unote;
-    [TagFeatures.Commands.Tag]: TagFeatures.FO.Tag;
     [TagFeatures.Commands.TagAll]: TagFeatures.FO.TagAll;
-    [TagFeatures.Commands.Untag]: TagFeatures.FO.Untag;
     [ZoomFeatures.Commands.Zoom]: ZoomFeatures.FO.Zoom;
     [ZoomFeatures.Commands.FitZoom]: ZoomFeatures.FO.FitZoom;
     [ZoomFeatures.Commands.MoveCanvas]: ZoomFeatures.FO.MoveCanvas;
@@ -619,15 +616,10 @@ export declare type CommandOptions<CMD extends AllCommands> = {
     [key in Exclude<keyof AllCommandFOMap[CMD], 'mindmap'>]: AllCommandFOMap[CMD][key];
 };
 export declare type CommandHistory = CommandExecRes[];
-export interface ClipboardFeatures {
-    copyNodeToClipboard(nodeIds: NodeIds): string;
-    cutNodeToClipboard(nodeIds: NodeIds): string;
-    getClipboard(): string;
-}
 export declare type MindmapCoreL0Type = MindmapCoreBase;
-export declare type MindmapCoreL1Type = MindmapCoreL0Type & ZoomFeatures.Mixins & GetFeatures.Mixins & FoldFeatures.Mixins & LinkFeatures.Mixins & NoteFeatures.Mixins & TagFeatures.Mixins & MarkFeatures.Mixins;
-export declare type MindmapCoreL2Type = MindmapCoreL1Type & ContextMenuFeatures & NodeFeatures.Mixins & DataFeatures.Mixins;
-export declare type MindmapCoreL3Type = MindmapCoreL2Type & ClipboardFeatures & ImportFeatures.Mixins & ExportFeatures.Mixins & CommandFeatures.Mixins;
+export declare type MindmapCoreL1Type = MindmapCoreL0Type & ZoomFeatures.Mixins & GetFeatures.Mixins & ContextMenuFeatures.Mixins & FoldFeatures.Mixins & NoteFeatures.Mixins & TagFeatures.Mixins & MarkFeatures.Mixins;
+export declare type MindmapCoreL2Type = MindmapCoreL1Type & LinkFeatures.Mixins & NodeFeatures.Mixins & DataFeatures.Mixins;
+export declare type MindmapCoreL3Type = MindmapCoreL2Type & ClipboardFeatures.Mixins & ImportFeatures.Mixins & ExportFeatures.Mixins & CommandFeatures.Mixins;
 export declare type MindmapCoreType = MindmapCoreL3Type;
 export declare type toggleNodeVisibilityCallback = (type: 'show' | 'hide', model: MindmapNodeItem) => void;
 export declare enum MindMarksTag {

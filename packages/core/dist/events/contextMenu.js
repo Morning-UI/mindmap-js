@@ -16,7 +16,7 @@ export default {
                 if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, APPENDS_LIST.link.index)) {
                     options.mindmap.showContextMenu({
                         type: ContextMenuTypes.Link,
-                        nodeId: model.id,
+                        nodeIds: model.id,
                         x: canvasX,
                         y: canvasY,
                     });
@@ -29,7 +29,7 @@ export default {
                 if (inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.appendConGroup, noteIndex)) {
                     options.mindmap.showContextMenu({
                         type: ContextMenuTypes.Note,
-                        nodeId: model.id,
+                        nodeIds: model.id,
                         x: canvasX,
                         y: canvasY,
                     });
@@ -42,7 +42,7 @@ export default {
                         var node = options.mindmap.getNode(model.id);
                         options.mindmap.showContextMenu({
                             type: ContextMenuTypes.Tag,
-                            nodeId: model.id,
+                            nodeIds: model.id,
                             x: canvasX,
                             y: canvasY,
                             data: {

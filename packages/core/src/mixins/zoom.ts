@@ -43,6 +43,16 @@ export default <TBase extends MindmapCoreL0Ctor> (Base: TBase) =>
 
         }
 
+        fitCenter (): this {
+
+            this.commander.addExec({
+                cmd : ZoomFeatures.Commands.FitCenter,
+            } as Command<ZoomFeatures.Commands.FitCenter>);
+
+            return this;
+
+        }
+
         moveCanvas (x: number, y: number): this {
 
             this.commander.addExec({

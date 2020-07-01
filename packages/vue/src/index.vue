@@ -43,9 +43,9 @@
             <i class="arrow"></i>
             <h3>编辑标记</h3>
             <div class="mark-list">
-                <ul @click="mindmap.menuItemMarkEdit($event)"></ul>
+                <ul @click="mindmap.boxActionMarkEdit($event)"></ul>
                 <i class="line"></i>
-                <a @click="mindmap.menuItemMarkDelete($event)" class="delete-mark"><i class="mindmap-icon">&#xe614;</i></a>
+                <a @click="mindmap.boxActionMarkDelete($event)" class="delete-mark"><i class="mindmap-icon">&#xe614;</i></a>
             </div>
         </div>
 
@@ -96,17 +96,18 @@ export default {
         this.$watch('editContent', (content) => {
             this.mindmap.editorInput(content);
         });
-        this.$watch('edittingLink', () => {
-            this.mindmap.link(this.mindmap.getCurrentEditLinkNodeIds(), this.edittingLink);
-        });
 
-        this.$watch('edittingNote', () => {
-            this.mindmap.note(this.mindmap.getCurrentEditNoteNodeIds(), this.edittingNote);
-        });
+        // this.$watch('edittingLink', () => {
+        //     this.mindmap.link(this.mindmap.getCurrentEditLinkNodeIds(), this.edittingLink);
+        // });
 
-        this.$watch('edittingTag', () => {
-            this.mindmap.tagAll(this.mindmap.getCurrentEditTagNodeIds(), this.edittingTag.split(','));
-        });
+        // this.$watch('edittingNote', () => {
+        //     this.mindmap.note(this.mindmap.getCurrentEditNoteNodeIds(), this.edittingNote);
+        // });
+
+        // this.$watch('edittingTag', () => {
+        //     this.mindmap.tagAll(this.mindmap.getCurrentEditTagNodeIds(), this.edittingTag.split(','));
+        // });
 
     }
 };

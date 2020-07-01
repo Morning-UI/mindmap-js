@@ -308,15 +308,30 @@ export type NodeAppendItem = {
 
 export enum ContextMenuTypes {
     Link,
+    LinkEditor,
     Note,
+    NoteEditor,
     Tag,
+    TagEditor,
+    MarkEditor,
+}
+
+export enum ContextMenuElementSelector {
+    Link = '$contextMenuLink',
+    LinkEditor = '$boxEditLink',
+    Note = '$contextMenuNote',
+    NoteEditor = '$boxEditNote',
+    Tag = '$contextMenuTag',
+    TagEditor = '$boxEditTag',
+    MarkEditor = '$boxEditMark',
 }
 
 export interface ShowContextMenuOptions {
     type: ContextMenuTypes;
-    nodeId: string;
+    nodeIds: NodeIds;
     x: number;
     y: number;
+    hiddenCallback?: Function;
     data?: any;
 }
 
@@ -424,24 +439,17 @@ export namespace LinkFeatures {
             nodeIds: NodeIds;
             link: string;
         }>;
-
-        export type Unlink = FeatureOptions<{
-            nodeIds: NodeIds;
-        }>;
     }
 
     export type Link = FeatureFn<FO.Link>;
-    export type Unlink = FeatureFn<FO.Unlink>;
 
     export enum Commands {
         Link = 'link',
-        Unlink = 'unlink',
     }
 
     export interface Mixins {
         showEditLink (nodeIds: NodeIds): this;
         hideEditLink (): this;
-        getCurrentEditLinkNodeIds (): NodeIds;
         link (nodeIds: NodeIds, link: string): this;
         unlink (nodeIds: NodeIds): this;
     }
@@ -474,7 +482,6 @@ export namespace MarkFeatures {
         showEditMark (nodeIds: NodeIds, markType: MindMarkTypes): this;
         hideEditMark (): this;
         getCurrentEditMarkNodeIds (): NodeIds;
-        getCurrentEditMarkValue (): MindMark;
         mark (nodeIds: NodeIds, mark: MindMark): this;
         unmark (nodeIds: NodeIds, mark: MindMark): this;
     }
@@ -488,24 +495,17 @@ export namespace NoteFeatures {
             nodeIds: NodeIds;
             note: string;
         }>;
-
-        export type Unote = FeatureOptions<{
-            nodeIds: NodeIds;
-        }>;
     }
 
     export type Note = FeatureFn<FO.Note>;
-    export type Unnote = FeatureFn<FO.Unote>;
 
     export enum Commands {
         Note = 'note',
-        Unnote = 'unnote',
     }
 
     export interface Mixins {
         showEditNote (nodeIds: NodeIds): this;
         hideEditNote (): this;
-        getCurrentEditNoteNodeIds (): NodeIds;
         note (nodeIds: NodeIds, note: string): this;
         unnote (nodeIds: NodeIds): this;
     }
@@ -515,30 +515,16 @@ export namespace NoteFeatures {
 // Undo/Redo Ready
 export namespace TagFeatures {
     export namespace FO {
-        export type Tag = FeatureOptions<{
-            nodeIds: NodeIds;
-            tags: string[]|string;
-        }>
-
         export type TagAll = FeatureOptions<{
             nodeIds: NodeIds;
             tags: string[]|string;
         }>
-
-        export type Untag = FeatureOptions<{
-            nodeIds: NodeIds;
-            tags?: string[]|string;
-        }>
     }
 
-    export type Tag = FeatureFn<FO.Tag>;
     export type TagAll = FeatureFn<FO.TagAll>;
-    export type Untag = FeatureFn<FO.Untag>;
 
     export enum Commands {
-        Tag = 'tag',
         TagAll = 'tagAll',
-        Untag = 'untag',
     }
 
     export interface Mixins {
@@ -546,8 +532,6 @@ export namespace TagFeatures {
         showEditTag (nodeIds: NodeIds): this;
         // 关闭标签编辑弹窗
         hideEditTag (): this;
-        // 获取当前正在编辑标签的NodeId
-        getCurrentEditTagNodeIds (): NodeIds;
         // 节点增加标签
         tag (nodeIds: NodeIds, tags: string[]|string): this;
         // 节点标签替换为
@@ -566,6 +550,7 @@ export namespace ZoomFeatures {
         }>;
 
         export type FitZoom = FeatureOptions<{}>;
+        export type FitCenter = FeatureOptions<{}>;
 
         export type MoveCanvas = FeatureOptions<{
             x: number;
@@ -575,11 +560,13 @@ export namespace ZoomFeatures {
 
     export type Zoom = FeatureFn<FO.Zoom>;
     export type FitZoom = FeatureFn<FO.FitZoom>;
+    export type FitCenter = FeatureFn<FO.FitCenter>;
     export type MoveCanvas = FeatureFn<FO.MoveCanvas>;
 
     export enum Commands {
         Zoom = 'zoom',
         FitZoom = 'fitZoom',
+        FitCenter = 'fitCenter',
         MoveCanvas = 'moveCanvas',
     }
 
@@ -591,6 +578,8 @@ export namespace ZoomFeatures {
         getZoom (): number;
         // 调整至适合的缩放
         fitZoom (): this;
+        // 调整可视窗口至画布中心，缩放100%
+        fitCenter (): this;
         // 移动画布
         moveCanvas (x: number, y: number): this;
         // 获取画布位置
@@ -667,6 +656,8 @@ export namespace NodeFeatures {
         selectNode (nodeIds: NodeIds): this;
         // 取消选中节点
         unselectNode (nodeIds: NodeIds): this;
+        // 取消所有选中节点并重新选择节点
+        clearAndSelectNode (nodeIds: NodeIds): this;
         // 取消选中所有被选中的节点
         clearAllSelectedNode (): this;
         // 选中上一个节点
@@ -783,17 +774,15 @@ export namespace ClipboardFeatures {
 }
 
 // Clipboard Features
-// Undo/Redo Ready??
+// Undo/Redo Not support
 export namespace ContextMenuFeatures {
     export interface Mixins {
         // 显示右键菜单
         showContextMenu (options: ShowContextMenuOptions): this;
         // 隐藏右键菜单
         hideContextMenu (): this;
-        // 隐藏所有菜单(包含右键和各功能菜单)
-        hideAllContextMenu (): this;
-        // 获取当前菜单对应的NodeId
-        getContextNodeId (): string;
+        // 获取当前菜单对应的NodeIds
+        getContextNodeIds (): NodeIds;
         // 获取当前右键菜单的类型
         getContextType (): ContextMenuTypes;
         // 获取右键菜单附加数据
@@ -841,14 +830,10 @@ export type AllCommands
 export type AllCommandFOMap = {
     [FoldFeatures.Commands.FoldToggle]: FoldFeatures.FO.FoldToggle;
     [LinkFeatures.Commands.Link]: LinkFeatures.FO.Link;
-    [LinkFeatures.Commands.Unlink]: LinkFeatures.FO.Unlink;
     [MarkFeatures.Commands.Mark]: MarkFeatures.FO.Mark;
     [MarkFeatures.Commands.Unmark]: MarkFeatures.FO.Unmark;
     [NoteFeatures.Commands.Note]: NoteFeatures.FO.Note;
-    [NoteFeatures.Commands.Unnote]: NoteFeatures.FO.Unote;
-    [TagFeatures.Commands.Tag]: TagFeatures.FO.Tag;
     [TagFeatures.Commands.TagAll]: TagFeatures.FO.TagAll;
-    [TagFeatures.Commands.Untag]: TagFeatures.FO.Untag;
     [ZoomFeatures.Commands.Zoom]: ZoomFeatures.FO.Zoom;
     [ZoomFeatures.Commands.FitZoom]: ZoomFeatures.FO.FitZoom;
     [ZoomFeatures.Commands.MoveCanvas]: ZoomFeatures.FO.MoveCanvas;
@@ -883,15 +868,15 @@ export type MindmapCoreL1Type =
     MindmapCoreL0Type
     & ZoomFeatures.Mixins
     & GetFeatures.Mixins
+    & ContextMenuFeatures.Mixins
     & FoldFeatures.Mixins
-    & LinkFeatures.Mixins
     & NoteFeatures.Mixins
     & TagFeatures.Mixins
     & MarkFeatures.Mixins;
 
 export type MindmapCoreL2Type =
     MindmapCoreL1Type
-    & ContextMenuFeatures
+    & LinkFeatures.Mixins
     & NodeFeatures.Mixins
     & DataFeatures.Mixins;
 

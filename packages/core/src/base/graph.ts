@@ -4,6 +4,7 @@ import {
     IG6GraphEvent,
     GraphOptions,
     ModeType,
+    G6Event,
 }                                               from '@antv/g6/lib/types';
 import {
     INode,
@@ -50,6 +51,7 @@ import bindNodeDrag                             from '../events/nodeDrag';
 import bindFoldBtnHover                         from '../events/foldBtnHover';
 import bindFoldBtnClick                         from '../events/foldBtnClick';
 import bindHotkey                               from '../events/hotkey';
+import bindCanvas                               from '../events/canvas';
 
 const convertSize = (type: 'width' | 'height', value: number | string, $con: HTMLElement): number => {
 
@@ -279,6 +281,7 @@ export const register = (mindmap: MindmapCoreType): void => {
 
 };
 
+// eslint-disable-next-line max-lines-per-function
 export const bindEvent = (mindmap: MindmapCoreType): void => {
 
     const graph = mindmap.graph;
@@ -298,13 +301,13 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
             graph,
         });
 
-        mindmap.hideAllContextMenu();
+        mindmap.hideContextMenu();
 
     });
 
     graph.on('canvas:drag', (): void => {
 
-        mindmap.hideAllContextMenu();
+        mindmap.hideContextMenu();
 
     });
 
@@ -326,6 +329,24 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
     graph.on('canvas:mousemove', (evt: IG6GraphEvent): void => {
 
         bindFoldBtnHover.stop(evt, {
+            graph,
+            mindmap,
+        });
+
+    });
+
+    graph.on('canvas:mouseover', (evt: IG6GraphEvent): void => {
+
+        bindCanvas.focus(evt, {
+            graph,
+            mindmap,
+        });
+
+    });
+
+    graph.on('canvas:mouseleave', (evt: IG6GraphEvent): void => {
+
+        bindCanvas.blur(evt, {
             graph,
             mindmap,
         });
@@ -400,7 +421,7 @@ export const bindEvent = (mindmap: MindmapCoreType): void => {
 
         if (_nodeEventShouldEmit(evt)) {
 
-            mindmap.hideAllContextMenu();
+            mindmap.hideContextMenu();
 
             bindNodeSelect.select(evt, {
                 mindmap,

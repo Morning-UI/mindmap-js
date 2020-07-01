@@ -22,11 +22,7 @@ export default {
             }
         }
         else if (model._isNode && inAnnex(options.mindmap, evt, NODE_SHAPE_INDEX.con, null)) {
-            options.mindmap
-                .commandNewGroup()
-                .clearAllSelectedNode()
-                .selectNode(evt.item.get('id'))
-                .commandExecGroup();
+            options.mindmap.clearAndSelectNode(evt.item.get('id'));
         }
     },
     clear: function (evt, options) {

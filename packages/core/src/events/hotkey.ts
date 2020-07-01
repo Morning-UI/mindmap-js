@@ -300,7 +300,7 @@ const systemHotkeyMap: HotkeyMap = {
     },
     esc : (mindmap) => {
 
-        mindmap.hideAllContextMenu();
+        mindmap.hideContextMenu();
 
     },
 };
@@ -312,6 +312,13 @@ const hotkeyMap = {
 export default {
     keydown : (evt: KeyboardEvent, options: EventOptions): void => {
 
+        if (options.mindmap.focus === false) {
+
+            return;
+
+        }
+
+        console.log(evt);
         evt.preventDefault();
 
         for (const key in hotkeyMap) {

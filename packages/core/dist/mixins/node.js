@@ -153,6 +153,17 @@ export default (function (Base) {
             });
             return this;
         };
+        class_1.prototype.clearAndSelectNode = function (nodeIds) {
+            // 节点未发生变化
+            if ([].concat(nodeIds).join(',') === this.getAllSelectedNodeIds().join(',')) {
+                return this;
+            }
+            this.commander.commandNewGroup();
+            this.clearAllSelectedNode();
+            this.selectNode(nodeIds);
+            this.commander.commandExecGroup();
+            return this;
+        };
         class_1.prototype.selectMoveUp = function () {
             // 未选中节点
             if (!this.hasSelectedNode()) {

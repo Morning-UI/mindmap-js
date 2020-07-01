@@ -31,6 +31,7 @@ import bindNodeDrag from '../events/nodeDrag';
 import bindFoldBtnHover from '../events/foldBtnHover';
 import bindFoldBtnClick from '../events/foldBtnClick';
 import bindHotkey from '../events/hotkey';
+import bindCanvas from '../events/canvas';
 var convertSize = function (type, value, $con) {
     var size;
     if (typeof value === 'string') {
@@ -158,6 +159,7 @@ export var register = function (mindmap) {
     G6.registerBehavior('mind-drag-node', getNodeDragBehavior(mindmap));
     G6.registerBehavior('mind-brush-select', getNodeBrushSelectBehavior(mindmap));
 };
+// eslint-disable-next-line max-lines-per-function
 export var bindEvent = function (mindmap) {
     var graph = mindmap.graph;
     var global = window;
@@ -172,10 +174,10 @@ export var bindEvent = function (mindmap) {
             mindmap: mindmap,
             graph: graph,
         });
-        mindmap.hideAllContextMenu();
+        mindmap.hideContextMenu();
     });
     graph.on('canvas:drag', function () {
-        mindmap.hideAllContextMenu();
+        mindmap.hideContextMenu();
     });
     graph.on('canvas:mousedown', function (evt) {
         // bindCanvasGrab.mousedown(evt, {
@@ -191,6 +193,18 @@ export var bindEvent = function (mindmap) {
     });
     graph.on('canvas:mousemove', function (evt) {
         bindFoldBtnHover.stop(evt, {
+            graph: graph,
+            mindmap: mindmap,
+        });
+    });
+    graph.on('canvas:mouseover', function (evt) {
+        bindCanvas.focus(evt, {
+            graph: graph,
+            mindmap: mindmap,
+        });
+    });
+    graph.on('canvas:mouseleave', function (evt) {
+        bindCanvas.blur(evt, {
             graph: graph,
             mindmap: mindmap,
         });
@@ -241,7 +255,7 @@ export var bindEvent = function (mindmap) {
     });
     graph.on('node:click', function (evt) {
         if (_nodeEventShouldEmit(evt)) {
-            mindmap.hideAllContextMenu();
+            mindmap.hideContextMenu();
             bindNodeSelect.select(evt, {
                 mindmap: mindmap,
                 graph: graph,
